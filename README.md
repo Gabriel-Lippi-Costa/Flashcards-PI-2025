@@ -26,8 +26,8 @@ PoliFlashes é um game educacional de **flashcards interativos** voltado para al
 - 🧑‍🎓 Criação de flashcards personalizados por alunos.
 - 📚 Baralhos prontos por disciplina para início rápido.
 - 🗂️ Organização por categorias e matérias.
-- ⭐ Favoritar e editar/remover baralhos.
-- 🧠 Ranking pessoal baseado em acertos, erros e tempo.
+- ⭐ Criar e editar/remover baralhos.
+- 🧠 Ranking pessoal baseado em acertos e erros.
 - 👨‍🏫 Criação de flashcards por professores.
 - 🔒 Autenticação via e-mail institucional com diferenciação de perfil.
 - 💾 Salvamento automático do progresso e porcentagem de acerto em tempo real.
@@ -43,6 +43,3 @@ Este projeto está sendo desenvolvido por alunos da graduação como parte de um
 ## 📃 Licença
 
 Este projeto é de uso **educacional** e **não comercial**, sendo desenvolvido exclusivamente como parte de uma atividade acadêmica.
-
----
-
