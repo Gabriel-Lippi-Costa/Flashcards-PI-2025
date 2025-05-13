@@ -6,6 +6,13 @@ public class Usuario {
    private String nome_usuario;
    private String senha;
    private String tipo_usuario;
+   
+   public Usuario (String email, String nome_usuario, String senha, String tipo_usuario) {
+       this.email = email;
+       this.nome_usuario = nome_usuario;
+       this.senha = senha;
+       this.tipo_usuario = tipo_usuario;
+   }
 
     public String getEmail() {
         return email;

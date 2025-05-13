@@ -4,6 +4,11 @@
  */
 package br.lippi.flashcards.pi.telas;
 
+import br.lippi.flashcards.pi.modelo.Usuario;
+import br.lippi.flashcards.pi.persistencia.UsuarioDAO;
+import javax.swing.JOptionPane;
+import static javax.swing.JOptionPane.showMessageDialog;
+
 /**
  *
  * @author Gabriel
@@ -28,17 +33,17 @@ public class AutenticarContaTela extends javax.swing.JFrame {
     private void initComponents() {
 
         criarContaPainel = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jTextField2 = new javax.swing.JTextField();
-        jPasswordField2 = new javax.swing.JPasswordField();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        emailLabel = new javax.swing.JLabel();
+        campoEmailTextField = new javax.swing.JTextField();
+        senhaLabel = new javax.swing.JLabel();
+        campoSenhaPasswordField = new javax.swing.JPasswordField();
+        usuarioLabel = new javax.swing.JLabel();
+        confirmarSenhaLabel = new javax.swing.JLabel();
+        criarContaButton = new javax.swing.JButton();
+        campoUsuarioTextField = new javax.swing.JTextField();
+        campoConfirmarSenhaPasswordField = new javax.swing.JPasswordField();
+        logoLabel = new javax.swing.JLabel();
+        jaTenhoContaLabel = new javax.swing.JLabel();
         autenticarContaPainel = new javax.swing.JPanel();
         LogoLabel = new javax.swing.JLabel();
         EmailLabel = new javax.swing.JLabel();
@@ -52,50 +57,54 @@ public class AutenticarContaTela extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Autenticação de Conta");
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel3.setText("E-mail");
+        emailLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        emailLabel.setText("E-mail");
 
-        jTextField1.setBackground(new java.awt.Color(28, 181, 196));
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        campoEmailTextField.setBackground(new java.awt.Color(28, 181, 196));
+        campoEmailTextField.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
+        campoEmailTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                campoEmailTextFieldActionPerformed(evt);
             }
         });
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel4.setText("Senha");
+        senhaLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        senhaLabel.setText("Senha");
 
-        jPasswordField1.setBackground(new java.awt.Color(28, 181, 196));
-        jPasswordField1.addActionListener(new java.awt.event.ActionListener() {
+        campoSenhaPasswordField.setBackground(new java.awt.Color(28, 181, 196));
+        campoSenhaPasswordField.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
+        campoSenhaPasswordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jPasswordField1ActionPerformed(evt);
+                campoSenhaPasswordFieldActionPerformed(evt);
             }
         });
 
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel5.setText("Usuário");
+        usuarioLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        usuarioLabel.setText("Usuário");
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel6.setText("Confirmar senha");
+        confirmarSenhaLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        confirmarSenhaLabel.setText("Confirmar senha");
 
-        jButton1.setBackground(new java.awt.Color(237, 30, 82));
-        jButton1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("Criar conta");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        criarContaButton.setBackground(new java.awt.Color(237, 30, 82));
+        criarContaButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        criarContaButton.setForeground(new java.awt.Color(255, 255, 255));
+        criarContaButton.setText("Criar conta");
+        criarContaButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                criarContaButtonActionPerformed(evt);
             }
         });
 
-        jTextField2.setBackground(new java.awt.Color(28, 181, 196));
+        campoUsuarioTextField.setBackground(new java.awt.Color(28, 181, 196));
+        campoUsuarioTextField.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
 
-        jPasswordField2.setBackground(new java.awt.Color(28, 181, 196));
+        campoConfirmarSenhaPasswordField.setBackground(new java.awt.Color(28, 181, 196));
+        campoConfirmarSenhaPasswordField.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/lippi/flashcards/pi/imagens/Logo_Poliedro-removebg-preview.png"))); // NOI18N
+        logoLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/br/lippi/flashcards/pi/imagens/Logo_Poliedro-removebg-preview.png"))); // NOI18N
 
-        jLabel7.setForeground(new java.awt.Color(28, 181, 196));
-        jLabel7.setText("Já tenho conta");
+        jaTenhoContaLabel.setForeground(new java.awt.Color(28, 181, 196));
+        jaTenhoContaLabel.setText("Já tenho conta");
 
         javax.swing.GroupLayout criarContaPainelLayout = new javax.swing.GroupLayout(criarContaPainel);
         criarContaPainel.setLayout(criarContaPainelLayout);
@@ -106,60 +115,60 @@ public class AutenticarContaTela extends javax.swing.JFrame {
                     .addGroup(criarContaPainelLayout.createSequentialGroup()
                         .addGap(19, 19, 19)
                         .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
-                            .addComponent(jPasswordField1))
+                            .addComponent(emailLabel)
+                            .addComponent(senhaLabel)
+                            .addComponent(campoEmailTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
+                            .addComponent(campoSenhaPasswordField))
                         .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(criarContaPainelLayout.createSequentialGroup()
                                 .addGap(42, 42, 42)
-                                .addComponent(jLabel5)
+                                .addComponent(usuarioLabel)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, criarContaPainelLayout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                    .addComponent(confirmarSenhaLabel)
+                                    .addComponent(campoUsuarioTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(campoConfirmarSenhaPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(criarContaPainelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(logoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(118, 118, 118)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(criarContaPainelLayout.createSequentialGroup()
                 .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(criarContaPainelLayout.createSequentialGroup()
                         .addGap(143, 143, 143)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(criarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(criarContaPainelLayout.createSequentialGroup()
                         .addGap(190, 190, 190)
-                        .addComponent(jLabel7)))
+                        .addComponent(jaTenhoContaLabel)))
                 .addContainerGap(180, Short.MAX_VALUE))
         );
         criarContaPainelLayout.setVerticalGroup(
             criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(criarContaPainelLayout.createSequentialGroup()
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(logoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel5))
+                    .addComponent(emailLabel)
+                    .addComponent(usuarioLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(campoEmailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(campoUsuarioTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jLabel6))
+                    .addComponent(senhaLabel)
+                    .addComponent(confirmarSenhaLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(criarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPasswordField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(campoSenhaPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(campoConfirmarSenhaPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel7)
+                .addComponent(jaTenhoContaLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(criarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(35, 35, 35))
         );
 
@@ -279,19 +288,35 @@ public class AutenticarContaTela extends javax.swing.JFrame {
 
     private void EntrarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EntrarButtonActionPerformed
         // TODO add your handling code here:
+        autenticarContaPainel.setVisible(false);
+        criarContaPainel.setVisible(true);
     }//GEN-LAST:event_EntrarButtonActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void campoEmailTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoEmailTextFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_campoEmailTextFieldActionPerformed
 
-    private void jPasswordField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPasswordField1ActionPerformed
+    private void campoSenhaPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoSenhaPasswordFieldActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jPasswordField1ActionPerformed
+    }//GEN-LAST:event_campoSenhaPasswordFieldActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void criarContaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_criarContaButtonActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+        try {
+        String email = campoEmailTextField.getText();
+        String nome_usuario = campoUsuarioTextField.getText();
+        var pass = campoSenhaPasswordField.getPassword();
+        String senha = new String(pass);
+        var usuario = new Usuario(email, nome_usuario, senha, "professor");
+        var usuarioDAO = new UsuarioDAO();
+        usuarioDAO.cadastrar(usuario);   
+        JOptionPane.showMessageDialog(null, "Deu certo!");
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Tente novamente mais tarde!");
+        }
+    }//GEN-LAST:event_criarContaButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -337,18 +362,18 @@ public class AutenticarContaTela extends javax.swing.JFrame {
     private javax.swing.JLabel LogoLabel;
     private javax.swing.JLabel SenhaLabel;
     private javax.swing.JPanel autenticarContaPainel;
+    private javax.swing.JPasswordField campoConfirmarSenhaPasswordField;
+    private javax.swing.JTextField campoEmailTextField;
+    private javax.swing.JPasswordField campoSenhaPasswordField;
+    private javax.swing.JTextField campoUsuarioTextField;
+    private javax.swing.JLabel confirmarSenhaLabel;
+    private javax.swing.JButton criarContaButton;
     private javax.swing.JLabel criarContaLabel;
     private javax.swing.JPanel criarContaPainel;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JPasswordField jPasswordField2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JLabel emailLabel;
+    private javax.swing.JLabel jaTenhoContaLabel;
+    private javax.swing.JLabel logoLabel;
+    private javax.swing.JLabel senhaLabel;
+    private javax.swing.JLabel usuarioLabel;
     // End of variables declaration//GEN-END:variables
 }
