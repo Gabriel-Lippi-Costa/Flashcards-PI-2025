@@ -43,6 +43,8 @@ public class AutenticarContaTela extends javax.swing.JFrame {
         EmailLabel.setText("E-mail");
 
         CampoEmailTextField.setBackground(new java.awt.Color(28, 181, 196));
+        CampoEmailTextField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
+        CampoEmailTextField.setForeground(new java.awt.Color(255, 255, 255));
         CampoEmailTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
         CampoEmailTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -57,6 +59,7 @@ public class AutenticarContaTela extends javax.swing.JFrame {
         EntrarButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         EntrarButton.setForeground(new java.awt.Color(255, 255, 255));
         EntrarButton.setText("Entrar");
+        EntrarButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         EntrarButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 EntrarButtonActionPerformed(evt);
@@ -69,6 +72,7 @@ public class AutenticarContaTela extends javax.swing.JFrame {
         AlterarSenhaLabel.setText("Alterar senha");
 
         CampoSenhaPasswordField.setBackground(new java.awt.Color(28, 181, 196));
+        CampoSenhaPasswordField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
