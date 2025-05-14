@@ -11,4 +11,11 @@
         <exec.mainClass>br.lippi.flashcards.pi.Flashcards2025PI</exec.mainClass>
     </properties>
     <name>Flashcards-PI-2025</name>
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+    </dependencies>
 </project>
