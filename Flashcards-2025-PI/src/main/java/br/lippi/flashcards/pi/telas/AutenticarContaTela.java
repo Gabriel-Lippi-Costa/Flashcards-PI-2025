@@ -20,6 +20,8 @@ public class AutenticarContaTela extends javax.swing.JFrame {
     public AutenticarContaTela() {
         initComponents();
         criarContaPainel.setVisible(false);
+        redirecionarTelaCriarContaButton.setContentAreaFilled(false);
+        redirecionarTelaAlterarSenhaButton.setContentAreaFilled(false);
     }
 
     /**
@@ -44,12 +46,12 @@ public class AutenticarContaTela extends javax.swing.JFrame {
         jaTenhoContaLabel = new javax.swing.JLabel();
         autenticarContaPainel = new javax.swing.JPanel();
         EmailLabel = new javax.swing.JLabel();
-        CampoEmailTextField = new javax.swing.JTextField();
+        campoEmailAutenticarTextField = new javax.swing.JTextField();
         SenhaLabel = new javax.swing.JLabel();
         EntrarButton = new javax.swing.JButton();
-        AlterarSenhaLabel = new javax.swing.JLabel();
-        CampoSenhaPasswordField = new javax.swing.JPasswordField();
-        criarContaLabel = new javax.swing.JLabel();
+        campoSenhaAutenticarPasswordField = new javax.swing.JPasswordField();
+        redirecionarTelaAlterarSenhaButton = new javax.swing.JButton();
+        redirecionarTelaCriarContaButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Autenticação de Conta");
@@ -158,10 +160,10 @@ public class AutenticarContaTela extends javax.swing.JFrame {
         EmailLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         EmailLabel.setText("E-mail");
 
-        CampoEmailTextField.setBackground(new java.awt.Color(28, 181, 196));
-        CampoEmailTextField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
-        CampoEmailTextField.setForeground(new java.awt.Color(255, 255, 255));
-        CampoEmailTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        campoEmailAutenticarTextField.setBackground(new java.awt.Color(28, 181, 196));
+        campoEmailAutenticarTextField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
+        campoEmailAutenticarTextField.setForeground(new java.awt.Color(255, 255, 255));
+        campoEmailAutenticarTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
 
         SenhaLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         SenhaLabel.setText("Senha");
@@ -177,18 +179,30 @@ public class AutenticarContaTela extends javax.swing.JFrame {
             }
         });
 
-        AlterarSenhaLabel.setBackground(new java.awt.Color(255, 255, 255));
-        AlterarSenhaLabel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        AlterarSenhaLabel.setForeground(new java.awt.Color(28, 181, 196));
-        AlterarSenhaLabel.setText("Alterar senha");
+        campoSenhaAutenticarPasswordField.setBackground(new java.awt.Color(28, 181, 196));
+        campoSenhaAutenticarPasswordField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
 
-        CampoSenhaPasswordField.setBackground(new java.awt.Color(28, 181, 196));
-        CampoSenhaPasswordField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
+        redirecionarTelaAlterarSenhaButton.setBackground(new java.awt.Color(60, 63, 65));
+        redirecionarTelaAlterarSenhaButton.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        redirecionarTelaAlterarSenhaButton.setForeground(new java.awt.Color(28, 181, 196));
+        redirecionarTelaAlterarSenhaButton.setText("Alterar Senha");
+        redirecionarTelaAlterarSenhaButton.setBorder(null);
+        redirecionarTelaAlterarSenhaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                redirecionarTelaAlterarSenhaButtonActionPerformed(evt);
+            }
+        });
 
-        criarContaLabel.setBackground(new java.awt.Color(255, 255, 255));
-        criarContaLabel.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-        criarContaLabel.setForeground(new java.awt.Color(28, 181, 196));
-        criarContaLabel.setText("Criar conta");
+        redirecionarTelaCriarContaButton.setBackground(new java.awt.Color(60, 63, 65));
+        redirecionarTelaCriarContaButton.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        redirecionarTelaCriarContaButton.setForeground(new java.awt.Color(28, 181, 196));
+        redirecionarTelaCriarContaButton.setText("Criar Conta");
+        redirecionarTelaCriarContaButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        redirecionarTelaCriarContaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                redirecionarTelaCriarContaButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout autenticarContaPainelLayout = new javax.swing.GroupLayout(autenticarContaPainel);
         autenticarContaPainel.setLayout(autenticarContaPainelLayout);
@@ -196,16 +210,17 @@ public class AutenticarContaTela extends javax.swing.JFrame {
             autenticarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(autenticarContaPainelLayout.createSequentialGroup()
                 .addGap(202, 202, 202)
-                .addGroup(autenticarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(SenhaLabel)
-                    .addComponent(EmailLabel)
+                .addGroup(autenticarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(autenticarContaPainelLayout.createSequentialGroup()
-                        .addComponent(AlterarSenhaLabel)
-                        .addGap(47, 47, 47)
-                        .addComponent(criarContaLabel))
-                    .addComponent(CampoSenhaPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(EntrarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(CampoEmailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(redirecionarTelaAlterarSenhaButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(redirecionarTelaCriarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(autenticarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(SenhaLabel)
+                        .addComponent(EmailLabel)
+                        .addComponent(campoSenhaAutenticarPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(EntrarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(campoEmailAutenticarTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(212, Short.MAX_VALUE))
         );
         autenticarContaPainelLayout.setVerticalGroup(
@@ -214,18 +229,18 @@ public class AutenticarContaTela extends javax.swing.JFrame {
                 .addGap(205, 205, 205)
                 .addComponent(EmailLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CampoEmailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(campoEmailAutenticarTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(45, 45, 45)
                 .addComponent(SenhaLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CampoSenhaPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(61, 61, 61)
+                .addComponent(campoSenhaAutenticarPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(72, 72, 72)
                 .addGroup(autenticarContaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(AlterarSenhaLabel)
-                    .addComponent(criarContaLabel))
-                .addGap(6, 6, 6)
+                    .addComponent(redirecionarTelaAlterarSenhaButton)
+                    .addComponent(redirecionarTelaCriarContaButton))
+                .addGap(2, 2, 2)
                 .addComponent(EntrarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -256,28 +271,50 @@ public class AutenticarContaTela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void EntrarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EntrarButtonActionPerformed
-        // TODO add your handling code here:
-        autenticarContaPainel.setVisible(false);
-        criarContaPainel.setVisible(true);
+try {
+            String email = campoEmailAutenticarTextField.getText();
+            var pass = campoSenhaAutenticarPasswordField.getPassword();
+            String senha = new String(pass);
+            Usuario usuario = new Usuario(email, "nomeTeste", senha, "valorFodase");
+            var usuarioDAO = new UsuarioDAO();
+            boolean confirmar = usuarioDAO.autenticar(usuario);
+            if (confirmar){
+            JOptionPane.showMessageDialog(null, "Deu certo!");
+            }
+            else{
+               JOptionPane.showMessageDialog(null, "Deu nao encontrado!"); 
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Tente novamente mais tarde!");
+        }
     }//GEN-LAST:event_EntrarButtonActionPerformed
 
     private void criarContaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_criarContaButtonActionPerformed
         // TODO add your handling code here:
         try {
-        String email = campoEmailTextField.getText();
-        String nome_usuario = campoUsuarioTextField.getText();
-        var pass = campoSenhaPasswordField.getPassword();
-        String senha = new String(pass);
-        var usuario = new Usuario(email, nome_usuario, senha, "professor");
-        var usuarioDAO = new UsuarioDAO();
-        usuarioDAO.cadastrar(usuario);   
-        JOptionPane.showMessageDialog(null, "Deu certo!");
-        }
-        catch(Exception e) {
+            String email = campoEmailTextField.getText();
+            String nomeUsuario = campoUsuarioTextField.getText();
+            var pass = campoSenhaPasswordField.getPassword();
+            String senha = new String(pass);
+            var usuario = new Usuario(email, nomeUsuario, senha, "professor");
+            var usuarioDAO = new UsuarioDAO();
+            usuarioDAO.cadastrar(usuario);
+            JOptionPane.showMessageDialog(null, "Deu certo!");
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Tente novamente mais tarde!");
         }
     }//GEN-LAST:event_criarContaButtonActionPerformed
+
+    private void redirecionarTelaAlterarSenhaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redirecionarTelaAlterarSenhaButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_redirecionarTelaAlterarSenhaButtonActionPerformed
+
+    private void redirecionarTelaCriarContaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redirecionarTelaCriarContaButtonActionPerformed
+        autenticarContaPainel.setVisible(false);
+        criarContaPainel.setVisible(true);
+    }//GEN-LAST:event_redirecionarTelaCriarContaButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -315,23 +352,23 @@ public class AutenticarContaTela extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel AlterarSenhaLabel;
-    private javax.swing.JTextField CampoEmailTextField;
-    private javax.swing.JPasswordField CampoSenhaPasswordField;
     private javax.swing.JLabel EmailLabel;
     private javax.swing.JButton EntrarButton;
     private javax.swing.JLabel SenhaLabel;
     private javax.swing.JPanel autenticarContaPainel;
     private javax.swing.JPasswordField campoConfirmarSenhaPasswordField;
+    private javax.swing.JTextField campoEmailAutenticarTextField;
     private javax.swing.JTextField campoEmailTextField;
+    private javax.swing.JPasswordField campoSenhaAutenticarPasswordField;
     private javax.swing.JPasswordField campoSenhaPasswordField;
     private javax.swing.JTextField campoUsuarioTextField;
     private javax.swing.JLabel confirmarSenhaLabel;
     private javax.swing.JButton criarContaButton;
-    private javax.swing.JLabel criarContaLabel;
     private javax.swing.JPanel criarContaPainel;
     private javax.swing.JLabel emailLabel;
     private javax.swing.JLabel jaTenhoContaLabel;
+    private javax.swing.JButton redirecionarTelaAlterarSenhaButton;
+    private javax.swing.JButton redirecionarTelaCriarContaButton;
     private javax.swing.JLabel senhaLabel;
     private javax.swing.JLabel usuarioLabel;
     // End of variables declaration//GEN-END:variables
