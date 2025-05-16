@@ -24,19 +24,24 @@ public class UsuarioDAO {
         }
     }
 
-    public boolean autenticar(Usuario usuario) throws Exception {
-        var sql = "SELECT  email, senha FROM tb_usuarios WHERE email = ? AND senha = ?";
+    public Usuario autenticar(Usuario usuario) throws Exception {
+        var sql = "SELECT  email, senha, nome_usuario, tipo_usuario FROM tb_usuarios WHERE email = ? AND senha = ?";
         var fabricaDeConexoes = new ConnectionFactory();
         try (
-            Connection conexao = fabricaDeConexoes.obterConexao(); 
+            Connection conexao = fabricaDeConexoes.obterConexao();
             PreparedStatement ps = conexao.prepareStatement(sql)
         ) {
             ps.setString(1, usuario.getEmail());
             ps.setString(2, usuario.getSenha());
             try (
-                ResultSet rs = ps.executeQuery();
+                ResultSet rs = ps.executeQuery()
             ) {
-                return rs.next();
+                if (rs.next()){
+                usuario.setNomeUsuario(rs.getString("nome_usuario"));
+                usuario.setTipoUsuario(rs.getString("tipo_usuario"));
+                return usuario;
+                }
+                return null;
             }
         }
     }
