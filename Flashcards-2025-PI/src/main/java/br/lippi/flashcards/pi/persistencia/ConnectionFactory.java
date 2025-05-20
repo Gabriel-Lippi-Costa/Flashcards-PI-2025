@@ -3,7 +3,7 @@ package br.lippi.flashcards.pi.persistencia;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-public class ConnectionFactory {   //connection
+public class ConnectionFactory {   
     
     private String host = "localhost";
     private String port = "3306";
