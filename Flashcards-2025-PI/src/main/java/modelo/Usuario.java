@@ -1,19 +1,28 @@
-package br.lippi.flashcards.pi.modelo;
+package modelo;
 
 public class Usuario {
-    
+    private int idUsuario;
    private String email;
    private String nomeUsuario;
    private String senha;
    private String tipoUsuario;
    
-   public Usuario (String email, String nomeUsuario, String senha, String tipoUsuario) {
+   public Usuario (int idUsuario, String email, String nomeUsuario, String senha, String tipoUsuario) {
+       this.idUsuario = idUsuario;
        this.email = email;
        this.nomeUsuario = nomeUsuario;
        this.senha = senha;
        this.tipoUsuario = tipoUsuario;
    }
 
+   public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+    
     public String getEmail() {
         return email;
     }

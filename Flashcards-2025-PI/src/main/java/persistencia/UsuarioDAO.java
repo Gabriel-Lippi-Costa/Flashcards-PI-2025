@@ -1,7 +1,7 @@
 
-package br.lippi.flashcards.pi.persistencia;
+package persistencia;
 
-import br.lippi.flashcards.pi.modelo.Usuario;
+import modelo.Usuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,7 +25,7 @@ public class UsuarioDAO {
     }
 
     public Usuario autenticar(Usuario usuario) throws Exception {
-        var sql = "SELECT  email, senha, nome_usuario, tipo_usuario FROM tb_usuarios WHERE email = ? AND senha = ?";
+        var sql = "SELECT  id_usuario, email, senha, nome_usuario, tipo_usuario FROM tb_usuarios WHERE email = ? AND senha = ?";
         var fabricaDeConexoes = new ConnectionFactory();
         try (
             Connection conexao = fabricaDeConexoes.obterConexao();
@@ -37,6 +37,7 @@ public class UsuarioDAO {
                 ResultSet rs = ps.executeQuery()
             ) {
                 if (rs.next()){
+                usuario.setIdUsuario(rs.getInt("id_usuario"));
                 usuario.setNomeUsuario(rs.getString("nome_usuario"));
                 usuario.setTipoUsuario(rs.getString("tipo_usuario"));
                 return usuario;
