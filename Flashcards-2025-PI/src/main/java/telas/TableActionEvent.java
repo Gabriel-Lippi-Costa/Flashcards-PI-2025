@@ -11,6 +11,8 @@ package telas;
 public interface TableActionEvent {
     public void editarCarta(int row);
     public void deletarCarta(int row);
-    public void editarBaralho(int row);
     public void deletarBaralho(int row);
+    public void verBaralho(int row);
+    public void verAlunos(int row);
+    public void verBaralhos (int row);
 }

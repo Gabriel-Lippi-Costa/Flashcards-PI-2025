@@ -31,7 +31,7 @@ public class PainelTabelaBaralhos extends javax.swing.JPanel {
         editarBaralhoButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                event.editarBaralho(row);
+                event.verBaralho(row);
             }
         });
     }
@@ -48,33 +48,55 @@ public class PainelTabelaBaralhos extends javax.swing.JPanel {
         editarBaralhoButton = new javax.swing.JButton();
         excluirBaralhoButton = new javax.swing.JButton();
 
-        editarBaralhoButton.setBackground(new java.awt.Color(28, 181, 196));
-        editarBaralhoButton.setText("Editar");
+        editarBaralhoButton.setBackground(new java.awt.Color(0, 0, 0));
+        editarBaralhoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/editarBotao_1.png"))); // NOI18N
+        editarBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarBaralhoButtonActionPerformed(evt);
+            }
+        });
 
         excluirBaralhoButton.setBackground(new java.awt.Color(237, 30, 82));
-        excluirBaralhoButton.setText("Excluir");
+        excluirBaralhoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        excluirBaralhoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/excluirBotao.png"))); // NOI18N
+        excluirBaralhoButton.setMaximumSize(new java.awt.Dimension(30, 30));
+        excluirBaralhoButton.setMinimumSize(new java.awt.Dimension(30, 30));
+        excluirBaralhoButton.setPreferredSize(new java.awt.Dimension(30, 30));
+        excluirBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excluirBaralhoButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(editarBaralhoButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(excluirBaralhoButton)
+                .addContainerGap()
+                .addComponent(editarBaralhoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+                .addComponent(excluirBaralhoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(editarBaralhoButton)
-                    .addComponent(excluirBaralhoButton))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(editarBaralhoButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(excluirBaralhoButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void editarBaralhoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarBaralhoButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_editarBaralhoButtonActionPerformed
+
+    private void excluirBaralhoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excluirBaralhoButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_excluirBaralhoButtonActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

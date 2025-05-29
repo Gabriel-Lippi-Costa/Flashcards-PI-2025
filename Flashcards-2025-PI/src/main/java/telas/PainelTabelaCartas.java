@@ -46,9 +46,13 @@ public class PainelTabelaCartas extends javax.swing.JPanel {
         excluirCartaButton = new javax.swing.JButton();
 
         editarCartaButton.setBackground(new java.awt.Color(28, 181, 196));
+        editarCartaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        editarCartaButton.setForeground(new java.awt.Color(255, 255, 255));
         editarCartaButton.setText("Editar");
 
         excluirCartaButton.setBackground(new java.awt.Color(237, 30, 82));
+        excluirCartaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        excluirCartaButton.setForeground(new java.awt.Color(255, 255, 255));
         excluirCartaButton.setText("Excluir");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
