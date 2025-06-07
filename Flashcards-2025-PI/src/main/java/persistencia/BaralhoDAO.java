@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import modelo.Carta;
 
 /**
  *
@@ -18,7 +19,7 @@ import java.util.ArrayList;
  */
 public class BaralhoDAO {
 
-    public Baralho criarBaralho(Baralho baralho) throws Exception {
+    public static Baralho criarBaralho(Baralho baralho) throws Exception {
         var sql = "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES (?, ?, ?, ?, ?, ?)";
         var fabricaDeConexoes = new ConnectionFactory();
         try (
@@ -91,6 +92,54 @@ public class BaralhoDAO {
             ps.setInt(7, baralho.getUsuario().getIdUsuario());
             ps.setInt(8, baralho.getIdBaralho());
             ps.execute();
+        }
+    }
+
+    public static Baralho importar(String id, Usuario usuario) throws Exception {
+        var sql = "SELECT id_baralho, nome_baralho, tema, id_usuario, media_de_acertos, total_de_erros, total_de_acertos FROM tb_baralhos WHERE id_baralho  = ?";
+        var fabricaDeConexoes = new ConnectionFactory();
+        Connection conexao = fabricaDeConexoes.obterConexao();
+        PreparedStatement ps = conexao.prepareStatement(sql);
+        {
+            ps.setInt(1, Integer.parseInt(id));
+            Baralho baralho = null;
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                baralho = new Baralho(
+                        12,
+                        rs.getString("nome_baralho"),
+                        rs.getString("tema"),
+                        usuario,
+                        0, 0, 0
+                );
+            }
+            if (baralho != null) {
+                ArrayList<Carta> listaDeCartas = new ArrayList<>();
+                baralho = criarBaralho(baralho);
+                sql = "SELECT id_card, pergunta, resposta FROM tb_cards WHERE id_baralho  = ?";
+                ps = conexao.prepareStatement(sql);
+                ps.setInt(1, Integer.parseInt(id));
+                rs = ps.executeQuery();
+                {
+                    while (rs.next()) {
+                        Carta carta = new Carta(
+                                0,
+                                rs.getString("pergunta"),
+                                rs.getString("resposta"),
+                                baralho,
+                                0, 0, 0
+                        );
+                        listaDeCartas.add(carta);
+                    }
+                    for (Carta carta : listaDeCartas) {
+                        Carta cartaNova = CardDAO.criarCard(carta);
+                    }
+                }
+            }
+            rs.close();
+            ps.close();
+            conexao.close();
+            return baralho;
         }
     }
 }

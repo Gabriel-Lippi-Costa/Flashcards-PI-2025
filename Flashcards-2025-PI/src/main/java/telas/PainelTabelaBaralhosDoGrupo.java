@@ -11,25 +11,25 @@ import java.awt.event.ActionListener;
  *
  * @author zion
  */
-public class PainelTabelaCartas extends javax.swing.JPanel {
+public class PainelTabelaBaralhosDoGrupo extends javax.swing.JPanel {
 
     /**
      * Creates new form PainelTabelaCartas
      */
-    public PainelTabelaCartas() {
+    public PainelTabelaBaralhosDoGrupo() {
         initComponents();
     }
     public void initEvent(TableActionEvent event, int linha) {
-        excluirCartaButton.addActionListener(new ActionListener() {
+        jogarButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                event.deletarCarta(linha);
+                event.jogar(linha);
             }
         });
-        editarCartaButton.addActionListener(new ActionListener() {
+        verCartasButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                event.editarCarta(linha);
+                event.verCards(linha);
             }
         });
     }
@@ -42,18 +42,23 @@ public class PainelTabelaCartas extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        editarCartaButton = new javax.swing.JButton();
-        excluirCartaButton = new javax.swing.JButton();
+        verCartasButton = new javax.swing.JButton();
+        jogarButton = new javax.swing.JButton();
 
-        editarCartaButton.setBackground(new java.awt.Color(28, 181, 196));
-        editarCartaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        editarCartaButton.setForeground(new java.awt.Color(255, 255, 255));
-        editarCartaButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/editarBotao_1.png"))); // NOI18N
+        verCartasButton.setBackground(new java.awt.Color(28, 181, 196));
+        verCartasButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        verCartasButton.setForeground(new java.awt.Color(255, 255, 255));
+        verCartasButton.setText("Ver");
+        verCartasButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                verCartasButtonActionPerformed(evt);
+            }
+        });
 
-        excluirCartaButton.setBackground(new java.awt.Color(237, 30, 82));
-        excluirCartaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        excluirCartaButton.setForeground(new java.awt.Color(255, 255, 255));
-        excluirCartaButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/excluirBotao.png"))); // NOI18N
+        jogarButton.setBackground(new java.awt.Color(237, 30, 82));
+        jogarButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        jogarButton.setForeground(new java.awt.Color(255, 255, 255));
+        jogarButton.setText("Jogar");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -61,25 +66,29 @@ public class PainelTabelaCartas extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(editarCartaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
-                .addComponent(excluirCartaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(verCartasButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jogarButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(excluirCartaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(editarCartaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(verCartasButton)
+                    .addComponent(jogarButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void verCartasButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_verCartasButtonActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_verCartasButtonActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton editarCartaButton;
-    private javax.swing.JButton excluirCartaButton;
+    private javax.swing.JButton jogarButton;
+    private javax.swing.JButton verCartasButton;
     // End of variables declaration//GEN-END:variables
 }

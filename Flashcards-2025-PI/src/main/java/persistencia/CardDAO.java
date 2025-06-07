@@ -21,7 +21,7 @@ public class CardDAO {
         var sql = "INSERT INTO tb_cards (pergunta, resposta, id_baralho,total_de_acertos, total_de_erros, media_de_acertos) VALUES (?, ?, ?, ?, ?,?)";
         var fabricaDeConexoes = new ConnectionFactory();
         try (
-                Connection conexao = fabricaDeConexoes.obterConexao(); PreparedStatement ps = conexao.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            Connection conexao = fabricaDeConexoes.obterConexao(); PreparedStatement ps = conexao.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, carta.getPergunta());
             ps.setString(2, carta.getResposta());
             ps.setInt(3, carta.getBaralho().getIdBaralho());
@@ -67,7 +67,7 @@ public class CardDAO {
         return listaDeCartas;
     }
 
-    public void excluir(Carta carta) throws Exception {
+    public static void excluir(Carta carta) throws Exception {
         var sql = "DELETE FROM tb_cards WHERE id_baralho = ? AND pergunta = ? AND resposta = ?";
         var fabricaDeConexoes = new ConnectionFactory();
         try (

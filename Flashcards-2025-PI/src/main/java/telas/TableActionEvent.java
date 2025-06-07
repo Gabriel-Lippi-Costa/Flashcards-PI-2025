@@ -15,4 +15,6 @@ public interface TableActionEvent {
     public void verBaralho(int row);
     public void verAlunos(int row);
     public void verBaralhos (int row);
+    public void jogar(int row);
+    public void verCards(int row);
 }

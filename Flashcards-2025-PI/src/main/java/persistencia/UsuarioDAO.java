@@ -57,8 +57,8 @@ public class UsuarioDAO {
             ps.execute();
         }
     }
-        public void editar(Usuario velho, Usuario novo) throws Exception {
-        var sql = "UPDATE tb_usuarios SET email = ?, nome_usuario = ?, senha = ?, tipo_usuario = ? WHERE email = ?";
+        public static void editar(Usuario novo) throws Exception {
+        var sql = "UPDATE tb_usuarios SET email = ?, nome_usuario = ?, senha = ?, tipo_usuario = ? WHERE id_usuario = ?";
         var fabricaDeConexoes = new ConnectionFactory();
         try(
             Connection conexao = fabricaDeConexoes.obterConexao();
@@ -68,7 +68,7 @@ public class UsuarioDAO {
             ps.setString(2, novo.getNomeUsuario());
             ps.setString(3, novo.getSenha());
             ps.setString(4, novo.getTipoUsuario());
-            ps.setString(5, velho.getEmail());
+            ps.setInt(5, novo.getIdUsuario());
             ps.execute();
         }
     }

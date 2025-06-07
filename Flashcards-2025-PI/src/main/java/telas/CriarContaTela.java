@@ -4,7 +4,12 @@ package telas;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
+import javax.swing.JScrollBar;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Image;
 import modelo.Baralho;
 import modelo.Carta;
@@ -14,16 +19,22 @@ import static persistencia.BaralhoDAO.listarBaralhos;
 import persistencia.CardDAO;
 import persistencia.UsuarioDAO;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableRowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import modelo.Grupo;
 import persistencia.GrupoDAO;
+import javax.swing.RowSorter;
 import telas.AlternarCorLinhasRenderer;
 import telas.HeaderRenderer;
 import telas.TableActionCellEditor;
@@ -43,6 +54,7 @@ public class CriarContaTela extends javax.swing.JFrame {
      */
     public CriarContaTela() {
         initComponents();
+        editarUsuarioButton.setContentAreaFilled(false);
         redirecionarTelaCriarContaButton.setContentAreaFilled(false);
         jaTenhoContaButton.setContentAreaFilled(false);
         if (labelFundo.getIcon() instanceof ImageIcon) {
@@ -52,13 +64,17 @@ public class CriarContaTela extends javax.swing.JFrame {
         } else {
             System.out.println("erro");
         }
+        alunosDoGrupoPainel.setVisible(false);
         editarBaralhoPainel.setVisible(false);
         painelJogoFinalizado.setVisible(false);
         painelJogoNormal.setVisible(false);
         adicionarGrupoPainel.setVisible(false);
+        alunosDoGrupoTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
+        baralhosDoGrupoTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         selecionarBaralhoJogarTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         meusBaralhosTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         minhasCartasTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
+        cartasDoGrupoTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         meusGruposTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         JScrollPane scrollPane = (JScrollPane) meusBaralhosTable.getParent().getParent();
         scrollPane.getViewport().setBackground(new Color(246, 231, 211));
@@ -80,32 +96,145 @@ public class CriarContaTela extends javax.swing.JFrame {
         scrollPane.setBorder(null);
         headerViewport = scrollPane.getColumnHeader();
         headerViewport.setBackground(new Color(246, 231, 211));
+        scrollPane = (JScrollPane) baralhosDoGrupoTable.getParent().getParent();
+        scrollPane.getViewport().setBackground(new Color(246, 231, 211));
+        scrollPane.setBorder(null);
+        headerViewport = scrollPane.getColumnHeader();
+        headerViewport.setBackground(new Color(246, 231, 211));
+        scrollPane = (JScrollPane) alunosDoGrupoTable.getParent().getParent();
+        scrollPane.getViewport().setBackground(new Color(246, 231, 211));
+        scrollPane.setBorder(null);
+        headerViewport = scrollPane.getColumnHeader();
+        headerViewport.setBackground(new Color(246, 231, 211));
+        scrollPane = (JScrollPane) cartasDoGrupoTable.getParent().getParent();
+        scrollPane.getViewport().setBackground(new Color(246, 231, 211));
+        scrollPane.setBorder(null);
+        headerViewport = scrollPane.getColumnHeader();
+        headerViewport.setBackground(new Color(246, 231, 211));
         baralhosDoGrupoPainel.setVisible(false);
         criarCardsPanel.setVisible(false);
         criarContaPanel.setVisible(false);
+        criarBaralhoGrupoPainel.setVisible(false);
         adicionarAlunoGrupoPainel.setVisible(false);
         painelInicial.setVisible(false);
+        editarCartasGrupoPainel.setVisible(false);
         meusBaralhosPainel.setVisible(false);
         meusCardsPanel.setVisible(false);
+        selecionarModoDeJogoPainel.setVisible(false);
         meusGruposPainel.setVisible(false);
+        editarBaralhoGrupoPainel.setVisible(false);
         adicionarBaralhosPainel.setVisible(false);
         editarCartasPainel.setVisible(false);
+        editarUsuarioButton.setVisible(false);
         editarGrupoPainel.setVisible(false);
+        cartasDoGrupoPainel.setVisible(false);
+        painelJogoInserir.setVisible(false);
+        painelJogoInserir1.setVisible(false);
         editarGrupoAcoesPainel.setVisible(false);
         confirmarExcluirBaralhoPainel.setVisible(false);
         selecionarBaralhoJogarPainel.setVisible(false);
+        importarBaralhoPainel.setVisible(false);
+        jogoBaralhosDoGrupoPainel.setVisible(false);
+        painelJogoFinalizado1.setVisible(false);
+        selecionarModoDeJogoGrupoPainel.setVisible(false);
+        criarCardsGrupoPanel.setVisible(false);
+        editarUsuarioPainel.setVisible(false);
+        editarSenhaPainel.setVisible(false);
+        editarNomeUsuarioPainel.setVisible(false);
+        editarEmailUsuarioPainel.setVisible(false);
         meusGruposTable.getColumnModel().getColumn(2).setCellRenderer(new TableActionCellRendererGrupos());
+        baralhosDoGrupoTable.getColumnModel().getColumn(2).setCellRenderer(new TableActionCellRendererBaralhosDoGrupo());
         meusBaralhosTable.getColumnModel().getColumn(4).setCellRenderer(new TableActionCellRenderer());
         minhasCartasTable.getColumnModel().getColumn(4).setCellRenderer(new TableActionCellRendererCartas());
         TableActionEvent event = new TableActionEvent() {
             @Override
+            public void verCards(int linha) {
+                DefaultTableModel modelo = (DefaultTableModel) baralhosDoGrupoTable.getModel();
+                int modelRow = baralhosDoGrupoTable.convertRowIndexToModel(linha);
+                String nomeBaralho = (String) modelo.getValueAt(modelRow, 0);
+                System.out.println(nomeBaralho);
+                for (f = 0; f < listaDeBaralhosGrupo.size(); f++) {
+                    System.out.println(f);
+                    if (listaDeBaralhosGrupo.get(f).getNomeBaralho().equals(nomeBaralho)) {
+                        System.out.println(listaDeBaralhosGrupo.get(f).getNomeBaralho());
+                        break;
+                    }
+                }
+                try {
+                    nomeDoBaralhoGrupoLabel.setText(listaDeBaralhosGrupo.get(f).getNomeBaralho());
+                    codigoDoBaralhoGrupoLabel.setText(String.format("Código do baralho: %d", listaDeBaralhosGrupo.get(f).getIdBaralho()));
+                    listaDeCartas = CardDAO.listarCartas(listaDeBaralhosGrupo.get(f));
+                    if (listaDeCartas.isEmpty()) {
+                        cartasDoGrupoLabel.setText("Esse baralho ainda não tem cards");
+                        cartasDoGrupoTable.getTableHeader().setVisible(false);
+                    }
+                    dtmCartasDoGrupo = (DefaultTableModel) cartasDoGrupoTable.getModel();
+                    dtmCartasDoGrupo.setRowCount(0);
+                    for (Carta carta : listaDeCartas) {
+                        Object[] row = {
+                            carta.getPergunta(),
+                            carta.getResposta()
+                        };
+                        dtmCartasDoGrupo.addRow(row);
+                    }
+                    ordenar = new TableRowSorter<>(dtmCartasDoGrupo);
+                    cartasDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    cartasDoGrupoPainel.setVisible(true);
+                    baralhosDoGrupoPainel.setVisible(false);
+                    if (usuario.getTipoUsuario().equals("aluno")) {
+                        criarCartasGrupoButton.setVisible(false);
+                        irEditarCartasDoGrupoButton.setVisible(false);
+                        excluirCardButton.setVisible(false);
+                    } else {
+                        criarCartasGrupoButton.setVisible(true);
+                        irEditarCartasDoGrupoButton.setVisible(true);
+                        excluirCardButton.setVisible(true);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("erro");
+                }
+            }
+
+            @Override
+            public void jogar(int linha) {
+                DefaultTableModel modelo = (DefaultTableModel) baralhosDoGrupoTable.getModel();
+                int modelRow = baralhosDoGrupoTable.convertRowIndexToModel(linha);
+                String nomeBaralho = (String) modelo.getValueAt(modelRow, 0);
+                for (f = 0; f < listaDeBaralhosGrupo.size(); f++) {
+                    if (listaDeBaralhosGrupo.get(f).getNomeBaralho().equals(nomeBaralho)) {
+                        break;
+                    }
+                }
+                try {
+                    listaDeCartas = CardDAO.listarCartas(listaDeBaralhosGrupo.get(f));
+                    if (listaDeCartas.isEmpty()) {
+                        mensagemBaralhoDoGrupoSemCartas.setText("Esse baralho ainda não tem cards");
+                    } else {
+                        Collections.shuffle(listaDeCartas);
+                        selecionarModoDeJogoGrupoPainel.setVisible(true);
+                        baralhosDoGrupoPainel.setVisible(false);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("erro");
+                }
+            }
+
+            @Override
             public void deletarBaralho(int linha) {
-                row = linha;
+                int modelRow = meusBaralhosTable.convertRowIndexToModel(linha);
+                row = modelRow;
                 if (meusBaralhosTable.isEditing()) {
                     meusBaralhosTable.getCellEditor().stopCellEditing();
                 }
                 dtmBaralhos = (DefaultTableModel) meusBaralhosTable.getModel();
-                nomeBaralho = (String) dtmBaralhos.getValueAt(linha, 0);
+                nomeBaralho = (String) dtmBaralhos.getValueAt(modelRow, 0);
                 confirmarExcluirBaralhoPainel.setVisible(true);
                 meusBaralhosPainel.setVisible(false);
             }
@@ -113,7 +242,8 @@ public class CriarContaTela extends javax.swing.JFrame {
             @Override
             public void verBaralho(int row) {
                 DefaultTableModel modelo = (DefaultTableModel) meusBaralhosTable.getModel();
-                String nomeBaralho = (String) modelo.getValueAt(row, 0);
+                int modelRow = meusBaralhosTable.convertRowIndexToModel(row);
+                String nomeBaralho = (String) modelo.getValueAt(modelRow, 0);
                 for (i = 0; i < listaDeBaralhos.size(); i++) {
                     if (listaDeBaralhos.get(i).getNomeBaralho().equals(nomeBaralho)) {
                         break;
@@ -132,9 +262,15 @@ public class CriarContaTela extends javax.swing.JFrame {
                     for (Carta carta : listaDeCartas) {
                         Object[] linha = {
                             carta.getPergunta(),
-                            carta.getResposta(), carta.getTotalDeAcertos() + carta.getTotalDeErros(), carta.getMediaDeAcertos()};
+                            carta.getResposta(), String.format("%.2f%%", carta.getMediaDeAcertos()), carta.getTotalDeAcertos() + carta.getTotalDeErros()};
                         dtmCartas.addRow(linha);
                     }
+                    ordenar = new TableRowSorter<>(dtmCartas);
+                    minhasCartasTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
                     meusCardsPanel.setVisible(true);
                     meusBaralhosPainel.setVisible(false);
                 } catch (Exception e) {
@@ -150,7 +286,8 @@ public class CriarContaTela extends javax.swing.JFrame {
                         minhasCartasTable.getCellEditor().stopCellEditing();
                     }
                     dtmCartas = (DefaultTableModel) minhasCartasTable.getModel();
-                    String pergunta = (String) dtmCartas.getValueAt(linha, 0);
+                    int modelRow = minhasCartasTable.convertRowIndexToModel(linha);
+                    String pergunta = (String) dtmCartas.getValueAt(modelRow, 0);
 
                     Carta cartaParaExcluir = null;
                     for (Carta carta : listaDeCartas) {
@@ -163,7 +300,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                     cartaDAO.excluir(cartaParaExcluir);
 
                     listaDeCartas.remove(cartaParaExcluir);
-                    dtmCartas.removeRow(linha);
+                    dtmCartas.removeRow(modelRow);
                     if (listaDeCartas.isEmpty()) {
                         meusCardsLabel.setText("Esse baralho ainda não tem cards");
                         minhasCartasTable.getTableHeader().setVisible(false);
@@ -176,7 +313,8 @@ public class CriarContaTela extends javax.swing.JFrame {
             public void editarCarta(int linha) {
                 System.out.println("caiu nesse caso");
                 dtmCartas = (DefaultTableModel) minhasCartasTable.getModel();
-                String pergunta = (String) dtmCartas.getValueAt(linha, 0);
+                int modelRow = minhasCartasTable.convertRowIndexToModel(linha);
+                String pergunta = (String) dtmCartas.getValueAt(modelRow, 0);
                 for (j = 0; j < listaDeCartas.size(); j++) {
                     System.out.println("caiu nesse caso");
                     if (listaDeCartas.get(j).getPergunta().equals(pergunta)) {
@@ -191,12 +329,97 @@ public class CriarContaTela extends javax.swing.JFrame {
 
             @Override
             public void verAlunos(int linha) {
-                System.out.println("Ola");
+                DefaultTableModel modelo = (DefaultTableModel) meusGruposTable.getModel();
+                int modelRow = meusGruposTable.convertRowIndexToModel(linha);
+                String nomeGrupo = (String) modelo.getValueAt(modelRow, 0);
+                for (d = 0; d < listaDeGrupos.size(); d++) {
+                    if (listaDeGrupos.get(d).getNomeGrupo().equals(nomeGrupo)) {
+                        break;
+                    }
+                }
+                try {
+                    nomeDoGrupoLabel1.setText(listaDeGrupos.get(d).getNomeGrupo());
+                    listaDeAlunosGrupo = GrupoDAO.listarAlunosDoGrupo(listaDeGrupos.get(d));
+                    if (listaDeAlunosGrupo.isEmpty()) {
+                        alunosDoGrupoLabel.setText("Esse grupo ainda não tem alunos");
+                        alunosDoGrupoTable.getTableHeader().setVisible(false);
+                    }
+                    dtmAlunosDoGrupo = (DefaultTableModel) alunosDoGrupoTable.getModel();
+                    dtmAlunosDoGrupo.setRowCount(0);
+                    for (Usuario aluno : listaDeAlunosGrupo) {
+                        Object[] row = {
+                            aluno.getNomeUsuario(),
+                            aluno.getEmail()};
+                        dtmAlunosDoGrupo.addRow(row);
+                    }
+                    ordenar = new TableRowSorter<>(dtmAlunosDoGrupo);
+                    alunosDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    alunosDoGrupoPainel.setVisible(true);
+                    meusGruposPainel.setVisible(false);
+                    if (usuario.getTipoUsuario().equals("aluno")) {
+                        irExcluirAlunosGruposButton.setVisible(false);
+                        AdicionarAlunoButton.setVisible(false);
+                    } else {
+                        irExcluirAlunosGruposButton.setVisible(true);
+                        AdicionarAlunoButton.setVisible(true);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("erro");
+                }
             }
 
             @Override
             public void verBaralhos(int linha) {
-                System.out.println("Baralhos");
+                DefaultTableModel modelo = (DefaultTableModel) meusGruposTable.getModel();
+                int modelRow = meusGruposTable.convertRowIndexToModel(linha);
+                String nomeGrupo = (String) modelo.getValueAt(modelRow, 0);
+                for (d = 0; d < listaDeGrupos.size(); d++) {
+                    if (listaDeGrupos.get(d).getNomeGrupo().equals(nomeGrupo)) {
+                        break;
+                    }
+                }
+                try {
+                    nomeDoGrupoLabel.setText(listaDeGrupos.get(d).getNomeGrupo());
+                    listaDeBaralhosGrupo = GrupoDAO.listarBaralhosDoGrupo(listaDeGrupos.get(d));
+                    if (listaDeBaralhosGrupo.isEmpty()) {
+                        baralhosDoGrupoLabel.setText("Esse grupo ainda não tem baralhos");
+                        baralhosDoGrupoTable.getTableHeader().setVisible(false);
+                    }
+                    dtmBaralhosDoGrupo = (DefaultTableModel) baralhosDoGrupoTable.getModel();
+                    dtmBaralhosDoGrupo.setRowCount(0);
+                    for (Baralho baralho : listaDeBaralhosGrupo) {
+                        Object[] row = {
+                            baralho.getNomeBaralho(),
+                            baralho.getTema()};
+                        dtmBaralhosDoGrupo.addRow(row);
+                    }
+                    ordenar = new TableRowSorter<>(dtmBaralhosDoGrupo);
+                    baralhosDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    baralhosDoGrupoPainel.setVisible(true);
+
+                    if (usuario.getTipoUsuario().equals("aluno")) {
+                        excluirBaralhoGrupoButton.setVisible(false);
+                        editarBaralhoGrupoButton.setVisible(false);
+                        criarBaralhoGrupoButton.setVisible(false);
+                    } else {
+                        excluirBaralhoGrupoButton.setVisible(true);
+                        editarBaralhoGrupoButton.setVisible(true);
+                        criarBaralhoGrupoButton.setVisible(true);
+                    }
+                    meusGruposPainel.setVisible(false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("erro");
+                }
             }
         };
 
@@ -204,24 +427,34 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .getColumn(4).setCellEditor(new TableActionCellEditor(event));
         meusGruposTable.getColumnModel()
                 .getColumn(2).setCellEditor(new TableActionCellEditorGrupos(event));
+        baralhosDoGrupoTable.getColumnModel().getColumn(2).setCellEditor(new TableActionCellEditorBaralhosDoGrupo(event));
         minhasCartasTable.getColumnModel().getColumn(4).setCellEditor(new TableActionCellEditorCartas(event));
         this.setLocationRelativeTo(null);
         meusBaralhosTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
         minhasCartasTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
         meusGruposTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
+        baralhosDoGrupoTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
+        alunosDoGrupoTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
+        cartasDoGrupoTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
         selecionarBaralhoJogarTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
     }
     int acertosJogo;
     int errosJogo;
     Usuario usuario;
     Baralho baralho;
+    TableRowSorter<DefaultTableModel> ordenar;
     DefaultTableModel dtmBaralhos;
+    DefaultTableModel dtmAlunosDoGrupo;
     DefaultTableModel dtmJogar;
     DefaultTableModel dtmCartas;
+    DefaultTableModel dtmBaralhosDoGrupo;
     DefaultTableModel dtmGrupos;
+    DefaultTableModel dtmCartasDoGrupo;
     ArrayList<Baralho> listaDeBaralhos;
+    ArrayList<Usuario> listaDeAlunosGrupo;
     ArrayList<Grupo> listaDeGrupos;
     ArrayList<Carta> listaDeCartas;
+    ArrayList<Baralho> listaDeBaralhosGrupo;
     String nomeBaralho;
     Carta cartaJogo;
     final int[] indice = {0};
@@ -229,6 +462,10 @@ public class CriarContaTela extends javax.swing.JFrame {
     int a;
     int i;
     int c;
+    int d;
+    int e;
+    int f;
+    int g;
     int row;
 
     public String validarDados(String email, String senha) {
@@ -268,8 +505,18 @@ public class CriarContaTela extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel32 = new javax.swing.JLabel();
+        editarBaralhoGrupoPainel = new javax.swing.JPanel();
+        confirmarEditarBaralhoGrupoButton = new javax.swing.JButton();
+        editarNomeBaralhoGrupoCaixaDeTexto = new javax.swing.JTextField();
+        editarTemaBaralhoGrupoCaixaDeTexto = new javax.swing.JTextField();
+        voltarBaralhosGrupoButton = new javax.swing.JButton();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        mensagemEditarBaralhoGrupoInvalido = new javax.swing.JLabel();
         confirmarExcluirBaralhoPainel = new javax.swing.JPanel();
-        estatisticasJogoLabel1 = new javax.swing.JLabel();
+        mensagemDesejaExcluirBaralho = new javax.swing.JLabel();
         confirmarExcluirBaralhoButton = new javax.swing.JButton();
         voltarMeusBaralhosButton2 = new javax.swing.JButton();
         editarGrupoAcoesPainel = new javax.swing.JPanel();
@@ -290,11 +537,19 @@ public class CriarContaTela extends javax.swing.JFrame {
         irParaCriarBaralhoButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         meusBaralhosTable = new javax.swing.JTable();
-        voltarPainelInicial1Button = new javax.swing.JButton();
         meusBaralhosLabel = new javax.swing.JLabel();
+        voltarPainelInicial1Button = new javax.swing.JButton();
         painelJogoFinalizado = new javax.swing.JPanel();
         estatisticasJogoLabel = new javax.swing.JLabel();
         terminarJogoVoltarPainelButton = new javax.swing.JButton();
+        autenticarContaPanel = new javax.swing.JPanel();
+        campoEmailAutenticarTextField = new javax.swing.JTextField();
+        SenhaLabel = new javax.swing.JLabel();
+        EntrarButton = new javax.swing.JButton();
+        campoSenhaAutenticarPasswordField = new javax.swing.JPasswordField();
+        redirecionarTelaCriarContaButton = new javax.swing.JButton();
+        EmailLabel = new javax.swing.JLabel();
+        dadosInvalidosMensagem = new javax.swing.JLabel();
         painelJogoNormal = new javax.swing.JPanel();
         cartaAnteriorButton = new javax.swing.JButton();
         finalizarJogoButton = new javax.swing.JButton();
@@ -311,14 +566,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         meusGruposLabel = new javax.swing.JLabel();
         irEditarGruposButton = new javax.swing.JButton();
         criarGrupoButton = new javax.swing.JButton();
-        autenticarContaPanel = new javax.swing.JPanel();
-        campoEmailAutenticarTextField = new javax.swing.JTextField();
-        SenhaLabel = new javax.swing.JLabel();
-        EntrarButton = new javax.swing.JButton();
-        campoSenhaAutenticarPasswordField = new javax.swing.JPasswordField();
-        redirecionarTelaCriarContaButton = new javax.swing.JButton();
-        EmailLabel = new javax.swing.JLabel();
-        dadosInvalidosMensagem = new javax.swing.JLabel();
+        excluirGruposButton = new javax.swing.JButton();
         adicionarBaralhosPainel = new javax.swing.JPanel();
         inserirNomeBaralhoTextField = new javax.swing.JTextField();
         criarBaralhoButton = new javax.swing.JButton();
@@ -328,6 +576,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         inserirMateriaTextField = new javax.swing.JTextField();
         mensagemAdicionarBaralhoInvalido = new javax.swing.JLabel();
+        importarBaralhoButton = new javax.swing.JButton();
         editarCartasPainel = new javax.swing.JPanel();
         confirmarEditarCartasButton = new javax.swing.JButton();
         editarPerguntaCaixaDeTexto = new javax.swing.JTextField();
@@ -344,6 +593,11 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarPainelInicialButton = new javax.swing.JButton();
         selecionarBaralhosJogarLabel = new javax.swing.JLabel();
         baralhoSemCartasLabel = new javax.swing.JLabel();
+        painelInicial = new javax.swing.JPanel();
+        irJogarButton = new javax.swing.JButton();
+        abrirMeusBaralhosButton = new javax.swing.JButton();
+        sairButton = new javax.swing.JButton();
+        abrirMeusGruposButton = new javax.swing.JButton();
         meusCardsPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         minhasCartasTable = new javax.swing.JTable();
@@ -353,11 +607,6 @@ public class CriarContaTela extends javax.swing.JFrame {
         irParaEditarBaralho = new javax.swing.JButton();
         nomeDoBaralhoLabel = new javax.swing.JLabel();
         codigoDoBaralhoLabel = new javax.swing.JLabel();
-        painelInicial = new javax.swing.JPanel();
-        irJogarButton = new javax.swing.JButton();
-        abrirMeusBaralhosButton = new javax.swing.JButton();
-        sairButton = new javax.swing.JButton();
-        abrirMeusGruposButton = new javax.swing.JButton();
         criarContaPanel = new javax.swing.JPanel();
         criarContaButton = new javax.swing.JButton();
         jaTenhoContaButton = new javax.swing.JButton();
@@ -395,15 +644,15 @@ public class CriarContaTela extends javax.swing.JFrame {
         jLabel17 = new javax.swing.JLabel();
         mensagemEmailAlunoInvalido = new javax.swing.JLabel();
         baralhosDoGrupoPainel = new javax.swing.JPanel();
-        irParaCriarBaralhoButton2 = new javax.swing.JButton();
         jScrollPane5 = new javax.swing.JScrollPane();
-        meusGruposTable1 = new javax.swing.JTable();
-        voltarPainelInicial1Button2 = new javax.swing.JButton();
-        meusGruposLabel1 = new javax.swing.JLabel();
-        irEditarGruposButton1 = new javax.swing.JButton();
-        criarGrupoButton1 = new javax.swing.JButton();
-        jLabel18 = new javax.swing.JLabel();
-        irParaCriarBaralhoButton3 = new javax.swing.JButton();
+        baralhosDoGrupoTable = new javax.swing.JTable();
+        voltarMeusGrupos = new javax.swing.JButton();
+        baralhosDoGrupoLabel = new javax.swing.JLabel();
+        editarBaralhoGrupoButton = new javax.swing.JButton();
+        criarBaralhoGrupoButton = new javax.swing.JButton();
+        nomeDoGrupoLabel = new javax.swing.JLabel();
+        excluirBaralhoGrupoButton = new javax.swing.JButton();
+        mensagemBaralhoDoGrupoSemCartas = new javax.swing.JLabel();
         adicionarGrupoPainel = new javax.swing.JPanel();
         confirmarCriarGrupoButton = new javax.swing.JButton();
         inserirNomeGrupoCaixaDeTexto = new javax.swing.JTextField();
@@ -411,7 +660,131 @@ public class CriarContaTela extends javax.swing.JFrame {
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         mensagemCriarGrupoInvalido = new javax.swing.JLabel();
+        alunosDoGrupoPainel = new javax.swing.JPanel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        alunosDoGrupoTable = new javax.swing.JTable();
+        voltarMeusGrupos1 = new javax.swing.JButton();
+        alunosDoGrupoLabel = new javax.swing.JLabel();
+        irExcluirAlunosGruposButton = new javax.swing.JButton();
+        AdicionarAlunoButton = new javax.swing.JButton();
+        nomeDoGrupoLabel1 = new javax.swing.JLabel();
+        criarBaralhoGrupoPainel = new javax.swing.JPanel();
+        inserirNomeBaralhoGrupoCaixaDeTexto = new javax.swing.JTextField();
+        confirmarCriarBaralhoGrupoButton = new javax.swing.JButton();
+        voltarMeusBaralhosGrupoButton = new javax.swing.JButton();
+        jLabel18 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        inserirTemaBaralhoGrupoCaixaDeTexto = new javax.swing.JTextField();
+        mensagemAdicionarBaralhoGrupoInvalido = new javax.swing.JLabel();
+        cartasDoGrupoPainel = new javax.swing.JPanel();
+        jScrollPane7 = new javax.swing.JScrollPane();
+        cartasDoGrupoTable = new javax.swing.JTable();
+        voltarBaralhosDoGrupoButton = new javax.swing.JButton();
+        cartasDoGrupoLabel = new javax.swing.JLabel();
+        irEditarCartasDoGrupoButton = new javax.swing.JButton();
+        criarCartasGrupoButton = new javax.swing.JButton();
+        nomeDoBaralhoGrupoLabel = new javax.swing.JLabel();
+        codigoDoBaralhoGrupoLabel = new javax.swing.JLabel();
+        excluirCardButton = new javax.swing.JButton();
+        criarCardsGrupoPanel = new javax.swing.JPanel();
+        confirmarCriarCardButton1 = new javax.swing.JButton();
+        inserirPerguntaGrupoCaixaDeTexto = new javax.swing.JTextField();
+        inserirRespostaGrupoCaixaDeTexto = new javax.swing.JTextField();
+        voltarMeusCardsButton1 = new javax.swing.JButton();
+        jLabel26 = new javax.swing.JLabel();
+        jLabel27 = new javax.swing.JLabel();
+        jLabel28 = new javax.swing.JLabel();
+        mensagemCriarCardGrupoInvalidoLabel = new javax.swing.JLabel();
+        editarCartasGrupoPainel = new javax.swing.JPanel();
+        confirmarEditarCartasGrupoButton = new javax.swing.JButton();
+        editarPerguntaGrupoCaixaDeTexto = new javax.swing.JTextField();
+        editarRespostaGrupoCaixaDeTexto = new javax.swing.JTextField();
+        voltarCardsDoGrupoPainel = new javax.swing.JButton();
+        jLabel29 = new javax.swing.JLabel();
+        jLabel30 = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        mensagemEditarPerguntaGrupoInvalida = new javax.swing.JLabel();
+        selecionarModoDeJogoPainel = new javax.swing.JPanel();
+        modoInserirRespostaButton = new javax.swing.JButton();
+        modoDeJogoInvertidoButton = new javax.swing.JButton();
+        voltarMeusGruposButton1 = new javax.swing.JButton();
+        modoDeJogoNormalButton = new javax.swing.JButton();
+        selecionarModoDeJogoGrupoPainel = new javax.swing.JPanel();
+        modoInserirRespostaButton1 = new javax.swing.JButton();
+        modoDeJogoInvertidoButton1 = new javax.swing.JButton();
+        voltarMeusGruposButton3 = new javax.swing.JButton();
+        modoDeJogoNormalButton1 = new javax.swing.JButton();
+        jogoBaralhosDoGrupoPainel = new javax.swing.JPanel();
+        cartaAnteriorButton1 = new javax.swing.JButton();
+        finalizarJogoButton1 = new javax.swing.JButton();
+        proximaCartaButton1 = new javax.swing.JButton();
+        acerteiButton1 = new javax.swing.JButton();
+        erreiButton1 = new javax.swing.JButton();
+        virarCardButton1 = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        conteudoCartaLabel1 = new javax.swing.JLabel();
+        painelJogoFinalizado1 = new javax.swing.JPanel();
+        estatisticasJogoLabel1 = new javax.swing.JLabel();
+        terminarJogoVoltarPainelButton1 = new javax.swing.JButton();
+        painelJogoInserir = new javax.swing.JPanel();
+        finalizarJogoButton2 = new javax.swing.JButton();
+        pularCarta = new javax.swing.JButton();
+        confirmarRespostaButton = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        conteudoCartaLabel2 = new javax.swing.JLabel();
+        inserirRespostaTF = new javax.swing.JTextField();
+        jLabel33 = new javax.swing.JLabel();
+        mensagemRespostaInvalida = new javax.swing.JLabel();
+        painelJogoInserir1 = new javax.swing.JPanel();
+        finalizarJogoButton3 = new javax.swing.JButton();
+        pularCarta1 = new javax.swing.JButton();
+        confirmarRespostaButton1 = new javax.swing.JButton();
+        jPanel4 = new javax.swing.JPanel();
+        conteudoCartaLabel3 = new javax.swing.JLabel();
+        inserirRespostaTF1 = new javax.swing.JTextField();
+        jLabel34 = new javax.swing.JLabel();
+        mensagemRespostaInvalida1 = new javax.swing.JLabel();
+        editarUsuarioPainel = new javax.swing.JPanel();
+        editarNomeButton = new javax.swing.JButton();
+        editarEmailButton = new javax.swing.JButton();
+        voltarPainelInicialButton2 = new javax.swing.JButton();
+        editarSenhaButton = new javax.swing.JButton();
+        jLabel35 = new javax.swing.JLabel();
+        editarUsuarioButton = new javax.swing.JButton();
+        editarNomeUsuarioPainel = new javax.swing.JPanel();
+        confirmarEditarNomeUsuario = new javax.swing.JButton();
+        nomeUsuarioTF = new javax.swing.JTextField();
+        voltarEditarUsuario = new javax.swing.JButton();
+        jLabel36 = new javax.swing.JLabel();
+        jLabel37 = new javax.swing.JLabel();
+        mensagemEditarNomeUsuarioInvalido = new javax.swing.JLabel();
+        editarEmailUsuarioPainel = new javax.swing.JPanel();
+        confirmarEditarEmailUsuario = new javax.swing.JButton();
+        emailUsuarioTF = new javax.swing.JTextField();
+        voltarEditarUsuario1 = new javax.swing.JButton();
+        jLabel38 = new javax.swing.JLabel();
+        jLabel39 = new javax.swing.JLabel();
+        mensagemEditarEmailInvalido = new javax.swing.JLabel();
+        editarSenhaPainel = new javax.swing.JPanel();
+        confirmarEditarSenha = new javax.swing.JButton();
+        voltarEditarUsuario2 = new javax.swing.JButton();
+        jLabel40 = new javax.swing.JLabel();
+        jLabel41 = new javax.swing.JLabel();
+        mensagemEditarSenhaInvalido = new javax.swing.JLabel();
+        jLabel42 = new javax.swing.JLabel();
+        senhaVelhaPF = new javax.swing.JPasswordField();
+        senhaNovaPF = new javax.swing.JPasswordField();
+        importarBaralhoPainel = new javax.swing.JPanel();
+        confirmarImportarBaralhoButton = new javax.swing.JButton();
+        codigoBaralhoTF = new javax.swing.JTextField();
+        voltarCriarBaralhoButton = new javax.swing.JButton();
+        jLabel43 = new javax.swing.JLabel();
+        jLabel44 = new javax.swing.JLabel();
+        mensagemImportarBaralhoInvalido = new javax.swing.JLabel();
         labelFundo = new javax.swing.JLabel();
+
+        jLabel32.setText("jLabel32");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1080, 760));
@@ -420,12 +793,121 @@ public class CriarContaTela extends javax.swing.JFrame {
         setSize(new java.awt.Dimension(760, 760));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        editarBaralhoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+        editarBaralhoGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
+
+        confirmarEditarBaralhoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarEditarBaralhoGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarEditarBaralhoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarEditarBaralhoGrupoButton.setText("Confirmar");
+        confirmarEditarBaralhoGrupoButton.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                confirmarEditarBaralhoGrupoButtonAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
+        confirmarEditarBaralhoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarEditarBaralhoGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        editarNomeBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        editarNomeBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarNomeBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
+        editarNomeBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 32));
+
+        editarTemaBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        editarTemaBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarTemaBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
+        editarTemaBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 32));
+
+        voltarBaralhosGrupoButton.setBackground(new java.awt.Color(246, 231, 211));
+        voltarBaralhosGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarBaralhosGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        voltarBaralhosGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/e093e382-363e-45a3-a9df-99fc90c2ab85.png (3).png"))); // NOI18N
+        voltarBaralhosGrupoButton.setBorder(null);
+        voltarBaralhosGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarBaralhosGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel23.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel23.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel23.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel23.setText("Editar baralho");
+
+        jLabel24.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel24.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel24.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel24.setText("Tema");
+
+        jLabel25.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel25.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel25.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel25.setText("Nome");
+
+        mensagemEditarBaralhoGrupoInvalido.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemEditarBaralhoGrupoInvalido.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemEditarBaralhoGrupoInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout editarBaralhoGrupoPainelLayout = new javax.swing.GroupLayout(editarBaralhoGrupoPainel);
+        editarBaralhoGrupoPainel.setLayout(editarBaralhoGrupoPainelLayout);
+        editarBaralhoGrupoPainelLayout.setHorizontalGroup(
+            editarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarBaralhoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(confirmarEditarBaralhoGrupoButton)
+                .addGap(162, 162, 162))
+            .addGroup(editarBaralhoGrupoPainelLayout.createSequentialGroup()
+                .addGap(125, 125, 125)
+                .addGroup(editarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(mensagemEditarBaralhoGrupoInvalido, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel25, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel23, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editarTemaBaralhoGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(editarNomeBaralhoGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarBaralhoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarBaralhosGrupoButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        editarBaralhoGrupoPainelLayout.setVerticalGroup(
+            editarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarBaralhoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarBaralhosGrupoButton)
+                .addGap(36, 36, 36)
+                .addComponent(jLabel23)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel25)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editarNomeBaralhoGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(16, 16, 16)
+                .addComponent(jLabel24)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editarTemaBaralhoGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mensagemEditarBaralhoGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(confirmarEditarBaralhoGrupoButton)
+                .addContainerGap(99, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(editarBaralhoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
         confirmarExcluirBaralhoPainel.setBackground(new java.awt.Color(246, 231, 211));
 
-        estatisticasJogoLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        estatisticasJogoLabel1.setForeground(new java.awt.Color(0, 0, 0));
-        estatisticasJogoLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estatisticasJogoLabel1.setText("Tem certeza que deseja excluir esse baralho?");
+        mensagemDesejaExcluirBaralho.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        mensagemDesejaExcluirBaralho.setForeground(new java.awt.Color(0, 0, 0));
+        mensagemDesejaExcluirBaralho.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        mensagemDesejaExcluirBaralho.setText("Tem certeza que deseja excluir esse baralho?");
 
         confirmarExcluirBaralhoButton.setBackground(new java.awt.Color(237, 30, 82));
         confirmarExcluirBaralhoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -451,7 +933,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         confirmarExcluirBaralhoPainel.setLayout(confirmarExcluirBaralhoPainelLayout);
         confirmarExcluirBaralhoPainelLayout.setHorizontalGroup(
             confirmarExcluirBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(estatisticasJogoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
+            .addComponent(mensagemDesejaExcluirBaralho, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
             .addGroup(confirmarExcluirBaralhoPainelLayout.createSequentialGroup()
                 .addGap(152, 152, 152)
                 .addGroup(confirmarExcluirBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -463,7 +945,7 @@ public class CriarContaTela extends javax.swing.JFrame {
             confirmarExcluirBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(confirmarExcluirBaralhoPainelLayout.createSequentialGroup()
                 .addGap(58, 58, 58)
-                .addComponent(estatisticasJogoLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(mensagemDesejaExcluirBaralho, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(58, 58, 58)
                 .addComponent(confirmarExcluirBaralhoButton)
                 .addGap(34, 34, 34)
@@ -495,10 +977,11 @@ public class CriarContaTela extends javax.swing.JFrame {
             }
         });
 
-        voltarMeusGruposButton.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusGruposButton.setBackground(new java.awt.Color(246, 231, 211));
         voltarMeusGruposButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarMeusGruposButton.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusGruposButton.setText("Sair");
+        voltarMeusGruposButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusGruposButton.setBorder(null);
         voltarMeusGruposButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarMeusGruposButtonActionPerformed(evt);
@@ -524,22 +1007,25 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGroup(editarGrupoAcoesPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(editarGrupoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(adicionarAlunoGrupoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(voltarMeusGruposButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(adicionarBaralhoGrupoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(127, 127, 127))
+            .addGroup(editarGrupoAcoesPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton)
+                .addContainerGap())
         );
         editarGrupoAcoesPainelLayout.setVerticalGroup(
             editarGrupoAcoesPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarGrupoAcoesPainelLayout.createSequentialGroup()
-                .addContainerGap(127, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 95, Short.MAX_VALUE)
                 .addComponent(adicionarBaralhoGrupoButton)
                 .addGap(18, 18, 18)
                 .addComponent(adicionarAlunoGrupoButton)
                 .addGap(18, 18, 18)
                 .addComponent(editarGrupoButton)
-                .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(voltarMeusGruposButton)
-                .addGap(127, 127, 127))
+                .addGap(175, 175, 175))
         );
 
         getContentPane().add(editarGrupoAcoesPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
@@ -551,6 +1037,15 @@ public class CriarContaTela extends javax.swing.JFrame {
         confirmarEditarBaralhoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         confirmarEditarBaralhoButton.setForeground(new java.awt.Color(255, 255, 255));
         confirmarEditarBaralhoButton.setText("Confirmar");
+        confirmarEditarBaralhoButton.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                confirmarEditarBaralhoButtonAncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
         confirmarEditarBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 confirmarEditarBaralhoButtonActionPerformed(evt);
@@ -567,10 +1062,11 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarTemaCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
         editarTemaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 32));
 
-        voltarMeusCardsButton3.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusCardsButton3.setBackground(new java.awt.Color(246, 231, 211));
         voltarMeusCardsButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarMeusCardsButton3.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusCardsButton3.setText("Voltar");
+        voltarMeusCardsButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/e093e382-363e-45a3-a9df-99fc90c2ab85.png (4).png"))); // NOI18N
+        voltarMeusCardsButton3.setBorder(null);
         voltarMeusCardsButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarMeusCardsButton3ActionPerformed(evt);
@@ -602,9 +1098,7 @@ public class CriarContaTela extends javax.swing.JFrame {
             editarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarBaralhoPainelLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(editarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltarMeusCardsButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(confirmarEditarBaralhoButton))
+                .addComponent(confirmarEditarBaralhoButton)
                 .addGap(162, 162, 162))
             .addGroup(editarBaralhoPainelLayout.createSequentialGroup()
                 .addGap(125, 125, 125)
@@ -616,25 +1110,29 @@ public class CriarContaTela extends javax.swing.JFrame {
                     .addComponent(editarTemaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(editarNomeBaralhoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarBaralhoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusCardsButton3)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         editarBaralhoPainelLayout.setVerticalGroup(
             editarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(editarBaralhoPainelLayout.createSequentialGroup()
-                .addGap(72, 72, 72)
+                .addContainerGap()
+                .addComponent(voltarMeusCardsButton3)
+                .addGap(37, 37, 37)
                 .addComponent(jLabel7)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel9)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editarNomeBaralhoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(editarNomeBaralhoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addGap(16, 16, 16)
                 .addComponent(jLabel8)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editarTemaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(editarTemaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addGap(27, 27, 27)
                 .addComponent(confirmarEditarBaralhoButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(voltarMeusCardsButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(47, 47, 47)
                 .addComponent(mensagemEditarBaralhoInvalido)
                 .addContainerGap(69, Short.MAX_VALUE))
         );
@@ -647,13 +1145,45 @@ public class CriarContaTela extends javax.swing.JFrame {
         irParaCriarBaralhoButton.setBackground(new java.awt.Color(237, 30, 82));
         irParaCriarBaralhoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         irParaCriarBaralhoButton.setForeground(new java.awt.Color(255, 255, 255));
-        irParaCriarBaralhoButton.setText("Adicionar Baralho");
+        irParaCriarBaralhoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/adicionar.png"))); // NOI18N
+        irParaCriarBaralhoButton.setBorder(null);
         irParaCriarBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 irParaCriarBaralhoButtonActionPerformed(evt);
             }
         });
 
+        jScrollPane1.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211)); // cor combinando com seu trackColor do scroll
+        }});
+        JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);  // cor do "thumb"
+                trackColor = new Color(246,231,211);  // cor da "trilha"
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
+            }
+        });
         jScrollPane1.setBackground(new java.awt.Color(206, 191, 171));
 
         meusBaralhosTable.setAutoCreateRowSorter(true);
@@ -665,7 +1195,7 @@ public class CriarContaTela extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Nome", "Matéria", "Aproveitamento", "Vezes Jogadas", ""
+                "Nome", "Matéria", "Aproveitamento", "Cards Respondidos", ""
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -680,26 +1210,24 @@ public class CriarContaTela extends javax.swing.JFrame {
         jScrollPane1.setViewportView(meusBaralhosTable);
         if (meusBaralhosTable.getColumnModel().getColumnCount() > 0) {
             meusBaralhosTable.getColumnModel().getColumn(2).setResizable(false);
-            meusBaralhosTable.getColumnModel().getColumn(2).setHeaderValue("Aproveitamento");
-            meusBaralhosTable.getColumnModel().getColumn(3).setHeaderValue("Vezes Jogadas");
             meusBaralhosTable.getColumnModel().getColumn(4).setPreferredWidth(40);
-            meusBaralhosTable.getColumnModel().getColumn(4).setHeaderValue("");
         }
-
-        voltarPainelInicial1Button.setBackground(new java.awt.Color(237, 30, 82));
-        voltarPainelInicial1Button.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        voltarPainelInicial1Button.setForeground(new java.awt.Color(255, 255, 255));
-        voltarPainelInicial1Button.setText("Voltar");
-        voltarPainelInicial1Button.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                voltarPainelInicial1ButtonActionPerformed(evt);
-            }
-        });
 
         meusBaralhosLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         meusBaralhosLabel.setForeground(new java.awt.Color(0, 0, 0));
         meusBaralhosLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         meusBaralhosLabel.setText("Meus baralhos");
+
+        voltarPainelInicial1Button.setBackground(new java.awt.Color(246, 231, 211));
+        voltarPainelInicial1Button.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarPainelInicial1Button.setForeground(new java.awt.Color(255, 255, 255));
+        voltarPainelInicial1Button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarPainelInicial1Button.setBorder(null);
+        voltarPainelInicial1Button.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarPainelInicial1ButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout meusBaralhosPainelLayout = new javax.swing.GroupLayout(meusBaralhosPainel);
         meusBaralhosPainel.setLayout(meusBaralhosPainelLayout);
@@ -711,24 +1239,24 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 768, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
-                .addGap(120, 120, 120)
-                .addComponent(voltarPainelInicial1Button, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(voltarPainelInicial1Button)
+                .addGap(335, 335, 335)
                 .addComponent(irParaCriarBaralhoButton)
-                .addGap(120, 120, 120))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         meusBaralhosPainelLayout.setVerticalGroup(
             meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(meusBaralhosLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(voltarPainelInicial1Button)
-                    .addComponent(irParaCriarBaralhoButton))
-                .addGap(22, 22, 22))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(irParaCriarBaralhoButton)
+                    .addComponent(voltarPainelInicial1Button))
+                .addGap(41, 41, 41))
         );
 
         getContentPane().add(meusBaralhosPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 220, 780, 440));
@@ -771,6 +1299,106 @@ public class CriarContaTela extends javax.swing.JFrame {
         );
 
         getContentPane().add(painelJogoFinalizado, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
+
+        autenticarContaPanel.setBackground(new java.awt.Color(246, 231, 211));
+        autenticarContaPanel.setPreferredSize(new java.awt.Dimension(440, 440));
+
+        campoEmailAutenticarTextField.setBackground(new java.awt.Color(28, 181, 196));
+        campoEmailAutenticarTextField.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        campoEmailAutenticarTextField.setForeground(new java.awt.Color(0, 0, 0));
+        campoEmailAutenticarTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        campoEmailAutenticarTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                campoEmailAutenticarTextFieldActionPerformed(evt);
+            }
+        });
+
+        SenhaLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        SenhaLabel.setForeground(new java.awt.Color(0, 0, 0));
+        SenhaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        SenhaLabel.setText("Senha");
+
+        EntrarButton.setBackground(new java.awt.Color(237, 30, 82));
+        EntrarButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        EntrarButton.setForeground(new java.awt.Color(255, 255, 255));
+        EntrarButton.setText("Entrar");
+        EntrarButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        EntrarButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EntrarButtonActionPerformed(evt);
+            }
+        });
+
+        campoSenhaAutenticarPasswordField.setBackground(new java.awt.Color(28, 181, 196));
+        campoSenhaAutenticarPasswordField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
+        campoSenhaAutenticarPasswordField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                campoSenhaAutenticarPasswordFieldActionPerformed(evt);
+            }
+        });
+
+        redirecionarTelaCriarContaButton.setBackground(new java.awt.Color(60, 63, 65));
+        redirecionarTelaCriarContaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        redirecionarTelaCriarContaButton.setForeground(new java.awt.Color(28, 181, 196));
+        redirecionarTelaCriarContaButton.setText("Criar Conta");
+        redirecionarTelaCriarContaButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        redirecionarTelaCriarContaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                redirecionarTelaCriarContaButtonActionPerformed(evt);
+            }
+        });
+
+        EmailLabel.setBackground(new java.awt.Color(0, 0, 0));
+        EmailLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        EmailLabel.setForeground(new java.awt.Color(0, 0, 0));
+        EmailLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        EmailLabel.setText("E-mail");
+
+        dadosInvalidosMensagem.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        dadosInvalidosMensagem.setForeground(new java.awt.Color(28, 181, 196));
+        dadosInvalidosMensagem.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout autenticarContaPanelLayout = new javax.swing.GroupLayout(autenticarContaPanel);
+        autenticarContaPanel.setLayout(autenticarContaPanelLayout);
+        autenticarContaPanelLayout.setHorizontalGroup(
+            autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(autenticarContaPanelLayout.createSequentialGroup()
+                .addGap(124, 124, 124)
+                .addGroup(autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dadosInvalidosMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(campoEmailAutenticarTextField, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(campoSenhaAutenticarPasswordField, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(EntrarButton, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                        .addComponent(SenhaLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(EmailLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(0, 124, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, autenticarContaPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(redirecionarTelaCriarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(174, 174, 174))
+        );
+        autenticarContaPanelLayout.setVerticalGroup(
+            autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(autenticarContaPanelLayout.createSequentialGroup()
+                .addGap(120, 120, 120)
+                .addComponent(EmailLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(campoEmailAutenticarTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addComponent(SenhaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, 0)
+                .addComponent(campoSenhaAutenticarPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(redirecionarTelaCriarContaButton)
+                .addGap(0, 0, 0)
+                .addComponent(EntrarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dadosInvalidosMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(107, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(autenticarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         painelJogoNormal.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -914,6 +1542,36 @@ public class CriarContaTela extends javax.swing.JFrame {
         meusGruposPainel.setBackground(new java.awt.Color(246, 231, 211));
         meusGruposPainel.setPreferredSize(new java.awt.Dimension(580, 460));
 
+        jScrollPane4.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211));
+        }});
+        verticalScrollBar = jScrollPane4.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);
+                trackColor = new Color(246,231,211);
+            }
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
+            }
+        });
         jScrollPane4.setBackground(new java.awt.Color(206, 191, 171));
 
         meusGruposTable.setAutoCreateRowSorter(true);
@@ -947,7 +1605,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarPainelInicial1Button1.setBackground(new java.awt.Color(237, 30, 82));
         voltarPainelInicial1Button1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarPainelInicial1Button1.setForeground(new java.awt.Color(255, 255, 255));
-        voltarPainelInicial1Button1.setText("Voltar");
+        voltarPainelInicial1Button1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarPainelInicial1Button1.setBorder(null);
         voltarPainelInicial1Button1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarPainelInicial1Button1ActionPerformed(evt);
@@ -962,7 +1621,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         irEditarGruposButton.setBackground(new java.awt.Color(237, 30, 82));
         irEditarGruposButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         irEditarGruposButton.setForeground(new java.awt.Color(255, 255, 255));
-        irEditarGruposButton.setText("Editar");
+        irEditarGruposButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/editar.png"))); // NOI18N
+        irEditarGruposButton.setBorder(null);
         irEditarGruposButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 irEditarGruposButtonActionPerformed(evt);
@@ -972,10 +1632,22 @@ public class CriarContaTela extends javax.swing.JFrame {
         criarGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
         criarGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         criarGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
-        criarGrupoButton.setText("Criar");
+        criarGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/adicionar.png"))); // NOI18N
+        criarGrupoButton.setBorder(null);
         criarGrupoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 criarGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        excluirGruposButton.setBackground(new java.awt.Color(237, 30, 82));
+        excluirGruposButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        excluirGruposButton.setForeground(new java.awt.Color(255, 255, 255));
+        excluirGruposButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/deletar (2).png"))); // NOI18N
+        excluirGruposButton.setBorder(null);
+        excluirGruposButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excluirGruposButtonActionPerformed(evt);
             }
         });
 
@@ -984,20 +1656,19 @@ public class CriarContaTela extends javax.swing.JFrame {
         meusGruposPainelLayout.setHorizontalGroup(
             meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(meusGruposPainelLayout.createSequentialGroup()
+                .addGap(20, 20, 20)
                 .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(meusGruposLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
                     .addGroup(meusGruposPainelLayout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(meusGruposLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE)))
-                    .addGroup(meusGruposPainelLayout.createSequentialGroup()
-                        .addGap(123, 123, 123)
+                        .addComponent(voltarPainelInicial1Button1)
+                        .addGap(152, 152, 152)
+                        .addComponent(excluirGruposButton)
+                        .addGap(28, 28, 28)
                         .addComponent(irEditarGruposButton)
-                        .addGap(123, 123, 123)
-                        .addComponent(criarGrupoButton))
-                    .addGroup(meusGruposPainelLayout.createSequentialGroup()
-                        .addGap(229, 229, 229)
-                        .addComponent(voltarPainelInicial1Button1)))
+                        .addGap(28, 28, 28)
+                        .addComponent(criarGrupoButton)))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         meusGruposPainelLayout.setVerticalGroup(
@@ -1008,115 +1679,15 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(voltarPainelInicial1Button1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(criarGrupoButton)
-                    .addComponent(irEditarGruposButton))
-                .addGap(16, 16, 16))
+                .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(voltarPainelInicial1Button1)
+                    .addComponent(irEditarGruposButton)
+                    .addComponent(excluirGruposButton)
+                    .addComponent(criarGrupoButton))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
 
         getContentPane().add(meusGruposPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 210, 580, 460));
-
-        autenticarContaPanel.setBackground(new java.awt.Color(246, 231, 211));
-        autenticarContaPanel.setPreferredSize(new java.awt.Dimension(440, 440));
-
-        campoEmailAutenticarTextField.setBackground(new java.awt.Color(28, 181, 196));
-        campoEmailAutenticarTextField.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        campoEmailAutenticarTextField.setForeground(new java.awt.Color(0, 0, 0));
-        campoEmailAutenticarTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        campoEmailAutenticarTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                campoEmailAutenticarTextFieldActionPerformed(evt);
-            }
-        });
-
-        SenhaLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        SenhaLabel.setForeground(new java.awt.Color(0, 0, 0));
-        SenhaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        SenhaLabel.setText("Senha");
-
-        EntrarButton.setBackground(new java.awt.Color(237, 30, 82));
-        EntrarButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        EntrarButton.setForeground(new java.awt.Color(255, 255, 255));
-        EntrarButton.setText("Entrar");
-        EntrarButton.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        EntrarButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                EntrarButtonActionPerformed(evt);
-            }
-        });
-
-        campoSenhaAutenticarPasswordField.setBackground(new java.awt.Color(28, 181, 196));
-        campoSenhaAutenticarPasswordField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
-        campoSenhaAutenticarPasswordField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                campoSenhaAutenticarPasswordFieldActionPerformed(evt);
-            }
-        });
-
-        redirecionarTelaCriarContaButton.setBackground(new java.awt.Color(60, 63, 65));
-        redirecionarTelaCriarContaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        redirecionarTelaCriarContaButton.setForeground(new java.awt.Color(28, 181, 196));
-        redirecionarTelaCriarContaButton.setText("Criar Conta");
-        redirecionarTelaCriarContaButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        redirecionarTelaCriarContaButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                redirecionarTelaCriarContaButtonActionPerformed(evt);
-            }
-        });
-
-        EmailLabel.setBackground(new java.awt.Color(0, 0, 0));
-        EmailLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        EmailLabel.setForeground(new java.awt.Color(0, 0, 0));
-        EmailLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        EmailLabel.setText("E-mail");
-
-        dadosInvalidosMensagem.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        dadosInvalidosMensagem.setForeground(new java.awt.Color(28, 181, 196));
-        dadosInvalidosMensagem.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-
-        javax.swing.GroupLayout autenticarContaPanelLayout = new javax.swing.GroupLayout(autenticarContaPanel);
-        autenticarContaPanel.setLayout(autenticarContaPanelLayout);
-        autenticarContaPanelLayout.setHorizontalGroup(
-            autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(autenticarContaPanelLayout.createSequentialGroup()
-                .addGap(124, 124, 124)
-                .addGroup(autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(dadosInvalidosMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(campoEmailAutenticarTextField, javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(campoSenhaAutenticarPasswordField, javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(EntrarButton, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
-                        .addComponent(SenhaLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(EmailLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(0, 124, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, autenticarContaPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(redirecionarTelaCriarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(174, 174, 174))
-        );
-        autenticarContaPanelLayout.setVerticalGroup(
-            autenticarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(autenticarContaPanelLayout.createSequentialGroup()
-                .addGap(120, 120, 120)
-                .addComponent(EmailLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(campoEmailAutenticarTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addComponent(SenhaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(campoSenhaAutenticarPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(redirecionarTelaCriarContaButton)
-                .addGap(0, 0, 0)
-                .addComponent(EntrarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dadosInvalidosMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(107, Short.MAX_VALUE))
-        );
-
-        getContentPane().add(autenticarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         adicionarBaralhosPainel.setBackground(new java.awt.Color(246, 231, 211));
         adicionarBaralhosPainel.setMaximumSize(new java.awt.Dimension(440, 440));
@@ -1145,7 +1716,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarMeusBaralhos1.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusBaralhos1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
         voltarMeusBaralhos1.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusBaralhos1.setText("Voltar");
+        voltarMeusBaralhos1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusBaralhos1.setBorder(null);
         voltarMeusBaralhos1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarMeusBaralhos1ActionPerformed(evt);
@@ -1181,33 +1753,54 @@ public class CriarContaTela extends javax.swing.JFrame {
         mensagemAdicionarBaralhoInvalido.setForeground(new java.awt.Color(28, 181, 196));
         mensagemAdicionarBaralhoInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
+        importarBaralhoButton.setBackground(new java.awt.Color(246, 231, 211));
+        importarBaralhoButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        importarBaralhoButton.setForeground(new java.awt.Color(255, 255, 255));
+        importarBaralhoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Imagem upload.png"))); // NOI18N
+        importarBaralhoButton.setBorder(null);
+        importarBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importarBaralhoButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout adicionarBaralhosPainelLayout = new javax.swing.GroupLayout(adicionarBaralhosPainel);
         adicionarBaralhosPainel.setLayout(adicionarBaralhosPainelLayout);
         adicionarBaralhosPainelLayout.setHorizontalGroup(
             adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicionarBaralhosPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusBaralhos1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(importarBaralhoButton)
+                .addGap(33, 33, 33))
             .addGroup(adicionarBaralhosPainelLayout.createSequentialGroup()
+                .addGap(125, 125, 125)
                 .addGroup(adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(adicionarBaralhosPainelLayout.createSequentialGroup()
-                        .addGap(125, 125, 125)
-                        .addGroup(adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mensagemAdicionarBaralhoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(inserirNomeBaralhoTextField)
-                                .addComponent(inserirMateriaTextField)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .addGroup(adicionarBaralhosPainelLayout.createSequentialGroup()
-                        .addGap(160, 160, 160)
-                        .addGroup(adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(voltarMeusBaralhos1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(criarBaralhoButton))))
+                    .addComponent(mensagemAdicionarBaralhoInvalido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(inserirNomeBaralhoTextField)
+                        .addComponent(inserirMateriaTextField)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap(125, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicionarBaralhosPainelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(criarBaralhoButton)
+                .addGap(160, 160, 160))
         );
         adicionarBaralhosPainelLayout.setVerticalGroup(
             adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(adicionarBaralhosPainelLayout.createSequentialGroup()
-                .addGap(53, 53, 53)
+                .addGroup(adicionarBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(adicionarBaralhosPainelLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(importarBaralhoButton))
+                    .addGroup(adicionarBaralhosPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusBaralhos1)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addGap(31, 31, 31)
                 .addComponent(jLabel3)
@@ -1218,12 +1811,10 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(inserirMateriaTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(10, 10, 10)
+                .addComponent(mensagemAdicionarBaralhoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addComponent(criarBaralhoButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(voltarMeusBaralhos1)
-                .addGap(12, 12, 12)
-                .addComponent(mensagemAdicionarBaralhoInvalido)
-                .addContainerGap(100, Short.MAX_VALUE))
+                .addContainerGap(101, Short.MAX_VALUE))
         );
 
         getContentPane().add(adicionarBaralhosPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -1254,7 +1845,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarMeusCardsButton2.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusCardsButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarMeusCardsButton2.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusCardsButton2.setText("Voltar");
+        voltarMeusCardsButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusCardsButton2.setBorder(null);
         voltarMeusCardsButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarMeusCardsButton2ActionPerformed(evt);
@@ -1284,12 +1876,6 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarCartasPainel.setLayout(editarCartasPainelLayout);
         editarCartasPainelLayout.setHorizontalGroup(
             editarCartasPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarCartasPainelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(editarCartasPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltarMeusCardsButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(confirmarEditarCartasButton))
-                .addGap(162, 162, 162))
             .addGroup(editarCartasPainelLayout.createSequentialGroup()
                 .addGap(125, 125, 125)
                 .addGroup(editarCartasPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -1300,32 +1886,42 @@ public class CriarContaTela extends javax.swing.JFrame {
                     .addComponent(editarRespostaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(editarPerguntaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarCartasPainelLayout.createSequentialGroup()
+                .addGroup(editarCartasPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(editarCartasPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusCardsButton2))
+                    .addGroup(editarCartasPainelLayout.createSequentialGroup()
+                        .addGap(162, 162, 162)
+                        .addComponent(confirmarEditarCartasButton)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         editarCartasPainelLayout.setVerticalGroup(
             editarCartasPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(editarCartasPainelLayout.createSequentialGroup()
-                .addGap(72, 72, 72)
+                .addContainerGap()
+                .addComponent(voltarMeusCardsButton2)
+                .addGap(37, 37, 37)
                 .addComponent(jLabel4)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editarPerguntaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(editarPerguntaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
                 .addGap(16, 16, 16)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editarRespostaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(27, 27, 27)
-                .addComponent(confirmarEditarCartasButton)
+                .addComponent(editarRespostaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(voltarMeusCardsButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mensagemEditarPerguntaInvalida)
-                .addContainerGap(69, Short.MAX_VALUE))
+                .addComponent(mensagemEditarPerguntaInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addComponent(confirmarEditarCartasButton)
+                .addGap(97, 97, 97))
         );
 
         getContentPane().add(editarCartasPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         selecionarBaralhoJogarPainel.setBackground(new java.awt.Color(246, 231, 211));
+        selecionarBaralhoJogarPainel.setPreferredSize(new java.awt.Dimension(440, 478));
 
         jogarButton.setBackground(new java.awt.Color(237, 30, 82));
         jogarButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -1334,6 +1930,38 @@ public class CriarContaTela extends javax.swing.JFrame {
         jogarButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jogarButtonActionPerformed(evt);
+            }
+        });
+
+        jScrollPane3.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211));
+        }});
+        verticalScrollBar = jScrollPane3.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);
+                trackColor = new Color(246,231,211);
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
             }
         });
 
@@ -1363,10 +1991,11 @@ public class CriarContaTela extends javax.swing.JFrame {
         selecionarBaralhoJogarTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jScrollPane3.setViewportView(selecionarBaralhoJogarTable);
 
-        voltarPainelInicialButton.setBackground(new java.awt.Color(237, 30, 82));
+        voltarPainelInicialButton.setBackground(new java.awt.Color(246, 231, 211));
         voltarPainelInicialButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarPainelInicialButton.setForeground(new java.awt.Color(255, 255, 255));
-        voltarPainelInicialButton.setText("Voltar");
+        voltarPainelInicialButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarPainelInicialButton.setBorder(null);
         voltarPainelInicialButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarPainelInicialButtonActionPerformed(evt);
@@ -1386,159 +2015,39 @@ public class CriarContaTela extends javax.swing.JFrame {
         selecionarBaralhoJogarPainel.setLayout(selecionarBaralhoJogarPainelLayout);
         selecionarBaralhoJogarPainelLayout.setHorizontalGroup(
             selecionarBaralhoJogarPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(selecionarBaralhoJogarPainelLayout.createSequentialGroup()
-                .addGap(74, 74, 74)
-                .addComponent(voltarPainelInicialButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jogarButton)
-                .addGap(74, 74, 74))
-            .addGroup(selecionarBaralhoJogarPainelLayout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(31, Short.MAX_VALUE))
-            .addComponent(selecionarBaralhosJogarLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(baralhoSemCartasLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(selecionarBaralhosJogarLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selecionarBaralhoJogarPainelLayout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(jogarButton)
+                .addGap(180, 180, 180))
+            .addGroup(selecionarBaralhoJogarPainelLayout.createSequentialGroup()
+                .addGroup(selecionarBaralhoJogarPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(selecionarBaralhoJogarPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarPainelInicialButton))
+                    .addGroup(selecionarBaralhoJogarPainelLayout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 381, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
         selecionarBaralhoJogarPainelLayout.setVerticalGroup(
             selecionarBaralhoJogarPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(selecionarBaralhoJogarPainelLayout.createSequentialGroup()
-                .addContainerGap(30, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(voltarPainelInicialButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(selecionarBaralhosJogarLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(selecionarBaralhoJogarPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jogarButton)
-                    .addComponent(voltarPainelInicialButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(baralhoSemCartasLabel)
-                .addContainerGap())
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jogarButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(baralhoSemCartasLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         getContentPane().add(selecionarBaralhoJogarPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
-
-        meusCardsPanel.setBackground(new java.awt.Color(246, 231, 211));
-
-        minhasCartasTable.setBackground(new java.awt.Color(206, 191, 171));
-        minhasCartasTable.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        minhasCartasTable.setForeground(new java.awt.Color(0, 0, 0));
-        minhasCartasTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Pergunta", "Resposta", "Jogadas", "Aproveitamento", ""
-            }
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, false, true, false, true
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        minhasCartasTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        minhasCartasTable.setGridColor(new java.awt.Color(246, 231, 211));
-        minhasCartasTable.setRowHeight(40);
-        minhasCartasTable.setShowGrid(false);
-        jScrollPane2.setViewportView(minhasCartasTable);
-        if (minhasCartasTable.getColumnModel().getColumnCount() > 0) {
-            minhasCartasTable.getColumnModel().getColumn(4).setPreferredWidth(162);
-        }
-
-        irParaCriarCardButton.setBackground(new java.awt.Color(237, 30, 82));
-        irParaCriarCardButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        irParaCriarCardButton.setForeground(new java.awt.Color(255, 255, 255));
-        irParaCriarCardButton.setText("Adicionar Card");
-        irParaCriarCardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                irParaCriarCardButtonActionPerformed(evt);
-            }
-        });
-
-        voltarMeusBaralhosButton.setBackground(new java.awt.Color(237, 30, 82));
-        voltarMeusBaralhosButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        voltarMeusBaralhosButton.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusBaralhosButton.setText("Voltar");
-        voltarMeusBaralhosButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                voltarMeusBaralhosButtonActionPerformed(evt);
-            }
-        });
-
-        meusCardsLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        meusCardsLabel.setForeground(new java.awt.Color(0, 0, 0));
-        meusCardsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        meusCardsLabel.setText("Meus cards");
-
-        irParaEditarBaralho.setBackground(new java.awt.Color(237, 30, 82));
-        irParaEditarBaralho.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        irParaEditarBaralho.setForeground(new java.awt.Color(255, 255, 255));
-        irParaEditarBaralho.setText("Editar baralho");
-        irParaEditarBaralho.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                irParaEditarBaralhoActionPerformed(evt);
-            }
-        });
-
-        nomeDoBaralhoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        nomeDoBaralhoLabel.setForeground(new java.awt.Color(0, 0, 0));
-        nomeDoBaralhoLabel.setText("jLabel14");
-
-        codigoDoBaralhoLabel.setBackground(new java.awt.Color(0, 0, 0));
-        codigoDoBaralhoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        codigoDoBaralhoLabel.setForeground(new java.awt.Color(0, 0, 0));
-        codigoDoBaralhoLabel.setText("Codigo do baralho: 123131");
-
-        javax.swing.GroupLayout meusCardsPanelLayout = new javax.swing.GroupLayout(meusCardsPanel);
-        meusCardsPanel.setLayout(meusCardsPanelLayout);
-        meusCardsPanelLayout.setHorizontalGroup(
-            meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                .addGap(51, 51, 51)
-                .addComponent(voltarMeusBaralhosButton)
-                .addGap(61, 61, 61)
-                .addComponent(irParaEditarBaralho)
-                .addGap(61, 61, 61)
-                .addComponent(irParaCriarCardButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(meusCardsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, meusCardsPanelLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(codigoDoBaralhoLabel)
-                        .addGap(14, 14, 14))
-                    .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(nomeDoBaralhoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, meusCardsPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
-        );
-        meusCardsPanelLayout.setVerticalGroup(
-            meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(codigoDoBaralhoLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nomeDoBaralhoLabel)
-                .addGap(18, 18, 18)
-                .addComponent(meusCardsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(irParaCriarCardButton)
-                    .addComponent(irParaEditarBaralho)
-                    .addComponent(voltarMeusBaralhosButton))
-                .addContainerGap())
-        );
-
-        getContentPane().add(meusCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 194, 620, 492));
 
         painelInicial.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -1611,6 +2120,160 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         getContentPane().add(painelInicial, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
 
+        meusCardsPanel.setBackground(new java.awt.Color(246, 231, 211));
+
+        jScrollPane2.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211));
+        }});
+        verticalScrollBar = jScrollPane2.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);
+                trackColor = new Color(246,231,211);
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
+            }
+        });
+
+        minhasCartasTable.setBackground(new java.awt.Color(206, 191, 171));
+        minhasCartasTable.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        minhasCartasTable.setForeground(new java.awt.Color(0, 0, 0));
+        minhasCartasTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Pergunta", "Resposta", "Aproveitamento", "Jogadas", ""
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, true, false, true
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        minhasCartasTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        minhasCartasTable.setGridColor(new java.awt.Color(246, 231, 211));
+        minhasCartasTable.setRowHeight(40);
+        minhasCartasTable.setShowGrid(false);
+        jScrollPane2.setViewportView(minhasCartasTable);
+        if (minhasCartasTable.getColumnModel().getColumnCount() > 0) {
+            minhasCartasTable.getColumnModel().getColumn(4).setPreferredWidth(162);
+        }
+
+        irParaCriarCardButton.setBackground(new java.awt.Color(237, 30, 82));
+        irParaCriarCardButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        irParaCriarCardButton.setForeground(new java.awt.Color(255, 255, 255));
+        irParaCriarCardButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/adicionar.png"))); // NOI18N
+        irParaCriarCardButton.setBorder(null);
+        irParaCriarCardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                irParaCriarCardButtonActionPerformed(evt);
+            }
+        });
+
+        voltarMeusBaralhosButton.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusBaralhosButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusBaralhosButton.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusBaralhosButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusBaralhosButton.setBorder(null);
+        voltarMeusBaralhosButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusBaralhosButtonActionPerformed(evt);
+            }
+        });
+
+        meusCardsLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        meusCardsLabel.setForeground(new java.awt.Color(0, 0, 0));
+        meusCardsLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        meusCardsLabel.setText("Meus cards");
+
+        irParaEditarBaralho.setBackground(new java.awt.Color(237, 30, 82));
+        irParaEditarBaralho.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        irParaEditarBaralho.setForeground(new java.awt.Color(255, 255, 255));
+        irParaEditarBaralho.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/editar.png"))); // NOI18N
+        irParaEditarBaralho.setBorder(null);
+        irParaEditarBaralho.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                irParaEditarBaralhoActionPerformed(evt);
+            }
+        });
+
+        nomeDoBaralhoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        nomeDoBaralhoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        nomeDoBaralhoLabel.setText("jLabel14");
+
+        codigoDoBaralhoLabel.setBackground(new java.awt.Color(0, 0, 0));
+        codigoDoBaralhoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        codigoDoBaralhoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        codigoDoBaralhoLabel.setText("Codigo do baralho: 123131");
+
+        javax.swing.GroupLayout meusCardsPanelLayout = new javax.swing.GroupLayout(meusCardsPanel);
+        meusCardsPanel.setLayout(meusCardsPanelLayout);
+        meusCardsPanelLayout.setHorizontalGroup(
+            meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(meusCardsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, meusCardsPanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(codigoDoBaralhoLabel)
+                .addGap(14, 14, 14))
+            .addGroup(meusCardsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(nomeDoBaralhoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(meusCardsPanelLayout.createSequentialGroup()
+                .addContainerGap(12, Short.MAX_VALUE)
+                .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(meusCardsPanelLayout.createSequentialGroup()
+                        .addComponent(voltarMeusBaralhosButton)
+                        .addGap(225, 225, 225)
+                        .addComponent(irParaEditarBaralho)
+                        .addGap(39, 39, 39)
+                        .addComponent(irParaCriarCardButton)))
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
+        meusCardsPanelLayout.setVerticalGroup(
+            meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(meusCardsPanelLayout.createSequentialGroup()
+                .addContainerGap(12, Short.MAX_VALUE)
+                .addComponent(codigoDoBaralhoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nomeDoBaralhoLabel)
+                .addGap(18, 18, 18)
+                .addComponent(meusCardsLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(voltarMeusBaralhosButton)
+                    .addComponent(irParaEditarBaralho)
+                    .addComponent(irParaCriarCardButton))
+                .addContainerGap())
+        );
+
+        getContentPane().add(meusCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 194, 620, 492));
+
         criarContaPanel.setBackground(new java.awt.Color(246, 231, 211));
 
         criarContaButton.setBackground(new java.awt.Color(237, 30, 82));
@@ -1675,6 +2338,7 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         mensagemCriarContaInvalidaLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
         mensagemCriarContaInvalidaLabel.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemCriarContaInvalidaLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         jLabel13.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         jLabel13.setForeground(new java.awt.Color(0, 0, 0));
@@ -1689,14 +2353,13 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(0, 107, Short.MAX_VALUE)
                 .addGroup(criarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, criarContaPanelLayout.createSequentialGroup()
-                        .addComponent(criarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(107, 107, 107))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, criarContaPanelLayout.createSequentialGroup()
                         .addComponent(jaTenhoContaButton)
                         .addGap(169, 169, 169))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, criarContaPanelLayout.createSequentialGroup()
-                        .addComponent(mensagemCriarContaInvalidaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(150, 150, 150))))
+                        .addGroup(criarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(criarContaButton, javax.swing.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                            .addComponent(mensagemCriarContaInvalidaLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(107, 107, 107))))
             .addGroup(criarContaPanelLayout.createSequentialGroup()
                 .addGap(16, 16, 16)
                 .addGroup(criarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -1716,7 +2379,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                         .addGroup(criarContaPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(campoUsuarioTextField)
                             .addComponent(usuarioLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
             .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         criarContaPanelLayout.setVerticalGroup(
@@ -1752,6 +2415,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         getContentPane().add(criarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(331, 284, -1, -1));
 
         criarCardsPanel.setBackground(new java.awt.Color(246, 231, 211));
+        criarCardsPanel.setPreferredSize(new java.awt.Dimension(440, 440));
 
         confirmarCriarCardButton.setBackground(new java.awt.Color(237, 30, 82));
         confirmarCriarCardButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -1772,7 +2436,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarMeusCardsButton.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusCardsButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarMeusCardsButton.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusCardsButton.setText("Voltar");
+        voltarMeusCardsButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusCardsButton.setBorder(null);
         voltarMeusCardsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarMeusCardsButtonActionPerformed(evt);
@@ -1806,25 +2471,29 @@ public class CriarContaTela extends javax.swing.JFrame {
             .addGroup(criarCardsPanelLayout.createSequentialGroup()
                 .addGroup(criarCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(criarCardsPanelLayout.createSequentialGroup()
-                        .addGap(160, 160, 160)
-                        .addGroup(criarCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(voltarMeusCardsButton, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(confirmarCriarCardButton)))
-                    .addGroup(criarCardsPanelLayout.createSequentialGroup()
                         .addGap(125, 125, 125)
-                        .addGroup(criarCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(inserirPerguntaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
-                            .addComponent(inserirRespostaCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(mensagemCriarCardInvalidoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                .addContainerGap(235, Short.MAX_VALUE))
+                        .addGroup(criarCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(criarCardsPanelLayout.createSequentialGroup()
+                                .addGap(35, 35, 35)
+                                .addComponent(confirmarCriarCardButton))
+                            .addGroup(criarCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(inserirPerguntaCaixaDeTexto)
+                                .addComponent(inserirRespostaCaixaDeTexto)
+                                .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(mensagemCriarCardInvalidoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(criarCardsPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusCardsButton)))
+                .addContainerGap(125, Short.MAX_VALUE))
         );
         criarCardsPanelLayout.setVerticalGroup(
             criarCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(criarCardsPanelLayout.createSequentialGroup()
-                .addGap(67, 67, 67)
+                .addContainerGap()
+                .addComponent(voltarMeusCardsButton)
+                .addGap(50, 50, 50)
                 .addComponent(jLabel10)
                 .addGap(34, 34, 34)
                 .addComponent(jLabel11)
@@ -1838,12 +2507,10 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemCriarCardInvalidoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarCriarCardButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(voltarMeusCardsButton)
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(75, Short.MAX_VALUE))
         );
 
-        getContentPane().add(criarCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 550, 420));
+        getContentPane().add(criarCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 440, 440));
 
         editarGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
         editarGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
@@ -1866,7 +2533,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarEditarGrupoAcoesButton.setBackground(new java.awt.Color(237, 30, 82));
         voltarEditarGrupoAcoesButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarEditarGrupoAcoesButton.setForeground(new java.awt.Color(255, 255, 255));
-        voltarEditarGrupoAcoesButton.setText("Voltar");
+        voltarEditarGrupoAcoesButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarEditarGrupoAcoesButton.setBorder(null);
         voltarEditarGrupoAcoesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarEditarGrupoAcoesButtonActionPerformed(evt);
@@ -1892,38 +2560,39 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarGrupoPainelLayout.setHorizontalGroup(
             editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(editarGrupoPainelLayout.createSequentialGroup()
-                .addGap(125, 125, 125)
-                .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarGrupoPainelLayout.createSequentialGroup()
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(voltarEditarGrupoAcoesButton, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(confirmarEditarCartasButton1))
-                            .addGap(37, 37, 37))
-                        .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(editarNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(mensagemEditarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(editarGrupoPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarGrupoPainelLayout.createSequentialGroup()
+                                .addComponent(confirmarEditarCartasButton1)
+                                .addGap(37, 37, 37))
+                            .addGroup(editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(editarNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(mensagemEditarGrupoInvalido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(editarGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarEditarGrupoAcoesButton)))
                 .addGap(0, 125, Short.MAX_VALUE))
         );
         editarGrupoPainelLayout.setVerticalGroup(
             editarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(editarGrupoPainelLayout.createSequentialGroup()
-                .addGap(93, 93, 93)
+                .addContainerGap()
+                .addComponent(voltarEditarGrupoAcoesButton)
+                .addGap(58, 58, 58)
                 .addComponent(jLabel14)
                 .addGap(44, 44, 44)
                 .addComponent(jLabel16)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(editarNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(38, 38, 38)
+                .addComponent(editarNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(mensagemEditarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(confirmarEditarCartasButton1)
-                .addGap(18, 18, 18)
-                .addComponent(voltarEditarGrupoAcoesButton)
-                .addGap(18, 18, 18)
-                .addComponent(mensagemEditarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26))
+                .addContainerGap(127, Short.MAX_VALUE))
         );
 
         getContentPane().add(editarGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -1949,7 +2618,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarEditarGrupoAcoesButton2.setBackground(new java.awt.Color(237, 30, 82));
         voltarEditarGrupoAcoesButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarEditarGrupoAcoesButton2.setForeground(new java.awt.Color(255, 255, 255));
-        voltarEditarGrupoAcoesButton2.setText("Voltar");
+        voltarEditarGrupoAcoesButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarEditarGrupoAcoesButton2.setBorder(null);
         voltarEditarGrupoAcoesButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarEditarGrupoAcoesButton2ActionPerformed(evt);
@@ -1975,179 +2645,220 @@ public class CriarContaTela extends javax.swing.JFrame {
         adicionarAlunoGrupoPainelLayout.setHorizontalGroup(
             adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(adicionarAlunoGrupoPainelLayout.createSequentialGroup()
-                .addGap(125, 125, 125)
-                .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicionarAlunoGrupoPainelLayout.createSequentialGroup()
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(voltarEditarGrupoAcoesButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(confirmarAdicionarAluno))
-                            .addGap(37, 37, 37))
-                        .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(inserirEmailAlunoCaixaDeTexto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(mensagemEmailAlunoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(adicionarAlunoGrupoPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(inserirEmailAlunoCaixaDeTexto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(mensagemEmailAlunoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(adicionarAlunoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarEditarGrupoAcoesButton2)))
                 .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(adicionarAlunoGrupoPainelLayout.createSequentialGroup()
+                .addGap(158, 158, 158)
+                .addComponent(confirmarAdicionarAluno)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         adicionarAlunoGrupoPainelLayout.setVerticalGroup(
             adicionarAlunoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(adicionarAlunoGrupoPainelLayout.createSequentialGroup()
-                .addGap(93, 93, 93)
+                .addContainerGap()
+                .addComponent(voltarEditarGrupoAcoesButton2)
+                .addGap(58, 58, 58)
                 .addComponent(jLabel15)
                 .addGap(44, 44, 44)
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(inserirEmailAlunoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(38, 38, 38)
-                .addComponent(confirmarAdicionarAluno)
+                .addComponent(inserirEmailAlunoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(voltarEditarGrupoAcoesButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mensagemEmailAlunoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(52, 52, 52))
+                .addGap(18, 18, 18)
+                .addComponent(confirmarAdicionarAluno)
+                .addGap(113, 113, 113))
         );
 
         getContentPane().add(adicionarAlunoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         baralhosDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
-        baralhosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 590));
+        baralhosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 465));
 
-        irParaCriarBaralhoButton2.setBackground(new java.awt.Color(237, 30, 82));
-        irParaCriarBaralhoButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        irParaCriarBaralhoButton2.setForeground(new java.awt.Color(255, 255, 255));
-        irParaCriarBaralhoButton2.setText("Jogar");
-        irParaCriarBaralhoButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                irParaCriarBaralhoButton2ActionPerformed(evt);
+        jScrollPane5.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211));
+        }});
+        verticalScrollBar = jScrollPane5.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);
+                trackColor = new Color(246,231,211);
+            }
+
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
             }
         });
-
         jScrollPane5.setBackground(new java.awt.Color(206, 191, 171));
 
-        meusGruposTable1.setAutoCreateRowSorter(true);
-        meusGruposTable1.setBackground(new java.awt.Color(206, 191, 171));
-        meusGruposTable1.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        meusGruposTable1.setForeground(new java.awt.Color(0, 0, 0));
-        meusGruposTable1.setModel(new javax.swing.table.DefaultTableModel(
+        baralhosDoGrupoTable.setAutoCreateRowSorter(true);
+        baralhosDoGrupoTable.setBackground(new java.awt.Color(206, 191, 171));
+        baralhosDoGrupoTable.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        baralhosDoGrupoTable.setForeground(new java.awt.Color(0, 0, 0));
+        baralhosDoGrupoTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Pergunta", "Resposta"
+                "Nome", "Tema", ""
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        meusGruposTable1.setRowHeight(48);
-        jScrollPane5.setViewportView(meusGruposTable1);
-        if (meusGruposTable1.getColumnModel().getColumnCount() > 0) {
-            meusGruposTable1.getColumnModel().getColumn(0).setPreferredWidth(100);
-            meusGruposTable1.getColumnModel().getColumn(1).setPreferredWidth(100);
+        baralhosDoGrupoTable.setRowHeight(48);
+        baralhosDoGrupoTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane5.setViewportView(baralhosDoGrupoTable);
+        if (baralhosDoGrupoTable.getColumnModel().getColumnCount() > 0) {
+            baralhosDoGrupoTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            baralhosDoGrupoTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+            baralhosDoGrupoTable.getColumnModel().getColumn(2).setHeaderValue("");
         }
 
-        voltarPainelInicial1Button2.setBackground(new java.awt.Color(237, 30, 82));
-        voltarPainelInicial1Button2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        voltarPainelInicial1Button2.setForeground(new java.awt.Color(255, 255, 255));
-        voltarPainelInicial1Button2.setText("Voltar");
-        voltarPainelInicial1Button2.addActionListener(new java.awt.event.ActionListener() {
+        voltarMeusGrupos.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusGrupos.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusGrupos.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusGrupos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusGrupos.setBorder(null);
+        voltarMeusGrupos.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                voltarPainelInicial1Button2ActionPerformed(evt);
+                voltarMeusGruposActionPerformed(evt);
             }
         });
 
-        meusGruposLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        meusGruposLabel1.setForeground(new java.awt.Color(0, 0, 0));
-        meusGruposLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        meusGruposLabel1.setText("Baralhos do grupo");
+        baralhosDoGrupoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        baralhosDoGrupoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        baralhosDoGrupoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        baralhosDoGrupoLabel.setText("Baralhos do grupo");
 
-        irEditarGruposButton1.setBackground(new java.awt.Color(237, 30, 82));
-        irEditarGruposButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        irEditarGruposButton1.setForeground(new java.awt.Color(255, 255, 255));
-        irEditarGruposButton1.setText("Editar");
-        irEditarGruposButton1.addActionListener(new java.awt.event.ActionListener() {
+        editarBaralhoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        editarBaralhoGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarBaralhoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        editarBaralhoGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/editar.png"))); // NOI18N
+        editarBaralhoGrupoButton.setBorder(null);
+        editarBaralhoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                irEditarGruposButton1ActionPerformed(evt);
+                editarBaralhoGrupoButtonActionPerformed(evt);
             }
         });
 
-        criarGrupoButton1.setBackground(new java.awt.Color(237, 30, 82));
-        criarGrupoButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        criarGrupoButton1.setForeground(new java.awt.Color(255, 255, 255));
-        criarGrupoButton1.setText("Criar");
-        criarGrupoButton1.addActionListener(new java.awt.event.ActionListener() {
+        criarBaralhoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        criarBaralhoGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        criarBaralhoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        criarBaralhoGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/adicionar.png"))); // NOI18N
+        criarBaralhoGrupoButton.setBorder(null);
+        criarBaralhoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                criarGrupoButton1ActionPerformed(evt);
+                criarBaralhoGrupoButtonActionPerformed(evt);
             }
         });
 
-        jLabel18.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        jLabel18.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel18.setText("jLabel18");
+        nomeDoGrupoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        nomeDoGrupoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        nomeDoGrupoLabel.setText("jLabel18");
 
-        irParaCriarBaralhoButton3.setBackground(new java.awt.Color(237, 30, 82));
-        irParaCriarBaralhoButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        irParaCriarBaralhoButton3.setForeground(new java.awt.Color(255, 255, 255));
-        irParaCriarBaralhoButton3.setText("Ver");
-        irParaCriarBaralhoButton3.addActionListener(new java.awt.event.ActionListener() {
+        excluirBaralhoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        excluirBaralhoGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        excluirBaralhoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        excluirBaralhoGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/deletar (2).png"))); // NOI18N
+        excluirBaralhoGrupoButton.setBorder(null);
+        excluirBaralhoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                irParaCriarBaralhoButton3ActionPerformed(evt);
+                excluirBaralhoGrupoButtonActionPerformed(evt);
             }
         });
+
+        mensagemBaralhoDoGrupoSemCartas.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemBaralhoDoGrupoSemCartas.setForeground(new java.awt.Color(0, 0, 0));
+        mensagemBaralhoDoGrupoSemCartas.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
         javax.swing.GroupLayout baralhosDoGrupoPainelLayout = new javax.swing.GroupLayout(baralhosDoGrupoPainel);
         baralhosDoGrupoPainel.setLayout(baralhosDoGrupoPainelLayout);
         baralhosDoGrupoPainelLayout.setHorizontalGroup(
             baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                .addGap(54, 54, 54)
                 .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                        .addGap(65, 65, 65)
-                        .addComponent(irEditarGruposButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(criarGrupoButton1))
-                    .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(meusGruposLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, baralhosDoGrupoPainelLayout.createSequentialGroup()
-                            .addComponent(voltarPainelInicial1Button2)
-                            .addGap(43, 43, 43)
-                            .addComponent(irParaCriarBaralhoButton3)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(irParaCriarBaralhoButton2))
-                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(54, Short.MAX_VALUE))
-            .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                                .addGap(54, 54, 54)
+                                .addComponent(baralhosDoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(voltarMeusGrupos)
+                                .addGap(97, 97, 97)
+                                .addComponent(excluirBaralhoGrupoButton)
+                                .addGap(30, 30, 30)
+                                .addComponent(editarBaralhoGrupoButton)
+                                .addGap(30, 30, 30)
+                                .addComponent(criarBaralhoGrupoButton)))
+                        .addGap(0, 3, Short.MAX_VALUE))
+                    .addComponent(nomeDoGrupoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(mensagemBaralhoDoGrupoSemCartas, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE))
+            .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .addContainerGap())
         );
         baralhosDoGrupoPainelLayout.setVerticalGroup(
             baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                .addGap(59, 59, 59)
-                .addComponent(jLabel18)
-                .addGap(18, 18, 18)
-                .addComponent(meusGruposLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addComponent(mensagemBaralhoDoGrupoSemCartas))
+                    .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(nomeDoGrupoLabel)
+                        .addGap(18, 18, 18)
+                        .addComponent(baralhosDoGrupoLabel)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(voltarPainelInicial1Button2)
-                    .addComponent(irParaCriarBaralhoButton2)
-                    .addComponent(irParaCriarBaralhoButton3))
-                .addGap(51, 51, 51)
-                .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(irEditarGruposButton1)
-                    .addComponent(criarGrupoButton1))
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(voltarMeusGrupos)
+                    .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(criarBaralhoGrupoButton)
+                        .addComponent(editarBaralhoGrupoButton)
+                        .addComponent(excluirBaralhoGrupoButton)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(baralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 440, 590));
+        getContentPane().add(baralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 159, 440, 465));
 
         adicionarGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
         adicionarGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
@@ -2170,7 +2881,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarMeusGruposButton2.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusGruposButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarMeusGruposButton2.setForeground(new java.awt.Color(255, 255, 255));
-        voltarMeusGruposButton2.setText("Voltar");
+        voltarMeusGruposButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusGruposButton2.setBorder(null);
         voltarMeusGruposButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 voltarMeusGruposButton2ActionPerformed(evt);
@@ -2196,41 +2908,1707 @@ public class CriarContaTela extends javax.swing.JFrame {
         adicionarGrupoPainelLayout.setHorizontalGroup(
             adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(adicionarGrupoPainelLayout.createSequentialGroup()
-                .addGap(125, 125, 125)
-                .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicionarGrupoPainelLayout.createSequentialGroup()
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(adicionarGrupoPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(voltarMeusGruposButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(confirmarCriarGrupoButton))
-                            .addGap(37, 37, 37))
-                        .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(inserirNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(mensagemCriarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, adicionarGrupoPainelLayout.createSequentialGroup()
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(confirmarCriarGrupoButton)
+                                    .addGap(37, 37, 37))
+                                .addGroup(adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel20, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(inserirNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(mensagemCriarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(adicionarGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusGruposButton2)))
                 .addContainerGap(125, Short.MAX_VALUE))
         );
         adicionarGrupoPainelLayout.setVerticalGroup(
             adicionarGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(adicionarGrupoPainelLayout.createSequentialGroup()
-                .addGap(60, 60, 60)
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton2)
+                .addGap(25, 25, 25)
                 .addComponent(jLabel19)
                 .addGap(74, 74, 74)
                 .addComponent(jLabel20)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(inserirNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
                 .addComponent(confirmarCriarGrupoButton)
-                .addGap(18, 18, 18)
-                .addComponent(voltarMeusGruposButton2)
-                .addGap(18, 18, 18)
+                .addGap(65, 65, 65)
                 .addComponent(mensagemCriarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(59, 59, 59))
         );
 
         getContentPane().add(adicionarGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        alunosDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+        alunosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 465));
+
+        jScrollPane6.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211));
+        }});
+        verticalScrollBar = jScrollPane6.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);
+                trackColor = new Color(246,231,211);
+            }
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
+            }
+        });
+        jScrollPane6.setBackground(new java.awt.Color(206, 191, 171));
+
+        alunosDoGrupoTable.setAutoCreateRowSorter(true);
+        alunosDoGrupoTable.setBackground(new java.awt.Color(206, 191, 171));
+        alunosDoGrupoTable.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        alunosDoGrupoTable.setForeground(new java.awt.Color(0, 0, 0));
+        alunosDoGrupoTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Nome", "Email"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        alunosDoGrupoTable.setRowHeight(48);
+        alunosDoGrupoTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane6.setViewportView(alunosDoGrupoTable);
+        if (alunosDoGrupoTable.getColumnModel().getColumnCount() > 0) {
+            alunosDoGrupoTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            alunosDoGrupoTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        }
+
+        voltarMeusGrupos1.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusGrupos1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusGrupos1.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusGrupos1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusGrupos1.setBorder(null);
+        voltarMeusGrupos1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusGrupos1ActionPerformed(evt);
+            }
+        });
+
+        alunosDoGrupoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        alunosDoGrupoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        alunosDoGrupoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        alunosDoGrupoLabel.setText("Alunos do grupo");
+
+        irExcluirAlunosGruposButton.setBackground(new java.awt.Color(237, 30, 82));
+        irExcluirAlunosGruposButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        irExcluirAlunosGruposButton.setForeground(new java.awt.Color(255, 255, 255));
+        irExcluirAlunosGruposButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/deletar (2).png"))); // NOI18N
+        irExcluirAlunosGruposButton.setBorder(null);
+        irExcluirAlunosGruposButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                irExcluirAlunosGruposButtonActionPerformed(evt);
+            }
+        });
+
+        AdicionarAlunoButton.setBackground(new java.awt.Color(237, 30, 82));
+        AdicionarAlunoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        AdicionarAlunoButton.setForeground(new java.awt.Color(255, 255, 255));
+        AdicionarAlunoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/adicionar.png"))); // NOI18N
+        AdicionarAlunoButton.setBorder(null);
+        AdicionarAlunoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                AdicionarAlunoButtonActionPerformed(evt);
+            }
+        });
+
+        nomeDoGrupoLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        nomeDoGrupoLabel1.setForeground(new java.awt.Color(0, 0, 0));
+        nomeDoGrupoLabel1.setText("jLabel18");
+
+        javax.swing.GroupLayout alunosDoGrupoPainelLayout = new javax.swing.GroupLayout(alunosDoGrupoPainel);
+        alunosDoGrupoPainel.setLayout(alunosDoGrupoPainelLayout);
+        alunosDoGrupoPainelLayout.setHorizontalGroup(
+            alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(nomeDoGrupoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(54, 54, 54)
+                .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
+                        .addComponent(voltarMeusGrupos1)
+                        .addGap(51, 51, 51)
+                        .addComponent(irExcluirAlunosGruposButton)
+                        .addGap(55, 55, 55)
+                        .addComponent(AdicionarAlunoButton))
+                    .addComponent(alunosDoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(54, Short.MAX_VALUE))
+        );
+        alunosDoGrupoPainelLayout.setVerticalGroup(
+            alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap(18, Short.MAX_VALUE)
+                .addComponent(nomeDoGrupoLabel1)
+                .addGap(18, 18, 18)
+                .addComponent(alunosDoGrupoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(voltarMeusGrupos1)
+                    .addComponent(irExcluirAlunosGruposButton)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, alunosDoGrupoPainelLayout.createSequentialGroup()
+                        .addComponent(AdicionarAlunoButton)
+                        .addContainerGap())))
+        );
+
+        getContentPane().add(alunosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 440, 465));
+
+        criarBaralhoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+        criarBaralhoGrupoPainel.setMaximumSize(new java.awt.Dimension(440, 440));
+        criarBaralhoGrupoPainel.setMinimumSize(new java.awt.Dimension(440, 440));
+
+        inserirNomeBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        inserirNomeBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        inserirNomeBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
+        inserirNomeBaralhoGrupoCaixaDeTexto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inserirNomeBaralhoGrupoCaixaDeTextoActionPerformed(evt);
+            }
+        });
+
+        confirmarCriarBaralhoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarCriarBaralhoGrupoButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        confirmarCriarBaralhoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarCriarBaralhoGrupoButton.setText("Confirmar");
+        confirmarCriarBaralhoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarCriarBaralhoGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        voltarMeusBaralhosGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusBaralhosGrupoButton.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        voltarMeusBaralhosGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusBaralhosGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusBaralhosGrupoButton.setBorder(null);
+        voltarMeusBaralhosGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusBaralhosGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel18.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel18.setText("matéria");
+
+        jLabel21.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel21.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel21.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel21.setText("Adicionar baralho");
+
+        jLabel22.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel22.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel22.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel22.setText("nome");
+
+        inserirTemaBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        inserirTemaBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        inserirTemaBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
+        inserirTemaBaralhoGrupoCaixaDeTexto.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        inserirTemaBaralhoGrupoCaixaDeTexto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inserirTemaBaralhoGrupoCaixaDeTextoActionPerformed(evt);
+            }
+        });
+
+        mensagemAdicionarBaralhoGrupoInvalido.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemAdicionarBaralhoGrupoInvalido.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemAdicionarBaralhoGrupoInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout criarBaralhoGrupoPainelLayout = new javax.swing.GroupLayout(criarBaralhoGrupoPainel);
+        criarBaralhoGrupoPainel.setLayout(criarBaralhoGrupoPainelLayout);
+        criarBaralhoGrupoPainelLayout.setHorizontalGroup(
+            criarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(criarBaralhoGrupoPainelLayout.createSequentialGroup()
+                .addGroup(criarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(criarBaralhoGrupoPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(criarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(mensagemAdicionarBaralhoGrupoInvalido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(criarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(inserirNomeBaralhoGrupoCaixaDeTexto)
+                                .addComponent(inserirTemaBaralhoGrupoCaixaDeTexto)
+                                .addComponent(jLabel21, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                                .addComponent(jLabel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel22, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(criarBaralhoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusBaralhosGrupoButton))
+                    .addGroup(criarBaralhoGrupoPainelLayout.createSequentialGroup()
+                        .addGap(161, 161, 161)
+                        .addComponent(confirmarCriarBaralhoGrupoButton)))
+                .addContainerGap(125, Short.MAX_VALUE))
+        );
+        criarBaralhoGrupoPainelLayout.setVerticalGroup(
+            criarBaralhoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(criarBaralhoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusBaralhosGrupoButton)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel21)
+                .addGap(31, 31, 31)
+                .addComponent(jLabel22)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inserirNomeBaralhoGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inserirTemaBaralhoGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(11, 11, 11)
+                .addComponent(mensagemAdicionarBaralhoGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(confirmarCriarBaralhoGrupoButton)
+                .addContainerGap(112, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(criarBaralhoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        cartasDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+        cartasDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 475));
+
+        jScrollPane7.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
+            setBackground(new Color(246,231,211));
+        }});
+        verticalScrollBar = jScrollPane7.getVerticalScrollBar();
+        verticalScrollBar.setPreferredSize(new Dimension(8, Integer.MAX_VALUE));
+        verticalScrollBar.setBackground(new Color(0,0,0,0));
+        verticalScrollBar.setUI(new BasicScrollBarUI() {
+            @Override
+            protected void configureScrollBarColors() {
+                thumbColor = new Color(206,191,171);
+                trackColor = new Color(246,231,211);
+            }
+            @Override
+            protected JButton createDecreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            @Override
+            protected JButton createIncreaseButton(int orientation) {
+                return createZeroButton();
+            }
+
+            private JButton createZeroButton() {
+                JButton button = new JButton();
+                button.setPreferredSize(new Dimension(0, 0));
+                button.setMinimumSize(new Dimension(0, 0));
+                button.setMaximumSize(new Dimension(0, 0));
+                return button;
+            }
+        });
+        jScrollPane7.setBackground(new java.awt.Color(206, 191, 171));
+
+        cartasDoGrupoTable.setAutoCreateRowSorter(true);
+        cartasDoGrupoTable.setBackground(new java.awt.Color(206, 191, 171));
+        cartasDoGrupoTable.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        cartasDoGrupoTable.setForeground(new java.awt.Color(0, 0, 0));
+        cartasDoGrupoTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Pergunta", "Resposta"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        cartasDoGrupoTable.setRowHeight(48);
+        cartasDoGrupoTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane7.setViewportView(cartasDoGrupoTable);
+        if (cartasDoGrupoTable.getColumnModel().getColumnCount() > 0) {
+            cartasDoGrupoTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+            cartasDoGrupoTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+        }
+
+        voltarBaralhosDoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        voltarBaralhosDoGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarBaralhosDoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        voltarBaralhosDoGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarBaralhosDoGrupoButton.setBorder(null);
+        voltarBaralhosDoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarBaralhosDoGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        cartasDoGrupoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        cartasDoGrupoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        cartasDoGrupoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        cartasDoGrupoLabel.setText("Cards");
+
+        irEditarCartasDoGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        irEditarCartasDoGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        irEditarCartasDoGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        irEditarCartasDoGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/editar.png"))); // NOI18N
+        irEditarCartasDoGrupoButton.setBorder(null);
+        irEditarCartasDoGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                irEditarCartasDoGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        criarCartasGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        criarCartasGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        criarCartasGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        criarCartasGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/adicionar.png"))); // NOI18N
+        criarCartasGrupoButton.setBorder(null);
+        criarCartasGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                criarCartasGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        nomeDoBaralhoGrupoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        nomeDoBaralhoGrupoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        nomeDoBaralhoGrupoLabel.setText("jLabel18");
+
+        codigoDoBaralhoGrupoLabel.setBackground(new java.awt.Color(0, 0, 0));
+        codigoDoBaralhoGrupoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        codigoDoBaralhoGrupoLabel.setForeground(new java.awt.Color(0, 0, 0));
+        codigoDoBaralhoGrupoLabel.setText("jLabel26");
+
+        excluirCardButton.setBackground(new java.awt.Color(237, 30, 82));
+        excluirCardButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        excluirCardButton.setForeground(new java.awt.Color(255, 255, 255));
+        excluirCardButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/deletar (2).png"))); // NOI18N
+        excluirCardButton.setBorder(null);
+        excluirCardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excluirCardButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout cartasDoGrupoPainelLayout = new javax.swing.GroupLayout(cartasDoGrupoPainel);
+        cartasDoGrupoPainel.setLayout(cartasDoGrupoPainelLayout);
+        cartasDoGrupoPainelLayout.setHorizontalGroup(
+            cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(nomeDoBaralhoGrupoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, cartasDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(201, 291, Short.MAX_VALUE)
+                .addComponent(codigoDoBaralhoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+            .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(54, 54, 54)
+                .addGroup(cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
+                        .addComponent(voltarBaralhosDoGrupoButton)
+                        .addGap(54, 54, 54)
+                        .addComponent(excluirCardButton)
+                        .addGap(26, 26, 26)
+                        .addComponent(irEditarCartasDoGrupoButton)
+                        .addGap(26, 26, 26)
+                        .addComponent(criarCartasGrupoButton))
+                    .addComponent(cartasDoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        cartasDoGrupoPainelLayout.setVerticalGroup(
+            cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
+                .addComponent(codigoDoBaralhoGrupoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nomeDoBaralhoGrupoLabel)
+                .addGap(18, 18, 18)
+                .addComponent(cartasDoGrupoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(voltarBaralhosDoGrupoButton)
+                    .addComponent(irEditarCartasDoGrupoButton)
+                    .addComponent(excluirCardButton)
+                    .addComponent(criarCartasGrupoButton))
+                .addGap(0, 10, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(cartasDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 440, 475));
+
+        criarCardsGrupoPanel.setBackground(new java.awt.Color(246, 231, 211));
+        criarCardsGrupoPanel.setPreferredSize(new java.awt.Dimension(440, 440));
+
+        confirmarCriarCardButton1.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarCriarCardButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarCriarCardButton1.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarCriarCardButton1.setText("Confirmar");
+        confirmarCriarCardButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarCriarCardButton1ActionPerformed(evt);
+            }
+        });
+
+        inserirPerguntaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        inserirPerguntaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+
+        inserirRespostaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        inserirRespostaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+
+        voltarMeusCardsButton1.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusCardsButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusCardsButton1.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusCardsButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusCardsButton1.setBorder(null);
+        voltarMeusCardsButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusCardsButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel26.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel26.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel26.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel26.setText("Criar Card");
+
+        jLabel27.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel27.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel27.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel27.setText("Pergunta");
+
+        jLabel28.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel28.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel28.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel28.setText("Resposta");
+
+        mensagemCriarCardGrupoInvalidoLabel.setBackground(new java.awt.Color(28, 181, 196));
+        mensagemCriarCardGrupoInvalidoLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemCriarCardGrupoInvalidoLabel.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemCriarCardGrupoInvalidoLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout criarCardsGrupoPanelLayout = new javax.swing.GroupLayout(criarCardsGrupoPanel);
+        criarCardsGrupoPanel.setLayout(criarCardsGrupoPanelLayout);
+        criarCardsGrupoPanelLayout.setHorizontalGroup(
+            criarCardsGrupoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(criarCardsGrupoPanelLayout.createSequentialGroup()
+                .addGroup(criarCardsGrupoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(criarCardsGrupoPanelLayout.createSequentialGroup()
+                        .addGap(160, 160, 160)
+                        .addComponent(confirmarCriarCardButton1))
+                    .addGroup(criarCardsGrupoPanelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(criarCardsGrupoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(inserirPerguntaGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                            .addComponent(inserirRespostaGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                            .addComponent(jLabel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel28, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(mensagemCriarCardGrupoInvalidoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel26, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(criarCardsGrupoPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusCardsButton1)))
+                .addContainerGap(125, Short.MAX_VALUE))
+        );
+        criarCardsGrupoPanelLayout.setVerticalGroup(
+            criarCardsGrupoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(criarCardsGrupoPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusCardsButton1)
+                .addGap(32, 32, 32)
+                .addComponent(jLabel26)
+                .addGap(34, 34, 34)
+                .addComponent(jLabel27)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inserirPerguntaGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(3, 3, 3)
+                .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inserirRespostaGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addComponent(mensagemCriarCardGrupoInvalidoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmarCriarCardButton1)
+                .addContainerGap(113, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(criarCardsGrupoPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 440, 440));
+
+        editarCartasGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+        editarCartasGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
+
+        confirmarEditarCartasGrupoButton.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarEditarCartasGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarEditarCartasGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarEditarCartasGrupoButton.setText("Confirmar");
+        confirmarEditarCartasGrupoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarEditarCartasGrupoButtonActionPerformed(evt);
+            }
+        });
+
+        editarPerguntaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        editarPerguntaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarPerguntaGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
+        editarPerguntaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 32));
+
+        editarRespostaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
+        editarRespostaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarRespostaGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
+        editarRespostaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 32));
+
+        voltarCardsDoGrupoPainel.setBackground(new java.awt.Color(237, 30, 82));
+        voltarCardsDoGrupoPainel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarCardsDoGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
+        voltarCardsDoGrupoPainel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarCardsDoGrupoPainel.setBorder(null);
+        voltarCardsDoGrupoPainel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarCardsDoGrupoPainelActionPerformed(evt);
+            }
+        });
+
+        jLabel29.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel29.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel29.setText("Editar card");
+
+        jLabel30.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel30.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel30.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel30.setText("Resposta");
+
+        jLabel31.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel31.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel31.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel31.setText("Pergunta");
+
+        mensagemEditarPerguntaGrupoInvalida.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemEditarPerguntaGrupoInvalida.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemEditarPerguntaGrupoInvalida.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout editarCartasGrupoPainelLayout = new javax.swing.GroupLayout(editarCartasGrupoPainel);
+        editarCartasGrupoPainel.setLayout(editarCartasGrupoPainelLayout);
+        editarCartasGrupoPainelLayout.setHorizontalGroup(
+            editarCartasGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarCartasGrupoPainelLayout.createSequentialGroup()
+                .addGap(125, 125, 125)
+                .addGroup(editarCartasGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(mensagemEditarPerguntaGrupoInvalida, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel31, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel30, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel29, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editarRespostaGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(editarPerguntaGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarCartasGrupoPainelLayout.createSequentialGroup()
+                .addGroup(editarCartasGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(editarCartasGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarCardsDoGrupoPainel))
+                    .addGroup(editarCartasGrupoPainelLayout.createSequentialGroup()
+                        .addGap(160, 160, 160)
+                        .addComponent(confirmarEditarCartasGrupoButton)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        editarCartasGrupoPainelLayout.setVerticalGroup(
+            editarCartasGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarCartasGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarCardsDoGrupoPainel)
+                .addGap(37, 37, 37)
+                .addComponent(jLabel29)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel31)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editarPerguntaGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(16, 16, 16)
+                .addComponent(jLabel30)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(editarRespostaGrupoCaixaDeTexto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(mensagemEditarPerguntaGrupoInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(confirmarEditarCartasGrupoButton)
+                .addContainerGap(96, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(editarCartasGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        selecionarModoDeJogoPainel.setBackground(new java.awt.Color(246, 231, 211));
+
+        modoInserirRespostaButton.setBackground(new java.awt.Color(237, 30, 82));
+        modoInserirRespostaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        modoInserirRespostaButton.setForeground(new java.awt.Color(255, 255, 255));
+        modoInserirRespostaButton.setText("Responder");
+        modoInserirRespostaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modoInserirRespostaButtonActionPerformed(evt);
+            }
+        });
+
+        modoDeJogoInvertidoButton.setBackground(new java.awt.Color(237, 30, 82));
+        modoDeJogoInvertidoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        modoDeJogoInvertidoButton.setForeground(new java.awt.Color(255, 255, 255));
+        modoDeJogoInvertidoButton.setText("Invertido");
+        modoDeJogoInvertidoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modoDeJogoInvertidoButtonActionPerformed(evt);
+            }
+        });
+
+        voltarMeusGruposButton1.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusGruposButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusGruposButton1.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusGruposButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusGruposButton1.setBorder(null);
+        voltarMeusGruposButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusGruposButton1ActionPerformed(evt);
+            }
+        });
+
+        modoDeJogoNormalButton.setBackground(new java.awt.Color(237, 30, 82));
+        modoDeJogoNormalButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        modoDeJogoNormalButton.setForeground(new java.awt.Color(255, 255, 255));
+        modoDeJogoNormalButton.setText("Normal");
+        modoDeJogoNormalButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modoDeJogoNormalButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout selecionarModoDeJogoPainelLayout = new javax.swing.GroupLayout(selecionarModoDeJogoPainel);
+        selecionarModoDeJogoPainel.setLayout(selecionarModoDeJogoPainelLayout);
+        selecionarModoDeJogoPainelLayout.setHorizontalGroup(
+            selecionarModoDeJogoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selecionarModoDeJogoPainelLayout.createSequentialGroup()
+                .addContainerGap(160, Short.MAX_VALUE)
+                .addGroup(selecionarModoDeJogoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(modoInserirRespostaButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(modoDeJogoInvertidoButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(modoDeJogoNormalButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(160, 160, 160))
+            .addGroup(selecionarModoDeJogoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        selecionarModoDeJogoPainelLayout.setVerticalGroup(
+            selecionarModoDeJogoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(selecionarModoDeJogoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton1)
+                .addGap(117, 117, 117)
+                .addComponent(modoDeJogoNormalButton)
+                .addGap(18, 18, 18)
+                .addComponent(modoDeJogoInvertidoButton)
+                .addGap(18, 18, 18)
+                .addComponent(modoInserirRespostaButton)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(selecionarModoDeJogoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
+
+        selecionarModoDeJogoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+
+        modoInserirRespostaButton1.setBackground(new java.awt.Color(237, 30, 82));
+        modoInserirRespostaButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        modoInserirRespostaButton1.setForeground(new java.awt.Color(255, 255, 255));
+        modoInserirRespostaButton1.setText("Responder");
+        modoInserirRespostaButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modoInserirRespostaButton1ActionPerformed(evt);
+            }
+        });
+
+        modoDeJogoInvertidoButton1.setBackground(new java.awt.Color(237, 30, 82));
+        modoDeJogoInvertidoButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        modoDeJogoInvertidoButton1.setForeground(new java.awt.Color(255, 255, 255));
+        modoDeJogoInvertidoButton1.setText("Invertido");
+        modoDeJogoInvertidoButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modoDeJogoInvertidoButton1ActionPerformed(evt);
+            }
+        });
+
+        voltarMeusGruposButton3.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusGruposButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusGruposButton3.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusGruposButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarMeusGruposButton3.setBorder(null);
+        voltarMeusGruposButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusGruposButton3ActionPerformed(evt);
+            }
+        });
+
+        modoDeJogoNormalButton1.setBackground(new java.awt.Color(237, 30, 82));
+        modoDeJogoNormalButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        modoDeJogoNormalButton1.setForeground(new java.awt.Color(255, 255, 255));
+        modoDeJogoNormalButton1.setText("Normal");
+        modoDeJogoNormalButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modoDeJogoNormalButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout selecionarModoDeJogoGrupoPainelLayout = new javax.swing.GroupLayout(selecionarModoDeJogoGrupoPainel);
+        selecionarModoDeJogoGrupoPainel.setLayout(selecionarModoDeJogoGrupoPainelLayout);
+        selecionarModoDeJogoGrupoPainelLayout.setHorizontalGroup(
+            selecionarModoDeJogoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, selecionarModoDeJogoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap(160, Short.MAX_VALUE)
+                .addGroup(selecionarModoDeJogoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(modoInserirRespostaButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(modoDeJogoInvertidoButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(modoDeJogoNormalButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(160, 160, 160))
+            .addGroup(selecionarModoDeJogoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton3)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        selecionarModoDeJogoGrupoPainelLayout.setVerticalGroup(
+            selecionarModoDeJogoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(selecionarModoDeJogoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusGruposButton3)
+                .addGap(117, 117, 117)
+                .addComponent(modoDeJogoNormalButton1)
+                .addGap(18, 18, 18)
+                .addComponent(modoDeJogoInvertidoButton1)
+                .addGap(18, 18, 18)
+                .addComponent(modoInserirRespostaButton1)
+                .addContainerGap(153, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(selecionarModoDeJogoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
+
+        jogoBaralhosDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
+
+        cartaAnteriorButton1.setBackground(new java.awt.Color(237, 30, 82));
+        cartaAnteriorButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        cartaAnteriorButton1.setForeground(new java.awt.Color(255, 255, 255));
+        cartaAnteriorButton1.setText("Voltar");
+        cartaAnteriorButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cartaAnteriorButton1ActionPerformed(evt);
+            }
+        });
+
+        finalizarJogoButton1.setBackground(new java.awt.Color(237, 30, 82));
+        finalizarJogoButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        finalizarJogoButton1.setForeground(new java.awt.Color(255, 255, 255));
+        finalizarJogoButton1.setText("Finalizar");
+        finalizarJogoButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                finalizarJogoButton1ActionPerformed(evt);
+            }
+        });
+
+        proximaCartaButton1.setBackground(new java.awt.Color(237, 30, 82));
+        proximaCartaButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        proximaCartaButton1.setForeground(new java.awt.Color(255, 255, 255));
+        proximaCartaButton1.setText("Proxima");
+        proximaCartaButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                proximaCartaButton1ActionPerformed(evt);
+            }
+        });
+
+        acerteiButton1.setBackground(new java.awt.Color(237, 30, 82));
+        acerteiButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        acerteiButton1.setForeground(new java.awt.Color(255, 255, 255));
+        acerteiButton1.setText("Acertei");
+        acerteiButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                acerteiButton1ActionPerformed(evt);
+            }
+        });
+
+        erreiButton1.setBackground(new java.awt.Color(237, 30, 82));
+        erreiButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        erreiButton1.setForeground(new java.awt.Color(255, 255, 255));
+        erreiButton1.setText("Errei");
+        erreiButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                erreiButton1ActionPerformed(evt);
+            }
+        });
+
+        virarCardButton1.setBackground(new java.awt.Color(237, 30, 82));
+        virarCardButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        virarCardButton1.setForeground(new java.awt.Color(255, 255, 255));
+        virarCardButton1.setText("Ver resposta");
+        virarCardButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                virarCardButton1ActionPerformed(evt);
+            }
+        });
+
+        jPanel2.setBackground(new java.awt.Color(226, 211, 191));
+        jPanel2.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(206, 191, 171), 5, true));
+
+        conteudoCartaLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        conteudoCartaLabel1.setForeground(new java.awt.Color(0, 0, 0));
+        conteudoCartaLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        conteudoCartaLabel1.setText("jLabel7");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(conteudoCartaLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(conteudoCartaLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(124, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jogoBaralhosDoGrupoPainelLayout = new javax.swing.GroupLayout(jogoBaralhosDoGrupoPainel);
+        jogoBaralhosDoGrupoPainel.setLayout(jogoBaralhosDoGrupoPainelLayout);
+        jogoBaralhosDoGrupoPainelLayout.setHorizontalGroup(
+            jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(148, 148, 148)
+                .addComponent(virarCardButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addComponent(cartaAnteriorButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(proximaCartaButton1)
+                .addGap(43, 43, 43))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(73, 73, 73)
+                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                        .addComponent(finalizarJogoButton1)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                            .addComponent(erreiButton1)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(acerteiButton1)
+                            .addGap(76, 76, 76))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(73, 73, 73)))))
+        );
+        jogoBaralhosDoGrupoPainelLayout.setVerticalGroup(
+            jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(finalizarJogoButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(acerteiButton1)
+                    .addComponent(erreiButton1))
+                .addGap(20, 20, 20)
+                .addComponent(virarCardButton1)
+                .addGap(18, 18, 18)
+                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(proximaCartaButton1)
+                    .addComponent(cartaAnteriorButton1))
+                .addGap(22, 22, 22))
+        );
+
+        getContentPane().add(jogoBaralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        painelJogoFinalizado1.setBackground(new java.awt.Color(246, 231, 211));
+
+        estatisticasJogoLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        estatisticasJogoLabel1.setForeground(new java.awt.Color(0, 0, 0));
+        estatisticasJogoLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        estatisticasJogoLabel1.setText("jLabel7");
+
+        terminarJogoVoltarPainelButton1.setBackground(new java.awt.Color(237, 30, 82));
+        terminarJogoVoltarPainelButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        terminarJogoVoltarPainelButton1.setForeground(new java.awt.Color(255, 255, 255));
+        terminarJogoVoltarPainelButton1.setText("Finalizar");
+        terminarJogoVoltarPainelButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                terminarJogoVoltarPainelButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout painelJogoFinalizado1Layout = new javax.swing.GroupLayout(painelJogoFinalizado1);
+        painelJogoFinalizado1.setLayout(painelJogoFinalizado1Layout);
+        painelJogoFinalizado1Layout.setHorizontalGroup(
+            painelJogoFinalizado1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(estatisticasJogoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(painelJogoFinalizado1Layout.createSequentialGroup()
+                .addGap(168, 168, 168)
+                .addComponent(terminarJogoVoltarPainelButton1)
+                .addContainerGap(168, Short.MAX_VALUE))
+        );
+        painelJogoFinalizado1Layout.setVerticalGroup(
+            painelJogoFinalizado1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(painelJogoFinalizado1Layout.createSequentialGroup()
+                .addGap(168, 168, 168)
+                .addComponent(estatisticasJogoLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
+                .addComponent(terminarJogoVoltarPainelButton1)
+                .addGap(71, 71, 71))
+        );
+
+        getContentPane().add(painelJogoFinalizado1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
+
+        painelJogoInserir.setBackground(new java.awt.Color(246, 231, 211));
+
+        finalizarJogoButton2.setBackground(new java.awt.Color(237, 30, 82));
+        finalizarJogoButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        finalizarJogoButton2.setForeground(new java.awt.Color(255, 255, 255));
+        finalizarJogoButton2.setText("Finalizar");
+        finalizarJogoButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                finalizarJogoButton2ActionPerformed(evt);
+            }
+        });
+
+        pularCarta.setBackground(new java.awt.Color(237, 30, 82));
+        pularCarta.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        pularCarta.setForeground(new java.awt.Color(255, 255, 255));
+        pularCarta.setText("Pular");
+        pularCarta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pularCartaActionPerformed(evt);
+            }
+        });
+
+        confirmarRespostaButton.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarRespostaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarRespostaButton.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarRespostaButton.setText("Confirmar");
+        confirmarRespostaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarRespostaButtonActionPerformed(evt);
+            }
+        });
+
+        jPanel3.setBackground(new java.awt.Color(226, 211, 191));
+        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(206, 191, 171), 5, true));
+
+        conteudoCartaLabel2.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        conteudoCartaLabel2.setForeground(new java.awt.Color(0, 0, 0));
+        conteudoCartaLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        conteudoCartaLabel2.setText("jLabel7");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(conteudoCartaLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(conteudoCartaLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(119, 119, 119))
+        );
+
+        inserirRespostaTF.setBackground(new java.awt.Color(28, 181, 196));
+        inserirRespostaTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        inserirRespostaTF.setForeground(new java.awt.Color(0, 0, 0));
+        inserirRespostaTF.setPreferredSize(new java.awt.Dimension(190, 32));
+        inserirRespostaTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inserirRespostaTFActionPerformed(evt);
+            }
+        });
+
+        jLabel33.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        jLabel33.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel33.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel33.setText("Insira sua resposta");
+
+        mensagemRespostaInvalida.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemRespostaInvalida.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemRespostaInvalida.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout painelJogoInserirLayout = new javax.swing.GroupLayout(painelJogoInserir);
+        painelJogoInserir.setLayout(painelJogoInserirLayout);
+        painelJogoInserirLayout.setHorizontalGroup(
+            painelJogoInserirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(painelJogoInserirLayout.createSequentialGroup()
+                .addGap(77, 77, 77)
+                .addGroup(painelJogoInserirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
+                        .addComponent(finalizarJogoButton2)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(painelJogoInserirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
+                                .addComponent(pularCarta)
+                                .addGap(18, 18, 18))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
+                                .addComponent(inserirRespostaTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(125, 125, 125)))
+                        .addComponent(mensagemRespostaInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(77, 77, 77))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
+                        .addComponent(confirmarRespostaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(156, 156, 156))))
+        );
+        painelJogoInserirLayout.setVerticalGroup(
+            painelJogoInserirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(finalizarJogoButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel33)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inserirRespostaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmarRespostaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addGroup(painelJogoInserirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pularCarta)
+                    .addComponent(mensagemRespostaInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        getContentPane().add(painelJogoInserir, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        painelJogoInserir1.setBackground(new java.awt.Color(246, 231, 211));
+
+        finalizarJogoButton3.setBackground(new java.awt.Color(237, 30, 82));
+        finalizarJogoButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        finalizarJogoButton3.setForeground(new java.awt.Color(255, 255, 255));
+        finalizarJogoButton3.setText("Finalizar");
+        finalizarJogoButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                finalizarJogoButton3ActionPerformed(evt);
+            }
+        });
+
+        pularCarta1.setBackground(new java.awt.Color(237, 30, 82));
+        pularCarta1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        pularCarta1.setForeground(new java.awt.Color(255, 255, 255));
+        pularCarta1.setText("Pular");
+        pularCarta1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pularCarta1ActionPerformed(evt);
+            }
+        });
+
+        confirmarRespostaButton1.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarRespostaButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarRespostaButton1.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarRespostaButton1.setText("Confirmar");
+        confirmarRespostaButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarRespostaButton1ActionPerformed(evt);
+            }
+        });
+
+        jPanel4.setBackground(new java.awt.Color(226, 211, 191));
+        jPanel4.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(206, 191, 171), 5, true));
+
+        conteudoCartaLabel3.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        conteudoCartaLabel3.setForeground(new java.awt.Color(0, 0, 0));
+        conteudoCartaLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        conteudoCartaLabel3.setText("jLabel7");
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(conteudoCartaLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(conteudoCartaLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(119, 119, 119))
+        );
+
+        inserirRespostaTF1.setBackground(new java.awt.Color(28, 181, 196));
+        inserirRespostaTF1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        inserirRespostaTF1.setForeground(new java.awt.Color(0, 0, 0));
+        inserirRespostaTF1.setPreferredSize(new java.awt.Dimension(190, 32));
+        inserirRespostaTF1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inserirRespostaTF1ActionPerformed(evt);
+            }
+        });
+
+        jLabel34.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        jLabel34.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel34.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel34.setText("Insira sua resposta");
+
+        mensagemRespostaInvalida1.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemRespostaInvalida1.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemRespostaInvalida1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout painelJogoInserir1Layout = new javax.swing.GroupLayout(painelJogoInserir1);
+        painelJogoInserir1.setLayout(painelJogoInserir1Layout);
+        painelJogoInserir1Layout.setHorizontalGroup(
+            painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(painelJogoInserir1Layout.createSequentialGroup()
+                .addGap(77, 77, 77)
+                .addGroup(painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
+                        .addComponent(finalizarJogoButton3)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
+                                .addComponent(pularCarta1)
+                                .addGap(18, 18, 18))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
+                                .addComponent(inserirRespostaTF1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(125, 125, 125)))
+                        .addComponent(mensagemRespostaInvalida1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(77, 77, 77))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
+                        .addComponent(confirmarRespostaButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(156, 156, 156))))
+        );
+        painelJogoInserir1Layout.setVerticalGroup(
+            painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(finalizarJogoButton3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel34)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inserirRespostaTF1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmarRespostaButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12)
+                .addGroup(painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pularCarta1)
+                    .addComponent(mensagemRespostaInvalida1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
+        getContentPane().add(painelJogoInserir1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        editarUsuarioPainel.setBackground(new java.awt.Color(246, 231, 211));
+
+        editarNomeButton.setBackground(new java.awt.Color(237, 30, 82));
+        editarNomeButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarNomeButton.setForeground(new java.awt.Color(255, 255, 255));
+        editarNomeButton.setText("Editar nome");
+        editarNomeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarNomeButtonActionPerformed(evt);
+            }
+        });
+
+        editarEmailButton.setBackground(new java.awt.Color(237, 30, 82));
+        editarEmailButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarEmailButton.setForeground(new java.awt.Color(255, 255, 255));
+        editarEmailButton.setText("Editar email");
+        editarEmailButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarEmailButtonActionPerformed(evt);
+            }
+        });
+
+        voltarPainelInicialButton2.setBackground(new java.awt.Color(237, 30, 82));
+        voltarPainelInicialButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarPainelInicialButton2.setForeground(new java.awt.Color(255, 255, 255));
+        voltarPainelInicialButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarPainelInicialButton2.setBorder(null);
+        voltarPainelInicialButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarPainelInicialButton2ActionPerformed(evt);
+            }
+        });
+
+        editarSenhaButton.setBackground(new java.awt.Color(237, 30, 82));
+        editarSenhaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        editarSenhaButton.setForeground(new java.awt.Color(255, 255, 255));
+        editarSenhaButton.setText("Editar senha");
+        editarSenhaButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarSenhaButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel35.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel35.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel35.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel35.setText("Editar usuário");
+
+        javax.swing.GroupLayout editarUsuarioPainelLayout = new javax.swing.GroupLayout(editarUsuarioPainel);
+        editarUsuarioPainel.setLayout(editarUsuarioPainelLayout);
+        editarUsuarioPainelLayout.setHorizontalGroup(
+            editarUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarUsuarioPainelLayout.createSequentialGroup()
+                .addGap(0, 156, Short.MAX_VALUE)
+                .addGroup(editarUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(editarNomeButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editarEmailButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(editarSenhaButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(141, 141, 141))
+            .addComponent(jLabel35, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(editarUsuarioPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarPainelInicialButton2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        editarUsuarioPainelLayout.setVerticalGroup(
+            editarUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarUsuarioPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarPainelInicialButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 25, Short.MAX_VALUE)
+                .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(46, 46, 46)
+                .addComponent(editarNomeButton)
+                .addGap(18, 18, 18)
+                .addComponent(editarEmailButton)
+                .addGap(18, 18, 18)
+                .addComponent(editarSenhaButton)
+                .addGap(174, 174, 174))
+        );
+
+        getContentPane().add(editarUsuarioPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
+
+        editarUsuarioButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        editarUsuarioButton.setForeground(new java.awt.Color(28, 181, 196));
+        editarUsuarioButton.setText("jButton1");
+        editarUsuarioButton.setBorder(null);
+        editarUsuarioButton.setContentAreaFilled(false);
+        editarUsuarioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarUsuarioButtonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(editarUsuarioButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 100, 100, -1));
+
+        editarNomeUsuarioPainel.setBackground(new java.awt.Color(246, 231, 211));
+        editarNomeUsuarioPainel.setForeground(new java.awt.Color(255, 255, 255));
+
+        confirmarEditarNomeUsuario.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarEditarNomeUsuario.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarEditarNomeUsuario.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarEditarNomeUsuario.setText("Confirmar");
+        confirmarEditarNomeUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarEditarNomeUsuarioActionPerformed(evt);
+            }
+        });
+
+        nomeUsuarioTF.setBackground(new java.awt.Color(28, 181, 196));
+        nomeUsuarioTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        nomeUsuarioTF.setForeground(new java.awt.Color(0, 0, 0));
+        nomeUsuarioTF.setPreferredSize(new java.awt.Dimension(190, 32));
+
+        voltarEditarUsuario.setBackground(new java.awt.Color(237, 30, 82));
+        voltarEditarUsuario.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarEditarUsuario.setForeground(new java.awt.Color(255, 255, 255));
+        voltarEditarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarEditarUsuario.setBorder(null);
+        voltarEditarUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarEditarUsuarioActionPerformed(evt);
+            }
+        });
+
+        jLabel36.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel36.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel36.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel36.setText("Editar usuário");
+
+        jLabel37.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel37.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel37.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel37.setText("Nome");
+
+        mensagemEditarNomeUsuarioInvalido.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemEditarNomeUsuarioInvalido.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemEditarNomeUsuarioInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout editarNomeUsuarioPainelLayout = new javax.swing.GroupLayout(editarNomeUsuarioPainel);
+        editarNomeUsuarioPainel.setLayout(editarNomeUsuarioPainelLayout);
+        editarNomeUsuarioPainelLayout.setHorizontalGroup(
+            editarNomeUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarNomeUsuarioPainelLayout.createSequentialGroup()
+                .addGroup(editarNomeUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(editarNomeUsuarioPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(editarNomeUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(editarNomeUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jLabel37, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel36, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(nomeUsuarioTF, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(mensagemEditarNomeUsuarioInvalido, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(editarNomeUsuarioPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarEditarUsuario)))
+                .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarNomeUsuarioPainelLayout.createSequentialGroup()
+                .addGap(161, 161, 161)
+                .addComponent(confirmarEditarNomeUsuario)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        editarNomeUsuarioPainelLayout.setVerticalGroup(
+            editarNomeUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarNomeUsuarioPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarEditarUsuario)
+                .addGap(58, 58, 58)
+                .addComponent(jLabel36)
+                .addGap(44, 44, 44)
+                .addComponent(jLabel37)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nomeUsuarioTF, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mensagemEditarNomeUsuarioInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(confirmarEditarNomeUsuario)
+                .addGap(116, 116, 116))
+        );
+
+        getContentPane().add(editarNomeUsuarioPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        editarEmailUsuarioPainel.setBackground(new java.awt.Color(246, 231, 211));
+        editarEmailUsuarioPainel.setForeground(new java.awt.Color(255, 255, 255));
+
+        confirmarEditarEmailUsuario.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarEditarEmailUsuario.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarEditarEmailUsuario.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarEditarEmailUsuario.setText("Confirmar");
+        confirmarEditarEmailUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarEditarEmailUsuarioActionPerformed(evt);
+            }
+        });
+
+        emailUsuarioTF.setBackground(new java.awt.Color(28, 181, 196));
+        emailUsuarioTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        emailUsuarioTF.setForeground(new java.awt.Color(0, 0, 0));
+        emailUsuarioTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        emailUsuarioTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emailUsuarioTFActionPerformed(evt);
+            }
+        });
+
+        voltarEditarUsuario1.setBackground(new java.awt.Color(237, 30, 82));
+        voltarEditarUsuario1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarEditarUsuario1.setForeground(new java.awt.Color(255, 255, 255));
+        voltarEditarUsuario1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarEditarUsuario1.setBorder(null);
+        voltarEditarUsuario1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarEditarUsuario1ActionPerformed(evt);
+            }
+        });
+
+        jLabel38.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel38.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel38.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel38.setText("Editar usuário");
+
+        jLabel39.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel39.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel39.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel39.setText("Email");
+
+        mensagemEditarEmailInvalido.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemEditarEmailInvalido.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemEditarEmailInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout editarEmailUsuarioPainelLayout = new javax.swing.GroupLayout(editarEmailUsuarioPainel);
+        editarEmailUsuarioPainel.setLayout(editarEmailUsuarioPainelLayout);
+        editarEmailUsuarioPainelLayout.setHorizontalGroup(
+            editarEmailUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarEmailUsuarioPainelLayout.createSequentialGroup()
+                .addGroup(editarEmailUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(editarEmailUsuarioPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(mensagemEditarEmailInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, editarEmailUsuarioPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(editarEmailUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel39, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel38, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(emailUsuarioTF, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarEmailUsuarioPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarEditarUsuario1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarEmailUsuarioPainelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(confirmarEditarEmailUsuario)
+                .addGap(161, 161, 161))
+        );
+        editarEmailUsuarioPainelLayout.setVerticalGroup(
+            editarEmailUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarEmailUsuarioPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarEditarUsuario1)
+                .addGap(58, 58, 58)
+                .addComponent(jLabel38)
+                .addGap(44, 44, 44)
+                .addComponent(jLabel39)
+                .addGap(18, 18, 18)
+                .addComponent(emailUsuarioTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mensagemEditarEmailInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmarEditarEmailUsuario)
+                .addContainerGap(125, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(editarEmailUsuarioPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        editarSenhaPainel.setBackground(new java.awt.Color(246, 231, 211));
+        editarSenhaPainel.setForeground(new java.awt.Color(255, 255, 255));
+
+        confirmarEditarSenha.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarEditarSenha.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarEditarSenha.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarEditarSenha.setText("Confirmar");
+        confirmarEditarSenha.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarEditarSenhaActionPerformed(evt);
+            }
+        });
+
+        voltarEditarUsuario2.setBackground(new java.awt.Color(237, 30, 82));
+        voltarEditarUsuario2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarEditarUsuario2.setForeground(new java.awt.Color(255, 255, 255));
+        voltarEditarUsuario2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarEditarUsuario2.setBorder(null);
+        voltarEditarUsuario2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarEditarUsuario2ActionPerformed(evt);
+            }
+        });
+
+        jLabel40.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel40.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel40.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel40.setText("Editar usuário");
+
+        jLabel41.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel41.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel41.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel41.setText("Senha antiga");
+
+        mensagemEditarSenhaInvalido.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemEditarSenhaInvalido.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemEditarSenhaInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        jLabel42.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel42.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel42.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel42.setText("Senha nova");
+
+        senhaVelhaPF.setBackground(new java.awt.Color(28, 181, 196));
+        senhaVelhaPF.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
+        senhaVelhaPF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                senhaVelhaPFActionPerformed(evt);
+            }
+        });
+
+        senhaNovaPF.setBackground(new java.awt.Color(28, 181, 196));
+        senhaNovaPF.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
+        senhaNovaPF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                senhaNovaPFActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout editarSenhaPainelLayout = new javax.swing.GroupLayout(editarSenhaPainel);
+        editarSenhaPainel.setLayout(editarSenhaPainelLayout);
+        editarSenhaPainelLayout.setHorizontalGroup(
+            editarSenhaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarSenhaPainelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(confirmarEditarSenha)
+                .addGap(162, 162, 162))
+            .addGroup(editarSenhaPainelLayout.createSequentialGroup()
+                .addGap(125, 125, 125)
+                .addGroup(editarSenhaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(mensagemEditarSenhaInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(editarSenhaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabel41, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel40, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                        .addComponent(jLabel42, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(senhaVelhaPF, javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(senhaNovaPF, javax.swing.GroupLayout.Alignment.TRAILING)))
+                .addGap(0, 125, Short.MAX_VALUE))
+            .addGroup(editarSenhaPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarEditarUsuario2)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        editarSenhaPainelLayout.setVerticalGroup(
+            editarSenhaPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(editarSenhaPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarEditarUsuario2)
+                .addGap(58, 58, 58)
+                .addComponent(jLabel40)
+                .addGap(44, 44, 44)
+                .addComponent(jLabel41)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(senhaVelhaPF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel42)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(senhaNovaPF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(mensagemEditarSenhaInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmarEditarSenha)
+                .addGap(104, 104, 104))
+        );
+
+        getContentPane().add(editarSenhaPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        importarBaralhoPainel.setBackground(new java.awt.Color(246, 231, 211));
+        importarBaralhoPainel.setForeground(new java.awt.Color(255, 255, 255));
+
+        confirmarImportarBaralhoButton.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarImportarBaralhoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarImportarBaralhoButton.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarImportarBaralhoButton.setText("Confirmar");
+        confirmarImportarBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarImportarBaralhoButtonActionPerformed(evt);
+            }
+        });
+
+        codigoBaralhoTF.setBackground(new java.awt.Color(28, 181, 196));
+        codigoBaralhoTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        codigoBaralhoTF.setForeground(new java.awt.Color(0, 0, 0));
+        codigoBaralhoTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        codigoBaralhoTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                codigoBaralhoTFActionPerformed(evt);
+            }
+        });
+
+        voltarCriarBaralhoButton.setBackground(new java.awt.Color(237, 30, 82));
+        voltarCriarBaralhoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarCriarBaralhoButton.setForeground(new java.awt.Color(255, 255, 255));
+        voltarCriarBaralhoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Voltar.png"))); // NOI18N
+        voltarCriarBaralhoButton.setBorder(null);
+        voltarCriarBaralhoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarCriarBaralhoButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel43.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel43.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel43.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel43.setText("Importar baralho");
+
+        jLabel44.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        jLabel44.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel44.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel44.setText("Digite o código do baralho");
+
+        mensagemImportarBaralhoInvalido.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        mensagemImportarBaralhoInvalido.setForeground(new java.awt.Color(28, 181, 196));
+        mensagemImportarBaralhoInvalido.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+
+        javax.swing.GroupLayout importarBaralhoPainelLayout = new javax.swing.GroupLayout(importarBaralhoPainel);
+        importarBaralhoPainel.setLayout(importarBaralhoPainelLayout);
+        importarBaralhoPainelLayout.setHorizontalGroup(
+            importarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(importarBaralhoPainelLayout.createSequentialGroup()
+                .addGroup(importarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(importarBaralhoPainelLayout.createSequentialGroup()
+                        .addGap(103, 103, 103)
+                        .addGroup(importarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel44)
+                            .addComponent(jLabel43, javax.swing.GroupLayout.PREFERRED_SIZE, 234, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(importarBaralhoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarCriarBaralhoButton))
+                    .addGroup(importarBaralhoPainelLayout.createSequentialGroup()
+                        .addGap(125, 125, 125)
+                        .addGroup(importarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(mensagemImportarBaralhoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(codigoBaralhoTF, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(importarBaralhoPainelLayout.createSequentialGroup()
+                        .addGap(160, 160, 160)
+                        .addComponent(confirmarImportarBaralhoButton)))
+                .addGap(103, 103, 103))
+        );
+        importarBaralhoPainelLayout.setVerticalGroup(
+            importarBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(importarBaralhoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarCriarBaralhoButton)
+                .addGap(62, 62, 62)
+                .addComponent(jLabel43)
+                .addGap(52, 52, 52)
+                .addComponent(jLabel44)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(codigoBaralhoTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(7, 7, 7)
+                .addComponent(mensagemImportarBaralhoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(confirmarImportarBaralhoButton)
+                .addContainerGap(130, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(importarBaralhoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         labelFundo.setForeground(new java.awt.Color(168, 168, 168));
         labelFundo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Design sem nome.png"))); // NOI18N
@@ -2251,10 +4629,14 @@ public class CriarContaTela extends javax.swing.JFrame {
             String validar = validarDados(email, senha);
             String confirmarSenha = new String(campoConfirmarSenhaPasswordField.getPassword());
             if (validar.equals("erro")) {
-                mensagemCriarContaInvalidaLabel.setText("Insira dados validos");
+                mensagemCriarContaInvalidaLabel.setText("Insira dados válidos");
             } else if (senha.equals(confirmarSenha)) {
                 cadastrarUser(email, senha, nomeUsuario, validar);
-                JOptionPane.showMessageDialog(null, "Deu certo!");
+                mensagemCriarContaInvalidaLabel.setText("Conta criada com sucesso!");
+                campoUsuarioTextField.setText("");
+                campoEmailTextField.setText("");
+                campoSenhaPasswordField.setText("");
+                campoConfirmarSenhaPasswordField.setText("");
             }
 
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -2270,6 +4652,11 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_campoUsuarioTextFieldActionPerformed
 
     private void jaTenhoContaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jaTenhoContaButtonActionPerformed
+        campoUsuarioTextField.setText("");
+        campoEmailTextField.setText("");
+        campoSenhaPasswordField.setText("");
+        campoConfirmarSenhaPasswordField.setText("");
+        mensagemCriarContaInvalidaLabel.setText("");
         criarContaPanel.setVisible(false);
         autenticarContaPanel.setVisible(true);
     }//GEN-LAST:event_jaTenhoContaButtonActionPerformed
@@ -2287,14 +4674,19 @@ public class CriarContaTela extends javax.swing.JFrame {
             if (usuario != null) {
                 painelInicial.setVisible(true);
                 autenticarContaPanel.setVisible(false);
+                editarUsuarioButton.setText(usuario.getNomeUsuario());
+                editarUsuarioButton.setVisible(true);
                 listaDeBaralhos = listarBaralhos(usuario);
                 if (usuario.getTipoUsuario().equals("aluno")) {
                     listaDeGrupos = GrupoDAO.listarGruposAlunos(usuario);
                 } else if (usuario.getTipoUsuario().equals("professor")) {
                     listaDeGrupos = GrupoDAO.listarGruposProfessor(usuario);
                 }
+                campoSenhaAutenticarPasswordField.setText("");
+                campoEmailAutenticarTextField.setText("");
+                dadosInvalidosMensagem.setText("");
             } else {
-                dadosInvalidosMensagem.setText("insira dados validos");
+                dadosInvalidosMensagem.setText("insira dados válidos");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -2307,11 +4699,15 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_campoSenhaAutenticarPasswordFieldActionPerformed
 
     private void redirecionarTelaCriarContaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_redirecionarTelaCriarContaButtonActionPerformed
+        campoSenhaAutenticarPasswordField.setText("");
+        campoEmailAutenticarTextField.setText("");
+        dadosInvalidosMensagem.setText("");
         autenticarContaPanel.setVisible(false);
         criarContaPanel.setVisible(true);
     }//GEN-LAST:event_redirecionarTelaCriarContaButtonActionPerformed
 
     private void abrirMeusBaralhosButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirMeusBaralhosButtonActionPerformed
+        editarUsuarioButton.setVisible(false);
         dtmBaralhos = (DefaultTableModel) meusBaralhosTable.getModel();
         dtmBaralhos.setRowCount(0);
         if (listaDeBaralhos.isEmpty()) {
@@ -2321,9 +4717,15 @@ public class CriarContaTela extends javax.swing.JFrame {
             for (Baralho baralho : listaDeBaralhos) {
                 Object[] linha = {
                     baralho.getNomeBaralho(),
-                    baralho.getTema(), baralho.getMediaDeAcertos(), (baralho.getTotalDeAcertos() + baralho.getTotalDeErros())};
+                    baralho.getTema(), String.format("%.2f%%", baralho.getMediaDeAcertos()), (baralho.getTotalDeAcertos() + baralho.getTotalDeErros())};
                 dtmBaralhos.addRow(linha);
             }
+            ordenar = new TableRowSorter<>(dtmBaralhos);
+            meusBaralhosTable.setRowSorter(ordenar);
+            ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+            chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+            ordenar.setSortKeys(chaveOrdenada);
+            ordenar.sort();
         }
         painelInicial.setVisible(false);
         meusBaralhosPainel.setVisible(true);
@@ -2341,13 +4743,21 @@ public class CriarContaTela extends javax.swing.JFrame {
                 }
                 if (!baralhoNaLista) {
                     baralho = new Baralho(0, inserirNomeBaralhoTextField.getText(), inserirMateriaTextField.getText(), usuario, 0, 0, 0);        // TODO add your handling code here:
-                    BaralhoDAO baralhoDAO = new BaralhoDAO();
-                    baralho = baralhoDAO.criarBaralho(baralho);
+                    baralho = BaralhoDAO.criarBaralho(baralho);
                     listaDeBaralhos.add(baralho);
                     meusBaralhosLabel.setText("Meus baralhos");
-                    Object[] dados = {baralho.getNomeBaralho(), baralho.getTema(), 0, 0};
+                    Object[] dados = {baralho.getNomeBaralho(), baralho.getTema(), "0%", 0};
                     dtmBaralhos.addRow(dados);
+                    inserirNomeBaralhoTextField.setText("");
+                    inserirMateriaTextField.setText("");
+                    mensagemAdicionarBaralhoInvalido.setText("");
                     adicionarBaralhosPainel.setVisible(false);
+                    ordenar = new TableRowSorter<>(dtmBaralhos);
+                    meusBaralhosTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
                     meusBaralhosPainel.setVisible(true);
                     meusBaralhosTable.getTableHeader().setVisible(true);
                 } else {
@@ -2392,10 +4802,19 @@ public class CriarContaTela extends javax.swing.JFrame {
                         Object[] linha = {
                             carta.getPergunta(),
                             carta.getResposta(),
-                            carta.getTotalDeAcertos() + carta.getTotalDeErros(),
-                            carta.getMediaDeAcertos()};
+                            String.format("%.2f%%", carta.getMediaDeAcertos()),
+                            carta.getTotalDeAcertos() + carta.getTotalDeErros()};
                         dtmCartas.addRow(linha);
                     }
+                    ordenar = new TableRowSorter<>(dtmCartas);
+                    minhasCartasTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    editarRespostaCaixaDeTexto.setText("");
+                    editarPerguntaCaixaDeTexto.setText("");
+                    mensagemEditarPerguntaInvalida.setText("");
                     meusCardsPanel.setVisible(true);
                     editarCartasPainel.setVisible(false);
                 } else {
@@ -2427,11 +4846,20 @@ public class CriarContaTela extends javax.swing.JFrame {
                     Carta carta = new Carta(0, inserirPerguntaCaixaDeTexto.getText(), inserirRespostaCaixaDeTexto.getText(), listaDeBaralhos.get(i), 0, 0, 0);
                     carta = CardDAO.criarCard(carta);
                     listaDeCartas.add(carta);
-                    Object[] dados = {carta.getPergunta(), carta.getResposta(), carta.getTotalDeAcertos() + carta.getTotalDeErros(), carta.getMediaDeAcertos()
+                    Object[] dados = {carta.getPergunta(), carta.getResposta(), String.format("%.2f%%", carta.getMediaDeAcertos()), carta.getTotalDeAcertos() + carta.getTotalDeErros()
                     };
                     dtmCartas.addRow(dados);
+                    ordenar = new TableRowSorter<>(dtmCartas);
+                    minhasCartasTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
                     meusCardsLabel.setText("Cards");
                     minhasCartasTable.getTableHeader().setVisible(true);
+                    mensagemCriarCardInvalidoLabel.setText("");
+                    inserirPerguntaCaixaDeTexto.setText("");
+                    inserirRespostaCaixaDeTexto.setText("");
                     meusCardsPanel.setVisible(true);
                     criarCardsPanel.setVisible(false);
                 } else {
@@ -2446,11 +4874,17 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_confirmarCriarCardButtonActionPerformed
 
     private void voltarMeusCardsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusCardsButtonActionPerformed
+        mensagemCriarCardInvalidoLabel.setText("");
+        inserirPerguntaCaixaDeTexto.setText("");
+        inserirRespostaCaixaDeTexto.setText("");
         criarCardsPanel.setVisible(false);
         meusCardsPanel.setVisible(true);
     }//GEN-LAST:event_voltarMeusCardsButtonActionPerformed
 
     private void voltarMeusCardsButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusCardsButton2ActionPerformed
+        editarRespostaCaixaDeTexto.setText("");
+        editarPerguntaCaixaDeTexto.setText("");
+        mensagemEditarPerguntaInvalida.setText("");
         editarCartasPainel.setVisible(false);
         meusCardsPanel.setVisible(true);
     }//GEN-LAST:event_voltarMeusCardsButton2ActionPerformed
@@ -2468,19 +4902,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 baralhoSemCartasLabel.setText("Crie cards para usar esse baralho!");
             } else {
                 Collections.shuffle(listaDeCartas);
-                conteudoCartaLabel.setText(listaDeCartas.get(0).getPergunta());
-                painelJogoNormal.setVisible(true);
-                cartaAnteriorButton.setVisible(false);
-                acerteiButton.setVisible(false);
-                erreiButton.setVisible(false);
-                acertosJogo = 0;
-                errosJogo = 0;
-                indice[0] = 0;
-                virarCardButton.setText("Ver resposta");
-                proximaCartaButton.setVisible(true);
-                if (listaDeCartas.size() == 1) {
-                    proximaCartaButton.setVisible(false);
-                }
+                selecionarModoDeJogoPainel.setVisible(true);
                 selecionarBaralhoJogarPainel.setVisible(false);
             }
         } catch (Exception e) {
@@ -2488,6 +4910,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_jogarButtonActionPerformed
 
     private void irJogarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irJogarButtonActionPerformed
+        editarUsuarioButton.setVisible(false);
         dtmJogar = (DefaultTableModel) selecionarBaralhoJogarTable.getModel();
         dtmJogar.setRowCount(0);
         if (listaDeBaralhos.isEmpty()) {
@@ -2505,6 +4928,12 @@ public class CriarContaTela extends javax.swing.JFrame {
 
                 dtmJogar.addRow(linha);
             }
+            ordenar = new TableRowSorter<>(dtmJogar);
+            selecionarBaralhoJogarTable.setRowSorter(ordenar);
+            ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+            chaveOrdenada.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+            ordenar.setSortKeys(chaveOrdenada);
+            ordenar.sort();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2513,22 +4942,25 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_irJogarButtonActionPerformed
 
     private void voltarMeusBaralhos1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusBaralhos1ActionPerformed
+        inserirNomeBaralhoTextField.setText("");
+        inserirMateriaTextField.setText("");
+        mensagemAdicionarBaralhoInvalido.setText("");
         adicionarBaralhosPainel.setVisible(false);
         meusBaralhosPainel.setVisible(true);// TODO add your handling code here:
     }//GEN-LAST:event_voltarMeusBaralhos1ActionPerformed
 
     private void voltarPainelInicialButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicialButtonActionPerformed
+        editarUsuarioButton.setVisible(true);
+        selecionarBaralhosJogarLabel.setText("Selecione um baralho");
+        selecionarBaralhoJogarTable.getTableHeader().setVisible(true);
+        baralhoSemCartasLabel.setText("");
         painelInicial.setVisible(true);
         selecionarBaralhoJogarPainel.setVisible(false);
     }//GEN-LAST:event_voltarPainelInicialButtonActionPerformed
 
-    private void voltarPainelInicial1ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicial1ButtonActionPerformed
-        // TODO add your handling code here:
-        painelInicial.setVisible(true);
-        meusBaralhosPainel.setVisible(false);
-    }//GEN-LAST:event_voltarPainelInicial1ButtonActionPerformed
-
     private void voltarMeusBaralhosButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusBaralhosButtonActionPerformed
+        meusCardsLabel.setText("Cards");
+        minhasCartasTable.getTableHeader().setVisible(true);
         meusCardsPanel.setVisible(false);
         meusBaralhosPainel.setVisible(true);
     }//GEN-LAST:event_voltarMeusBaralhosButtonActionPerformed
@@ -2549,8 +4981,13 @@ public class CriarContaTela extends javax.swing.JFrame {
             indice[0]++;
             proximaCartaButton.setVisible(false);
         }
-        virarCardButton.setText("Ver resposta");
-        conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+        if ((virarCardButton.getText().equals("Ver pergunta") && acerteiButton.isVisible()) || (virarCardButton.getText().equals("Ver resposta") && !acerteiButton.isVisible())) {
+            virarCardButton.setText("Ver resposta");
+            conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+        } else {
+            virarCardButton.setText("Ver pergunta");
+            conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getResposta());
+        }
         acerteiButton.setVisible(false);
         erreiButton.setVisible(false);
     }//GEN-LAST:event_proximaCartaButtonActionPerformed
@@ -2563,8 +5000,13 @@ public class CriarContaTela extends javax.swing.JFrame {
             indice[0]--;
             cartaAnteriorButton.setVisible(false);
         }
-        virarCardButton.setText("Ver resposta");
-        conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+        if ((virarCardButton.getText().equals("Ver pergunta") && acerteiButton.isVisible()) || (virarCardButton.getText().equals("Ver resposta") && !acerteiButton.isVisible())) {
+            virarCardButton.setText("Ver resposta");
+            conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+        } else {
+            virarCardButton.setText("Ver pergunta");
+            conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getResposta());
+        }
         acerteiButton.setVisible(false);
         erreiButton.setVisible(false);
     }//GEN-LAST:event_cartaAnteriorButtonActionPerformed
@@ -2573,11 +5015,14 @@ public class CriarContaTela extends javax.swing.JFrame {
         if (virarCardButton.getText().equals("Ver pergunta")) {
             conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
             virarCardButton.setText("Ver resposta");
-            acerteiButton.setVisible(false);
-            erreiButton.setVisible(false);
         } else {
             conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getResposta());
             virarCardButton.setText("Ver pergunta");
+        }
+        if (acerteiButton.isVisible()) {
+            acerteiButton.setVisible(false);
+            erreiButton.setVisible(false);
+        } else {
             acerteiButton.setVisible(true);
             erreiButton.setVisible(true);
         }
@@ -2593,7 +5038,8 @@ public class CriarContaTela extends javax.swing.JFrame {
                 int acerto = cartaJogo.getTotalDeAcertos() + 1;
                 int erro = cartaJogo.getTotalDeErros();
                 cartaJogo.setTotalDeAcertos(acerto);
-                cartaJogo.setMediaDeAcertos((double) acerto / (acerto + erro) * 100);
+                double media = (double) acerto / (acerto + erro) * 100;
+                cartaJogo.setMediaDeAcertos(Math.round(media * 100) / 100.0);
                 CardDAO.editar(cartaJogo);
             } else if (!cartaJogo.isAcertou()) {
                 cartaJogo.setAcertou(true);
@@ -2603,18 +5049,24 @@ public class CriarContaTela extends javax.swing.JFrame {
                 int erro = cartaJogo.getTotalDeErros() - 1;
                 cartaJogo.setTotalDeAcertos(acerto);
                 cartaJogo.setTotalDeErros(erro);
-                cartaJogo.setMediaDeAcertos((double) acerto / (acerto + erro) * 100);
+                double media = (double) acerto / (acerto + erro) * 100;
+                cartaJogo.setMediaDeAcertos(Math.round(media * 100) / 100.0);
                 CardDAO.editar(cartaJogo);
             }
             indice[0]++;
             if (indice[0] < listaDeCartas.size()) {
-                conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+                if (virarCardButton.getText().equals("Ver pergunta")) {
+                    conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+                    virarCardButton.setText("Ver resposta");
+                } else {
+                    conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getResposta());
+                    virarCardButton.setText("Ver pergunta");
+                }
                 cartaAnteriorButton.setVisible(true);
                 if (indice[0] == listaDeCartas.size() - 1) {
                     proximaCartaButton.setVisible(false);
-                    cartaAnteriorButton.setVisible(true);
                 }
-                virarCardButton.setText("Ver resposta");
+                cartaAnteriorButton.setVisible(true);
                 acerteiButton.setVisible(false);
                 erreiButton.setVisible(false);
             } else {
@@ -2627,7 +5079,9 @@ public class CriarContaTela extends javax.swing.JFrame {
                 errosTotal += errosJogo;
                 listaDeBaralhos.get(a).setTotalDeAcertos(acertosTotal);
                 listaDeBaralhos.get(a).setTotalDeErros(errosTotal);
-                listaDeBaralhos.get(a).setMediaDeAcertos((double) acertosTotal / (acertosTotal + errosTotal) * 100);
+                double media = (double) acertosTotal / (acertosTotal + errosTotal) * 100;
+                double mediaFormatada = Math.round(media * 100) / 100.0;
+                listaDeBaralhos.get(a).setMediaDeAcertos(mediaFormatada);
                 BaralhoDAO.editar(listaDeBaralhos.get(a));
             }
         } catch (Exception e) {
@@ -2644,7 +5098,8 @@ public class CriarContaTela extends javax.swing.JFrame {
                 int acerto = cartaJogo.getTotalDeAcertos();
                 int erro = cartaJogo.getTotalDeErros() + 1;
                 cartaJogo.setTotalDeErros(erro);
-                cartaJogo.setMediaDeAcertos((double) acerto / (acerto + erro) * 100);
+                double media = (double) acerto / (acerto + erro) * 100;
+                cartaJogo.setMediaDeAcertos(Math.round(media * 100) / 100.0);
                 CardDAO.editar(cartaJogo);
             } else if (cartaJogo.isAcertou()) {
                 errosJogo++;
@@ -2654,18 +5109,24 @@ public class CriarContaTela extends javax.swing.JFrame {
                 int erro = cartaJogo.getTotalDeErros() + 1;
                 cartaJogo.setTotalDeAcertos(acerto);
                 cartaJogo.setTotalDeErros(erro);
-                cartaJogo.setMediaDeAcertos((double) acerto / (acerto + erro) * 100);
+                double media = (double) acerto / (acerto + erro) * 100;
+                cartaJogo.setMediaDeAcertos(Math.round(media * 100) / 100.0);
                 CardDAO.editar(cartaJogo);
             }
             indice[0]++;
             if (indice[0] < listaDeCartas.size()) {
-                conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+                if (virarCardButton.getText().equals("Ver pergunta")) {
+                    conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getPergunta());
+                    virarCardButton.setText("Ver resposta");
+                } else {
+                    conteudoCartaLabel.setText(listaDeCartas.get(indice[0]).getResposta());
+                    virarCardButton.setText("Ver pergunta");
+                }
                 cartaAnteriorButton.setVisible(true);
                 if (indice[0] == listaDeCartas.size() - 1) {
                     proximaCartaButton.setVisible(false);
-                    cartaAnteriorButton.setVisible(true);
                 }
-                virarCardButton.setText("Ver resposta");
+                cartaAnteriorButton.setVisible(true);
                 acerteiButton.setVisible(false);
                 erreiButton.setVisible(false);
             } else {
@@ -2678,7 +5139,9 @@ public class CriarContaTela extends javax.swing.JFrame {
                 errosTotal += errosJogo;
                 listaDeBaralhos.get(a).setTotalDeAcertos(acertosTotal);
                 listaDeBaralhos.get(a).setTotalDeErros(errosTotal);
-                listaDeBaralhos.get(a).setMediaDeAcertos((double) acertosTotal / (acertosTotal + errosTotal) * 100);
+                double media = (double) acertosTotal / (acertosTotal + errosTotal) * 100;
+                double mediaFormatada = Math.round(media * 100) / 100.0;
+                listaDeBaralhos.get(a).setMediaDeAcertos(mediaFormatada);
                 BaralhoDAO.editar(listaDeBaralhos.get(a));
 
             }
@@ -2698,13 +5161,16 @@ public class CriarContaTela extends javax.swing.JFrame {
             errosTotal += errosJogo;
             listaDeBaralhos.get(a).setTotalDeAcertos(acertosTotal);
             listaDeBaralhos.get(a).setTotalDeErros(errosTotal);
-            listaDeBaralhos.get(a).setMediaDeAcertos((double) acertosTotal / (acertosTotal + errosTotal) * 100);
+            double media = (double) acertosTotal / (acertosTotal + errosTotal) * 100;
+            double mediaFormatada = Math.round(media * 100) / 100.0;
+            listaDeBaralhos.get(a).setMediaDeAcertos(mediaFormatada);
             BaralhoDAO.editar(listaDeBaralhos.get(a));
         } catch (Exception e) {
         }
     }//GEN-LAST:event_finalizarJogoButtonActionPerformed
 
     private void terminarJogoVoltarPainelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_terminarJogoVoltarPainelButtonActionPerformed
+        editarUsuarioButton.setVisible(true);
         painelJogoFinalizado.setVisible(false);
         painelInicial.setVisible(true);
     }//GEN-LAST:event_terminarJogoVoltarPainelButtonActionPerformed
@@ -2717,6 +5183,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_irParaEditarBaralhoActionPerformed
 
     private void sairButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairButtonActionPerformed
+        editarUsuarioButton.setVisible(false);
         painelInicial.setVisible(false);
         autenticarContaPanel.setVisible(true);
     }//GEN-LAST:event_sairButtonActionPerformed
@@ -2748,11 +5215,20 @@ public class CriarContaTela extends javax.swing.JFrame {
                         Object[] linha = {
                             baralho.getNomeBaralho(),
                             baralho.getTema(),
-                            baralho.getMediaDeAcertos(),
+                            String.format("%.2f%%", baralho.getMediaDeAcertos()),
                             baralho.getTotalDeAcertos() + baralho.getTotalDeErros()};
                         dtmBaralhos.addRow(linha);
                     }
+                    ordenar = new TableRowSorter<>(dtmBaralhos);
+                    meusBaralhosTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
                     nomeDoBaralhoLabel.setText(listaDeBaralhos.get(i).getNomeBaralho());
+                    editarNomeBaralhoCaixaDeTexto.setText("");
+                    editarTemaCaixaDeTexto.setText("");
+                    mensagemEditarBaralhoInvalido.setText("");
                     meusCardsPanel.setVisible(true);
                     editarBaralhoPainel.setVisible(false);
                 } else {
@@ -2766,10 +5242,15 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_confirmarEditarBaralhoButtonActionPerformed
 
     private void voltarMeusCardsButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusCardsButton3ActionPerformed
-        // TODO add your handling code here:
+        editarNomeBaralhoCaixaDeTexto.setText("");
+        editarTemaCaixaDeTexto.setText("");
+        mensagemEditarBaralhoInvalido.setText("");
+        editarBaralhoPainel.setVisible(false);
+        meusCardsPanel.setVisible(true);
     }//GEN-LAST:event_voltarMeusCardsButton3ActionPerformed
 
     private void abrirMeusGruposButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirMeusGruposButtonActionPerformed
+        editarUsuarioButton.setVisible(false);
         dtmGrupos = (DefaultTableModel) meusGruposTable.getModel();
         dtmGrupos.setRowCount(0);
         if (listaDeGrupos.isEmpty()) {
@@ -2779,15 +5260,23 @@ public class CriarContaTela extends javax.swing.JFrame {
             for (Grupo grupo : listaDeGrupos) {
                 Object[] linha = {
                     grupo.getNomeGrupo(),
-                    grupo.getNomeProfessor()};
+                    grupo.getProfessor().getNomeUsuario()};
                 dtmGrupos.addRow(linha);
             }
+            ordenar = new TableRowSorter<>(dtmGrupos);
+            meusGruposTable.setRowSorter(ordenar);
+            ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+            chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+            ordenar.setSortKeys(chaveOrdenada);
+            ordenar.sort();
         }
         meusGruposPainel.setVisible(true);
         if (usuario.getTipoUsuario().equals("aluno")) {
+            excluirGruposButton.setVisible(false);
             irEditarGruposButton.setVisible(false);
             criarGrupoButton.setVisible(false);
         } else {
+            excluirGruposButton.setVisible(true);
             irEditarGruposButton.setVisible(true);
             criarGrupoButton.setVisible(true);
         }
@@ -2795,6 +5284,9 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_abrirMeusGruposButtonActionPerformed
 
     private void voltarPainelInicial1Button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicial1Button1ActionPerformed
+        editarUsuarioButton.setVisible(true);
+        meusGruposTable.getTableHeader().setVisible(true);
+        meusGruposLabel.setText("Meus grupos");
         meusGruposPainel.setVisible(false);
         painelInicial.setVisible(true);
     }//GEN-LAST:event_voltarPainelInicial1Button1ActionPerformed
@@ -2860,9 +5352,17 @@ public class CriarContaTela extends javax.swing.JFrame {
                     for (Grupo grupo : listaDeGrupos) {
                         Object[] linha = {
                             grupo.getNomeGrupo(),
-                            grupo.getNomeProfessor()};
+                            grupo.getProfessor().getNomeUsuario()};
                         dtmGrupos.addRow(linha);
                     }
+                    ordenar = new TableRowSorter<>(dtmGrupos);
+                    meusGruposTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    mensagemEditarGrupoInvalido.setText("");
+                    editarNomeGrupoCaixaDeTexto.setText("");
                     meusGruposPainel.setVisible(true);
                     editarGrupoPainel.setVisible(false);
                 } else {
@@ -2876,6 +5376,8 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_confirmarEditarCartasButton1ActionPerformed
 
     private void voltarEditarGrupoAcoesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarEditarGrupoAcoesButtonActionPerformed
+        mensagemEditarGrupoInvalido.setText("");
+        editarNomeGrupoCaixaDeTexto.setText("");
         editarGrupoAcoesPainel.setVisible(true);
         editarGrupoPainel.setVisible(false);
     }//GEN-LAST:event_voltarEditarGrupoAcoesButtonActionPerformed
@@ -2912,13 +5414,45 @@ public class CriarContaTela extends javax.swing.JFrame {
 
     private void confirmarAdicionarAlunoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarAdicionarAlunoActionPerformed
         try {
+            boolean usuarioJaExiste = false;
             if (inserirEmailAlunoCaixaDeTexto.getText().equals("")) {
                 mensagemEmailAlunoInvalido.setText("Digite um email!");
             } else {
                 Usuario aluno = GrupoDAO.selecionarAluno(inserirEmailAlunoCaixaDeTexto.getText());
                 if (aluno == null) {
                     mensagemEmailAlunoInvalido.setText("Aluno não encontrado");
+                } else {
+                    for (Usuario usuario : listaDeAlunosGrupo) {
+                        if (usuario.equals(aluno)) {
+                            mensagemEmailAlunoInvalido.setText("Aluno já inserido");
+                            usuarioJaExiste = true;
+                            break;
+                        }
+                    }
+                    if (!usuarioJaExiste) {
+                        GrupoDAO.adicionarAlunoGrupo(aluno, listaDeGrupos.get(d));
+                        dtmAlunosDoGrupo = (DefaultTableModel) alunosDoGrupoTable.getModel();
+                        dtmAlunosDoGrupo.setRowCount(0);
+                        Object[] row = {
+                            aluno.getNomeUsuario(),
+                            aluno.getEmail()};
+                        listaDeAlunosGrupo.add(aluno);
+                        dtmAlunosDoGrupo.addRow(row);
+                        ordenar = new TableRowSorter<>(dtmAlunosDoGrupo);
+                        alunosDoGrupoTable.setRowSorter(ordenar);
+                        ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                        chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                        ordenar.setSortKeys(chaveOrdenada);
+                        ordenar.sort();
+                        mensagemEmailAlunoInvalido.setText("");
+                        inserirEmailAlunoCaixaDeTexto.setText("");
+                        alunosDoGrupoLabel.setText("Alunos do grupo");
+                        alunosDoGrupoTable.getTableHeader().setVisible(true);
+                        alunosDoGrupoPainel.setVisible(true);
+                        adicionarAlunoGrupoPainel.setVisible(false);
+                    }
                 }
+
             }
 
         } catch (Exception e) {
@@ -2926,29 +5460,37 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_confirmarAdicionarAlunoActionPerformed
 
     private void voltarEditarGrupoAcoesButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarEditarGrupoAcoesButton2ActionPerformed
-        editarGrupoAcoesPainel.setVisible(true);
+        mensagemEmailAlunoInvalido.setText("");
+        inserirEmailAlunoCaixaDeTexto.setText("");
+        alunosDoGrupoPainel.setVisible(true);
         adicionarAlunoGrupoPainel.setVisible(false);
     }//GEN-LAST:event_voltarEditarGrupoAcoesButton2ActionPerformed
 
-    private void irParaCriarBaralhoButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irParaCriarBaralhoButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_irParaCriarBaralhoButton2ActionPerformed
+    private void voltarMeusGruposActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusGruposActionPerformed
+        baralhosDoGrupoTable.getTableHeader().setVisible(true);
+        baralhosDoGrupoLabel.setText("Baralhos do grupo");
+        mensagemBaralhoDoGrupoSemCartas.setText("");
+        meusGruposPainel.setVisible(true);
+        baralhosDoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarMeusGruposActionPerformed
 
-    private void voltarPainelInicial1Button2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicial1Button2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_voltarPainelInicial1Button2ActionPerformed
+    private void editarBaralhoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarBaralhoGrupoButtonActionPerformed
+        Object nomeBaralho = baralhosDoGrupoTable.getValueAt(baralhosDoGrupoTable.getSelectedRow(), 0);
+        for (e = 0; e < listaDeBaralhosGrupo.size(); e++) {
+            if (listaDeBaralhosGrupo.get(e).getNomeBaralho().equals(nomeBaralho)) {
+                break;
+            }
+        }
+        editarNomeBaralhoGrupoCaixaDeTexto.setText(listaDeBaralhosGrupo.get(e).getNomeBaralho());
+        editarTemaBaralhoGrupoCaixaDeTexto.setText(listaDeBaralhosGrupo.get(e).getTema());
+        baralhosDoGrupoPainel.setVisible(false);
+        editarBaralhoGrupoPainel.setVisible(true);
+    }//GEN-LAST:event_editarBaralhoGrupoButtonActionPerformed
 
-    private void irEditarGruposButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irEditarGruposButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_irEditarGruposButton1ActionPerformed
-
-    private void criarGrupoButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_criarGrupoButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_criarGrupoButton1ActionPerformed
-
-    private void irParaCriarBaralhoButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irParaCriarBaralhoButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_irParaCriarBaralhoButton3ActionPerformed
+    private void criarBaralhoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_criarBaralhoGrupoButtonActionPerformed
+        baralhosDoGrupoPainel.setVisible(false);
+        criarBaralhoGrupoPainel.setVisible(true);
+    }//GEN-LAST:event_criarBaralhoGrupoButtonActionPerformed
 
     private void confirmarCriarGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarCriarGrupoButtonActionPerformed
         try {
@@ -2962,13 +5504,20 @@ public class CriarContaTela extends javax.swing.JFrame {
                     }
                 }
                 if (!grupoNaLista) {
-                    System.out.println("Grupo n esta na lista");
-                    Grupo grupo = new Grupo(0, usuario.getNomeUsuario(), inserirNomeGrupoCaixaDeTexto.getText());        // TODO add your handling code here:
+                    Grupo grupo = new Grupo(0, usuario, inserirNomeGrupoCaixaDeTexto.getText());        // TODO add your handling code here:
                     grupo = GrupoDAO.criarGrupo(grupo, usuario);
                     listaDeGrupos.add(grupo);
                     meusGruposLabel.setText("Meus grupos");
-                    Object[] dados = {grupo.getNomeGrupo(), grupo.getNomeProfessor()};
+                    Object[] dados = {grupo.getNomeGrupo(), grupo.getProfessor().getNomeUsuario()};
                     dtmGrupos.addRow(dados);
+                    ordenar = new TableRowSorter<>(dtmGrupos);
+                    meusGruposTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    inserirNomeGrupoCaixaDeTexto.setText("");
+                    mensagemCriarGrupoInvalido.setText("");
                     adicionarGrupoPainel.setVisible(false);
                     meusGruposPainel.setVisible(true);
                     meusGruposTable.getTableHeader().setVisible(true);
@@ -2986,6 +5535,1021 @@ public class CriarContaTela extends javax.swing.JFrame {
         adicionarGrupoPainel.setVisible(false);
         meusGruposPainel.setVisible(true);
     }//GEN-LAST:event_voltarMeusGruposButton2ActionPerformed
+
+    private void confirmarEditarBaralhoButtonAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_confirmarEditarBaralhoButtonAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmarEditarBaralhoButtonAncestorAdded
+
+    private void voltarMeusGrupos1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusGrupos1ActionPerformed
+        alunosDoGrupoLabel.setText("Alunos do grupo");
+        alunosDoGrupoTable.getTableHeader().setVisible(true);
+        alunosDoGrupoTable.getTableHeader().setVisible(true);
+        alunosDoGrupoLabel.setText("Alunos do grupo");
+        meusGruposPainel.setVisible(true);
+        alunosDoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarMeusGrupos1ActionPerformed
+
+    private void irExcluirAlunosGruposButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irExcluirAlunosGruposButtonActionPerformed
+        try {
+            int linhaSelecionada = alunosDoGrupoTable.getSelectedRow();
+            if (alunosDoGrupoTable.isEditing()) {
+                alunosDoGrupoTable.getCellEditor().stopCellEditing();
+            }
+            dtmAlunosDoGrupo = (DefaultTableModel) alunosDoGrupoTable.getModel();
+            String nomeAluno = (String) dtmAlunosDoGrupo.getValueAt(linhaSelecionada, 0);
+
+            Usuario alunoParaExcluir = null;
+            for (Usuario aluno : listaDeAlunosGrupo) {
+                if (aluno.getNomeUsuario().equals(nomeAluno)) {
+                    alunoParaExcluir = aluno;
+                    break;
+                }
+            }
+            GrupoDAO.removerAlunoGrupo(alunoParaExcluir, listaDeGrupos.get(d));
+
+            listaDeAlunosGrupo.remove(alunoParaExcluir);
+            dtmAlunosDoGrupo.removeRow(linhaSelecionada);
+            if (listaDeAlunosGrupo.isEmpty()) {
+                alunosDoGrupoLabel.setText("Esse grupo ainda não tem alunos");
+                alunosDoGrupoTable.getTableHeader().setVisible(false);
+            }
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_irExcluirAlunosGruposButtonActionPerformed
+
+    private void AdicionarAlunoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AdicionarAlunoButtonActionPerformed
+        adicionarAlunoGrupoPainel.setVisible(true);
+        alunosDoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_AdicionarAlunoButtonActionPerformed
+
+    private void inserirNomeBaralhoGrupoCaixaDeTextoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inserirNomeBaralhoGrupoCaixaDeTextoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inserirNomeBaralhoGrupoCaixaDeTextoActionPerformed
+
+    private void confirmarCriarBaralhoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarCriarBaralhoGrupoButtonActionPerformed
+        try {
+            boolean baralhoNaLista = false;
+            if (!inserirTemaBaralhoGrupoCaixaDeTexto.getText().equals("") && !inserirNomeBaralhoGrupoCaixaDeTexto.getText().equals("")) {
+                for (Baralho baralho : listaDeBaralhosGrupo) {
+                    if (baralho.getNomeBaralho().equals(inserirNomeBaralhoGrupoCaixaDeTexto.getText())) {
+                        baralhoNaLista = true;
+                        break;
+                    }
+                }
+                if (!baralhoNaLista) {
+                    Baralho baralho = new Baralho(0, inserirNomeBaralhoGrupoCaixaDeTexto.getText(), inserirTemaBaralhoGrupoCaixaDeTexto.getText(), usuario, 0, 0, 0);
+                    baralho = BaralhoDAO.criarBaralho(baralho);
+                    GrupoDAO.adicionarBaralhoGrupo(baralho, listaDeGrupos.get(d));
+                    listaDeBaralhosGrupo.add(baralho);
+                    Object[] dados = {baralho.getNomeBaralho(), baralho.getTema()
+                    };
+                    dtmBaralhosDoGrupo.addRow(dados);
+                    ordenar = new TableRowSorter<>(dtmBaralhosDoGrupo);
+                    baralhosDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    baralhosDoGrupoLabel.setText("Baralhos do grupo");
+                    baralhosDoGrupoTable.getTableHeader().setVisible(true);
+                    mensagemAdicionarBaralhoGrupoInvalido.setText("");
+                    inserirNomeBaralhoGrupoCaixaDeTexto.setText("");
+                    inserirTemaBaralhoGrupoCaixaDeTexto.setText("");
+                    baralhosDoGrupoPainel.setVisible(true);
+                    criarBaralhoGrupoPainel.setVisible(false);
+                } else {
+                    mensagemAdicionarBaralhoGrupoInvalido.setText("Baralho já adicionado");
+                }
+            } else {
+                mensagemAdicionarBaralhoGrupoInvalido.setText("Insira as informações");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmarCriarBaralhoGrupoButtonActionPerformed
+
+    private void voltarMeusBaralhosGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusBaralhosGrupoButtonActionPerformed
+        mensagemAdicionarBaralhoGrupoInvalido.setText("");
+        inserirNomeBaralhoGrupoCaixaDeTexto.setText("");
+        inserirTemaBaralhoGrupoCaixaDeTexto.setText("");
+        baralhosDoGrupoPainel.setVisible(true);
+        criarBaralhoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarMeusBaralhosGrupoButtonActionPerformed
+
+    private void inserirTemaBaralhoGrupoCaixaDeTextoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inserirTemaBaralhoGrupoCaixaDeTextoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inserirTemaBaralhoGrupoCaixaDeTextoActionPerformed
+
+    private void confirmarEditarBaralhoGrupoButtonAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_confirmarEditarBaralhoGrupoButtonAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmarEditarBaralhoGrupoButtonAncestorAdded
+
+    private void confirmarEditarBaralhoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarBaralhoGrupoButtonActionPerformed
+        try {
+            boolean baralhoJaExiste = false;
+            if (editarNomeBaralhoGrupoCaixaDeTexto.getText().equals("") || editarTemaBaralhoGrupoCaixaDeTexto.getText().equals("")) {
+                mensagemEditarBaralhoGrupoInvalido.setText("Insira os valores");
+            } else if (listaDeBaralhosGrupo.get(e).getNomeBaralho().equals(editarNomeBaralhoGrupoCaixaDeTexto.getText())) {
+                baralhosDoGrupoPainel.setVisible(true);
+                editarBaralhoGrupoPainel.setVisible(false);
+            } else {
+                for (Baralho baralho : listaDeBaralhosGrupo) {
+                    if (baralho.getNomeBaralho().equals(editarNomeBaralhoGrupoCaixaDeTexto.getText())) {
+                        if (baralho != listaDeBaralhosGrupo.get(e)) {
+                            baralhoJaExiste = true;
+                            break;
+                        }
+                    }
+                }
+                if (!baralhoJaExiste) {
+                    listaDeBaralhosGrupo.get(e).setNomeBaralho(editarNomeBaralhoGrupoCaixaDeTexto.getText());
+                    listaDeBaralhosGrupo.get(e).setTema(editarTemaBaralhoGrupoCaixaDeTexto.getText());
+                    System.out.println(usuario.getIdUsuario());
+                    System.out.println(listaDeBaralhosGrupo.get(e).getIdBaralho());
+                    BaralhoDAO.editar(listaDeBaralhosGrupo.get(e));
+                    dtmBaralhosDoGrupo.setRowCount(0);
+                    for (Baralho baralho : listaDeBaralhosGrupo) {
+                        Object[] linha = {
+                            baralho.getNomeBaralho(),
+                            baralho.getTema()};
+                        dtmBaralhosDoGrupo.addRow(linha);
+                    }
+                    ordenar = new TableRowSorter<>(dtmBaralhosDoGrupo);
+                    baralhosDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    mensagemEditarBaralhoGrupoInvalido.setText("");
+                    editarNomeBaralhoGrupoCaixaDeTexto.setText("");
+                    editarTemaBaralhoGrupoCaixaDeTexto.setText("");
+                    baralhosDoGrupoPainel.setVisible(true);
+                    editarBaralhoGrupoPainel.setVisible(false);
+                } else {
+                    mensagemEditarBaralhoGrupoInvalido.setText("Baralho já adicionado");
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_confirmarEditarBaralhoGrupoButtonActionPerformed
+
+    private void voltarBaralhosGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarBaralhosGrupoButtonActionPerformed
+        mensagemEditarBaralhoGrupoInvalido.setText("");
+        editarNomeBaralhoGrupoCaixaDeTexto.setText("");
+        editarTemaBaralhoGrupoCaixaDeTexto.setText("");
+        baralhosDoGrupoPainel.setVisible(true);
+        editarBaralhoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarBaralhosGrupoButtonActionPerformed
+
+    private void voltarBaralhosDoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarBaralhosDoGrupoButtonActionPerformed
+        cartasDoGrupoLabel.setText("Cards");
+        cartasDoGrupoTable.getTableHeader().setVisible(true);
+        baralhosDoGrupoPainel.setVisible(true);
+        cartasDoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarBaralhosDoGrupoButtonActionPerformed
+
+    private void irEditarCartasDoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irEditarCartasDoGrupoButtonActionPerformed
+        Object pergunta = cartasDoGrupoTable.getValueAt(cartasDoGrupoTable.getSelectedRow(), 0);
+        for (g = 0; g < listaDeCartas.size(); g++) {
+            if (listaDeCartas.get(g).getPergunta().equals(pergunta)) {
+                break;
+            }
+        }
+        editarPerguntaGrupoCaixaDeTexto.setText(listaDeCartas.get(g).getPergunta());
+        editarRespostaGrupoCaixaDeTexto.setText(listaDeCartas.get(g).getResposta());
+        cartasDoGrupoPainel.setVisible(false);
+        editarCartasGrupoPainel.setVisible(true);
+    }//GEN-LAST:event_irEditarCartasDoGrupoButtonActionPerformed
+
+    private void criarCartasGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_criarCartasGrupoButtonActionPerformed
+        // TODO add your handling code here:
+        criarCardsGrupoPanel.setVisible(true);
+        cartasDoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_criarCartasGrupoButtonActionPerformed
+
+    private void confirmarCriarCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarCriarCardButton1ActionPerformed
+        try {
+            boolean cartaNaLista = false;
+            if (!inserirPerguntaGrupoCaixaDeTexto.getText().equals("") && !inserirRespostaGrupoCaixaDeTexto.getText().equals("")) {
+                for (Carta carta : listaDeCartas) {
+                    if (carta.getPergunta().equals(inserirPerguntaGrupoCaixaDeTexto.getText())) {
+                        cartaNaLista = true;
+                        break;
+                    }
+                }
+                if (!cartaNaLista) {
+                    Carta carta = new Carta(0, inserirPerguntaGrupoCaixaDeTexto.getText(), inserirRespostaGrupoCaixaDeTexto.getText(), listaDeBaralhosGrupo.get(f), 0, 0, 0);
+                    carta = CardDAO.criarCard(carta);
+                    listaDeCartas.add(carta);
+                    Object[] dados = {carta.getPergunta(), carta.getResposta()
+                    };
+                    dtmCartasDoGrupo.addRow(dados);
+                    ordenar = new TableRowSorter<>(dtmCartasDoGrupo);
+                    cartasDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    cartasDoGrupoLabel.setText("Cards");
+                    cartasDoGrupoTable.getTableHeader().setVisible(true);
+                    mensagemCriarCardGrupoInvalidoLabel.setText("");
+                    inserirPerguntaGrupoCaixaDeTexto.setText("");
+                    inserirRespostaGrupoCaixaDeTexto.setText("");
+                    cartasDoGrupoPainel.setVisible(true);
+                    criarCardsGrupoPanel.setVisible(false);
+                } else {
+                    mensagemCriarCardGrupoInvalidoLabel.setText("Pergunta já adicionada");
+                }
+            } else {
+                mensagemCriarCardGrupoInvalidoLabel.setText("Insira as informações");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_confirmarCriarCardButton1ActionPerformed
+
+    private void voltarMeusCardsButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusCardsButton1ActionPerformed
+        mensagemCriarCardGrupoInvalidoLabel.setText("");
+        inserirPerguntaGrupoCaixaDeTexto.setText("");
+        inserirRespostaGrupoCaixaDeTexto.setText("");
+        cartasDoGrupoPainel.setVisible(true);
+        criarCardsGrupoPanel.setVisible(false);
+    }//GEN-LAST:event_voltarMeusCardsButton1ActionPerformed
+
+    private void excluirBaralhoGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excluirBaralhoGrupoButtonActionPerformed
+        try {
+            int linhaSelecionada = baralhosDoGrupoTable.getSelectedRow();
+            if (baralhosDoGrupoTable.isEditing()) {
+                baralhosDoGrupoTable.getCellEditor().stopCellEditing();
+            }
+            dtmBaralhosDoGrupo = (DefaultTableModel) baralhosDoGrupoTable.getModel();
+            String nomeBaralho = (String) dtmBaralhosDoGrupo.getValueAt(linhaSelecionada, 0);
+
+            Baralho baralhoParaExcluir = null;
+            for (Baralho baralho : listaDeBaralhosGrupo) {
+                if (baralho.getNomeBaralho().equals(nomeBaralho)) {
+                    baralhoParaExcluir = baralho;
+                    break;
+                }
+            }
+            GrupoDAO.removerBaralhoGrupo(baralhoParaExcluir, listaDeGrupos.get(d));
+
+            listaDeBaralhosGrupo.remove(baralhoParaExcluir);
+            dtmBaralhosDoGrupo.removeRow(linhaSelecionada);
+            if (listaDeBaralhosGrupo.isEmpty()) {
+                baralhosDoGrupoLabel.setText("Esse grupo ainda não tem baralhos");
+                baralhosDoGrupoTable.getTableHeader().setVisible(false);
+            }
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_excluirBaralhoGrupoButtonActionPerformed
+
+    private void excluirGruposButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excluirGruposButtonActionPerformed
+        try {
+            int linhaSelecionada = meusGruposTable.getSelectedRow();
+            if (meusGruposTable.isEditing()) {
+                meusGruposTable.getCellEditor().stopCellEditing();
+            }
+            dtmGrupos = (DefaultTableModel) meusGruposTable.getModel();
+            String nomeGrupo = (String) dtmGrupos.getValueAt(linhaSelecionada, 0);
+
+            Grupo grupoParaExcluir = null;
+            for (Grupo grupo : listaDeGrupos) {
+                if (grupo.getNomeGrupo().equals(nomeGrupo)) {
+                    grupoParaExcluir = grupo;
+                    break;
+                }
+            }
+            GrupoDAO.excluirGrupo(grupoParaExcluir);
+
+            listaDeGrupos.remove(grupoParaExcluir);
+            dtmGrupos.removeRow(linhaSelecionada);
+            if (listaDeGrupos.isEmpty()) {
+                meusGruposLabel.setText("Você ainda não está em nenhum grupo");
+                meusGruposTable.getTableHeader().setVisible(false);
+            }
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_excluirGruposButtonActionPerformed
+
+    private void confirmarEditarCartasGrupoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarCartasGrupoButtonActionPerformed
+        try {
+            boolean perguntaJaExiste = false;
+            if (editarPerguntaGrupoCaixaDeTexto.getText().equals("") || editarRespostaGrupoCaixaDeTexto.getText().equals("")) {
+                mensagemEditarPerguntaGrupoInvalida.setText("Insira os valores");
+            } else if (listaDeCartas.get(g).getPergunta().equals(editarPerguntaGrupoCaixaDeTexto.getText()) && listaDeCartas.get(g).getResposta().equals(editarRespostaGrupoCaixaDeTexto.getText())) {
+                cartasDoGrupoPainel.setVisible(true);
+                editarCartasGrupoPainel.setVisible(false);
+            } else {
+                for (Carta carta : listaDeCartas) {
+                    if (carta.getPergunta().equals(editarPerguntaGrupoCaixaDeTexto.getText())) {
+                        if (carta != listaDeCartas.get(g)) {
+                            System.out.println("caiu nesse caso");
+                            perguntaJaExiste = true;
+                            break;
+                        }
+                    }
+                }
+                if (!perguntaJaExiste) {
+                    listaDeCartas.get(g).setPergunta(editarPerguntaGrupoCaixaDeTexto.getText());
+                    listaDeCartas.get(g).setResposta(editarRespostaGrupoCaixaDeTexto.getText());
+                    CardDAO.editar(listaDeCartas.get(g));
+                    dtmCartasDoGrupo.setRowCount(0);
+                    for (Carta carta : listaDeCartas) {
+                        Object[] linha = {
+                            carta.getPergunta(),
+                            carta.getResposta()
+                        };
+                        dtmCartasDoGrupo.addRow(linha);
+                    }
+                    ordenar = new TableRowSorter<>(dtmCartasDoGrupo);
+                    cartasDoGrupoTable.setRowSorter(ordenar);
+                    ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                    chaveOrdenada.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+                    ordenar.setSortKeys(chaveOrdenada);
+                    ordenar.sort();
+                    editarRespostaGrupoCaixaDeTexto.setText("");
+                    editarPerguntaGrupoCaixaDeTexto.setText("");
+                    mensagemEditarPerguntaGrupoInvalida.setText("");
+                    cartasDoGrupoPainel.setVisible(true);
+                    editarCartasGrupoPainel.setVisible(false);
+                } else {
+                    mensagemEditarPerguntaGrupoInvalida.setText("Pergunta já adicionada");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_confirmarEditarCartasGrupoButtonActionPerformed
+
+    private void voltarCardsDoGrupoPainelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarCardsDoGrupoPainelActionPerformed
+        editarRespostaGrupoCaixaDeTexto.setText("");
+        editarPerguntaGrupoCaixaDeTexto.setText("");
+        mensagemEditarPerguntaGrupoInvalida.setText("");
+        cartasDoGrupoPainel.setVisible(true);
+        editarCartasGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarCardsDoGrupoPainelActionPerformed
+
+    private void excluirCardButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excluirCardButtonActionPerformed
+        try {
+            int linhaSelecionada = cartasDoGrupoTable.getSelectedRow();
+            if (cartasDoGrupoTable.isEditing()) {
+                cartasDoGrupoTable.getCellEditor().stopCellEditing();
+            }
+            dtmCartasDoGrupo = (DefaultTableModel) cartasDoGrupoTable.getModel();
+            String pergunta = (String) dtmCartasDoGrupo.getValueAt(linhaSelecionada, 0);
+
+            Carta cartaParaExcluir = null;
+            for (Carta carta : listaDeCartas) {
+                if (carta.getPergunta().equals(pergunta)) {
+                    cartaParaExcluir = carta;
+                    break;
+                }
+            }
+            CardDAO.excluir(cartaParaExcluir);
+
+            listaDeCartas.remove(cartaParaExcluir);
+            dtmCartasDoGrupo.removeRow(linhaSelecionada);
+            if (listaDeCartas.isEmpty()) {
+                cartasDoGrupoLabel.setText("Este baralho não tem cartas");
+                cartasDoGrupoTable.getTableHeader().setVisible(false);
+            }
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_excluirCardButtonActionPerformed
+
+    private void modoInserirRespostaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modoInserirRespostaButtonActionPerformed
+        conteudoCartaLabel2.setText(listaDeCartas.get(0).getPergunta());
+        confirmarRespostaButton.setText("Confirmar");
+        mensagemRespostaInvalida.setText("");
+        acertosJogo = 0;
+        errosJogo = 0;
+        indice[0] = 0;
+        virarCardButton.setText("Ver resposta");
+        if (indice[0] == listaDeCartas.size() - 1) {
+            pularCarta.setVisible(false);
+        }
+        painelJogoInserir.setVisible(true);
+        selecionarModoDeJogoPainel.setVisible(false);
+    }//GEN-LAST:event_modoInserirRespostaButtonActionPerformed
+
+    private void modoDeJogoInvertidoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modoDeJogoInvertidoButtonActionPerformed
+        conteudoCartaLabel.setText(listaDeCartas.get(0).getResposta());
+        painelJogoNormal.setVisible(true);
+        cartaAnteriorButton.setVisible(false);
+        acerteiButton.setVisible(false);
+        erreiButton.setVisible(false);
+        acertosJogo = 0;
+        errosJogo = 0;
+        indice[0] = 0;
+        virarCardButton.setText("Ver pergunta");
+        proximaCartaButton.setVisible(true);
+        if (listaDeCartas.size() == 1) {
+            proximaCartaButton.setVisible(false);
+        }
+        selecionarModoDeJogoPainel.setVisible(false);
+    }//GEN-LAST:event_modoDeJogoInvertidoButtonActionPerformed
+
+    private void voltarMeusGruposButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusGruposButton1ActionPerformed
+        selecionarModoDeJogoPainel.setVisible(false);
+        selecionarBaralhoJogarPainel.setVisible(true);
+    }//GEN-LAST:event_voltarMeusGruposButton1ActionPerformed
+
+    private void modoDeJogoNormalButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modoDeJogoNormalButtonActionPerformed
+        conteudoCartaLabel.setText(listaDeCartas.get(0).getPergunta());
+        painelJogoNormal.setVisible(true);
+        cartaAnteriorButton.setVisible(false);
+        acerteiButton.setVisible(false);
+        erreiButton.setVisible(false);
+        acertosJogo = 0;
+        errosJogo = 0;
+        indice[0] = 0;
+        virarCardButton.setText("Ver resposta");
+        proximaCartaButton.setVisible(true);
+        if (listaDeCartas.size() == 1) {
+            proximaCartaButton.setVisible(false);
+        }
+        selecionarModoDeJogoPainel.setVisible(false);
+    }//GEN-LAST:event_modoDeJogoNormalButtonActionPerformed
+
+    private void modoInserirRespostaButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modoInserirRespostaButton1ActionPerformed
+        conteudoCartaLabel3.setText(listaDeCartas.get(0).getPergunta());
+        confirmarRespostaButton1.setText("Confirmar");
+        mensagemRespostaInvalida1.setText("");
+        acertosJogo = 0;
+        errosJogo = 0;
+        indice[0] = 0;
+        virarCardButton1.setText("Ver resposta");
+        if (indice[0] == listaDeCartas.size() - 1) {
+            pularCarta1.setVisible(false);
+        }
+        painelJogoInserir1.setVisible(true);
+        selecionarModoDeJogoGrupoPainel.setVisible(false);        // TODO add your handling code here:
+    }//GEN-LAST:event_modoInserirRespostaButton1ActionPerformed
+
+    private void modoDeJogoInvertidoButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modoDeJogoInvertidoButton1ActionPerformed
+        conteudoCartaLabel1.setText(listaDeCartas.get(0).getResposta());
+        jogoBaralhosDoGrupoPainel.setVisible(true);
+        cartaAnteriorButton1.setVisible(false);
+        acerteiButton1.setVisible(false);
+        erreiButton1.setVisible(false);
+        acertosJogo = 0;
+        errosJogo = 0;
+        indice[0] = 0;
+        virarCardButton1.setText("Ver pergunta");
+        proximaCartaButton1.setVisible(true);
+        if (listaDeCartas.size() == 1) {
+            proximaCartaButton1.setVisible(false);
+        }
+        selecionarModoDeJogoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_modoDeJogoInvertidoButton1ActionPerformed
+
+    private void voltarMeusGruposButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusGruposButton3ActionPerformed
+        // TODO add your handling code here:
+        baralhosDoGrupoPainel.setVisible(true);
+        selecionarModoDeJogoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarMeusGruposButton3ActionPerformed
+
+    private void modoDeJogoNormalButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modoDeJogoNormalButton1ActionPerformed
+        conteudoCartaLabel1.setText(listaDeCartas.get(0).getPergunta());
+        jogoBaralhosDoGrupoPainel.setVisible(true);
+        cartaAnteriorButton1.setVisible(false);
+        acerteiButton1.setVisible(false);
+        erreiButton1.setVisible(false);
+        acertosJogo = 0;
+        errosJogo = 0;
+        indice[0] = 0;
+        virarCardButton1.setText("Ver resposta");
+        proximaCartaButton1.setVisible(true);
+        if (listaDeCartas.size() == 1) {
+            proximaCartaButton1.setVisible(false);
+        }
+        selecionarModoDeJogoGrupoPainel.setVisible(false);
+    }//GEN-LAST:event_modoDeJogoNormalButton1ActionPerformed
+
+    private void cartaAnteriorButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cartaAnteriorButton1ActionPerformed
+        proximaCartaButton1.setVisible(true);
+        if (indice[0] > 1) {
+            indice[0]--;
+        } else {
+            indice[0]--;
+            cartaAnteriorButton1.setVisible(false);
+        }
+        if ((virarCardButton1.getText().equals("Ver pergunta") && acerteiButton1.isVisible()) || (virarCardButton1.getText().equals("Ver resposta") && !acerteiButton1.isVisible())) {
+            virarCardButton1.setText("Ver resposta");
+            conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getPergunta());
+        } else {
+            virarCardButton1.setText("Ver pergunta");
+            conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getResposta());
+        }
+        acerteiButton1.setVisible(false);
+        erreiButton1.setVisible(false);
+    }//GEN-LAST:event_cartaAnteriorButton1ActionPerformed
+
+    private void finalizarJogoButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarJogoButton1ActionPerformed
+        jogoBaralhosDoGrupoPainel.setVisible(false);
+        painelJogoFinalizado1.setVisible(true);
+        estatisticasJogoLabel1.setText(String.format("Você acertou %d/%d questões", acertosJogo, acertosJogo + errosJogo));
+    }//GEN-LAST:event_finalizarJogoButton1ActionPerformed
+
+    private void proximaCartaButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_proximaCartaButton1ActionPerformed
+        cartaAnteriorButton1.setVisible(true);
+        if (indice[0] < listaDeCartas.size() - 2) {
+            indice[0]++;
+        } else {
+            indice[0]++;
+            proximaCartaButton1.setVisible(false);
+        }
+        if ((virarCardButton1.getText().equals("Ver pergunta") && acerteiButton1.isVisible()) || (virarCardButton1.getText().equals("Ver resposta") && !acerteiButton1.isVisible())) {
+            virarCardButton1.setText("Ver resposta");
+            conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getPergunta());
+        } else {
+            virarCardButton1.setText("Ver pergunta");
+            conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getResposta());
+        }
+        acerteiButton1.setVisible(false);
+        erreiButton1.setVisible(false);        // TODO add your handling code here:
+    }//GEN-LAST:event_proximaCartaButton1ActionPerformed
+
+    private void acerteiButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acerteiButton1ActionPerformed
+        try {
+            cartaJogo = listaDeCartas.get(indice[0]);
+            if (!cartaJogo.isRespondida()) {
+                acertosJogo++;
+                cartaJogo.setRespondida(true);
+                cartaJogo.setAcertou(true);
+            } else if (!cartaJogo.isAcertou()) {
+                cartaJogo.setAcertou(true);
+                errosJogo--;
+                acertosJogo++;
+            }
+            indice[0]++;
+            if (indice[0] < listaDeCartas.size()) {
+                if (virarCardButton1.getText().equals("Ver pergunta")) {
+                    conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getPergunta());
+                    virarCardButton1.setText("Ver resposta");
+                } else {
+                    conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getResposta());
+                    virarCardButton1.setText("Ver pergunta");
+                }
+                cartaAnteriorButton1.setVisible(true);
+                if (indice[0] == listaDeCartas.size() - 1) {
+                    proximaCartaButton1.setVisible(false);
+                }
+                cartaAnteriorButton1.setVisible(true);
+                acerteiButton1.setVisible(false);
+                erreiButton1.setVisible(false);
+            } else {
+                jogoBaralhosDoGrupoPainel.setVisible(false);
+                painelJogoFinalizado1.setVisible(true);
+                estatisticasJogoLabel1.setText(String.format("Você acertou %d/%d questões", acertosJogo, (acertosJogo + errosJogo)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_acerteiButton1ActionPerformed
+
+    private void erreiButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_erreiButton1ActionPerformed
+        try {
+            cartaJogo = listaDeCartas.get(indice[0]);
+            if (!cartaJogo.isRespondida()) {
+                errosJogo++;
+                cartaJogo.setRespondida(true);
+            } else if (cartaJogo.isAcertou()) {
+                errosJogo++;
+                acertosJogo--;
+                cartaJogo.setAcertou(false);
+            }
+            indice[0]++;
+            if (indice[0] < listaDeCartas.size()) {
+                if (virarCardButton1.getText().equals("Ver pergunta")) {
+                    conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getPergunta());
+                    virarCardButton1.setText("Ver resposta");
+                } else {
+                    conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getResposta());
+                    virarCardButton1.setText("Ver pergunta");
+                }
+                cartaAnteriorButton1.setVisible(true);
+                if (indice[0] == listaDeCartas.size() - 1) {
+                    proximaCartaButton1.setVisible(false);
+                }
+                cartaAnteriorButton1.setVisible(true);
+                acerteiButton1.setVisible(false);
+                erreiButton1.setVisible(false);
+            } else {
+                jogoBaralhosDoGrupoPainel.setVisible(false);
+                painelJogoFinalizado1.setVisible(true);
+                estatisticasJogoLabel1.setText(String.format("Você acertou %d/%d questões", acertosJogo, acertosJogo + errosJogo));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }           // TODO add your handling code here:
+    }//GEN-LAST:event_erreiButton1ActionPerformed
+
+    private void virarCardButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_virarCardButton1ActionPerformed
+        if (virarCardButton1.getText().equals("Ver pergunta")) {
+            conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getPergunta());
+            virarCardButton1.setText("Ver resposta");
+        } else {
+            conteudoCartaLabel1.setText(listaDeCartas.get(indice[0]).getResposta());
+            virarCardButton1.setText("Ver pergunta");
+        }
+        if (acerteiButton1.isVisible()) {
+            acerteiButton1.setVisible(false);
+            erreiButton1.setVisible(false);
+        } else {
+            acerteiButton1.setVisible(true);
+            erreiButton1.setVisible(true);
+        }
+    }//GEN-LAST:event_virarCardButton1ActionPerformed
+
+    private void terminarJogoVoltarPainelButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_terminarJogoVoltarPainelButton1ActionPerformed
+        baralhosDoGrupoPainel.setVisible(true);
+        painelJogoFinalizado1.setVisible(false);
+    }//GEN-LAST:event_terminarJogoVoltarPainelButton1ActionPerformed
+
+    private void finalizarJogoButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarJogoButton2ActionPerformed
+        try {
+            inserirRespostaTF.setText("");
+            pularCarta.setVisible(true);
+            mensagemRespostaInvalida.setText("");
+            painelJogoInserir.setVisible(false);
+            painelJogoFinalizado.setVisible(true);
+            estatisticasJogoLabel.setText(String.format("Você acertou %d/%d questões", acertosJogo, acertosJogo + errosJogo));
+            int acertosTotal = listaDeBaralhos.get(a).getTotalDeAcertos();
+            int errosTotal = listaDeBaralhos.get(a).getTotalDeErros();
+            acertosTotal += acertosJogo;
+            errosTotal += errosJogo;
+            listaDeBaralhos.get(a).setTotalDeAcertos(acertosTotal);
+            listaDeBaralhos.get(a).setTotalDeErros(errosTotal);
+            double media = (double) acertosTotal / (acertosTotal + errosTotal) * 100;
+            double mediaFormatada = Math.round(media * 100) / 100.0;
+            listaDeBaralhos.get(a).setMediaDeAcertos(mediaFormatada);
+            BaralhoDAO.editar(listaDeBaralhos.get(a));
+        } catch (Exception e) {
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_finalizarJogoButton2ActionPerformed
+
+    private void pularCartaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pularCartaActionPerformed
+        if (indice[0] < listaDeCartas.size() - 2) {
+            indice[0]++;
+        } else {
+            indice[0]++;
+            pularCarta.setVisible(false);
+        }
+        conteudoCartaLabel2.setText(listaDeCartas.get(indice[0]).getPergunta());
+        mensagemRespostaInvalida.setText("");
+        inserirRespostaTF.setText("");
+        confirmarRespostaButton.setText("Confirmar");
+    }//GEN-LAST:event_pularCartaActionPerformed
+
+    private void confirmarRespostaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarRespostaButtonActionPerformed
+        try {
+            switch (confirmarRespostaButton.getText()) {
+                case "Confirmar" -> {
+                    if (inserirRespostaTF.getText().equals("")) {
+                        mensagemRespostaInvalida.setText("Insira a resposta");
+                    } else {
+                        cartaJogo = listaDeCartas.get(indice[0]);
+                        String resposta = Normalizer.normalize(inserirRespostaTF.getText().trim(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+                        conteudoCartaLabel2.setText(listaDeCartas.get(indice[0]).getResposta());
+                        String respostaCorreta = Normalizer.normalize(listaDeCartas.get(indice[0]).getResposta().trim(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+                        if (resposta.equals(respostaCorreta)) {
+                            mensagemRespostaInvalida.setText("Acertou!");
+                            acertosJogo++;
+                            int acerto = cartaJogo.getTotalDeAcertos() + 1;
+                            int erro = cartaJogo.getTotalDeErros();
+                            cartaJogo.setTotalDeAcertos(acerto);
+                            double media = (double) acerto / (acerto + erro) * 100;
+                            cartaJogo.setMediaDeAcertos(Math.round(media * 100) / 100.0);
+                            CardDAO.editar(cartaJogo);
+                        } else {
+                            errosJogo++;
+                            int acerto = cartaJogo.getTotalDeAcertos();
+                            int erro = cartaJogo.getTotalDeErros() + 1;
+                            cartaJogo.setTotalDeAcertos(acerto);
+                            double media = (double) acerto / (acerto + erro) * 100;
+                            cartaJogo.setMediaDeAcertos(Math.round(media * 100) / 100.0);
+                            CardDAO.editar(cartaJogo);
+                            mensagemRespostaInvalida.setText("Errou...");
+                        }
+                        indice[0]++;
+                        if (indice[0] < listaDeCartas.size()) {
+                            confirmarRespostaButton.setText("Próxima");
+                        } else {
+                            confirmarRespostaButton.setText("Finalizar");
+                        }
+                    }
+                }
+                case "Próxima" -> {
+                    inserirRespostaTF.setText("");
+                    if (indice[0] == listaDeCartas.size() - 1) {
+                        pularCarta.setVisible(false);
+                    }
+                    confirmarRespostaButton.setText("Confirmar");
+                    mensagemRespostaInvalida.setText("");
+                    conteudoCartaLabel2.setText(listaDeCartas.get(indice[0]).getPergunta());
+                }
+                default -> {
+                    try {
+                        inserirRespostaTF.setText("");
+                        pularCarta.setVisible(true);
+                        mensagemRespostaInvalida.setText("");
+                        painelJogoInserir.setVisible(false);
+                        painelJogoFinalizado.setVisible(true);
+                        estatisticasJogoLabel.setText(String.format("Você acertou %d/%d questões", acertosJogo, acertosJogo + errosJogo));
+                        int acertosTotal = listaDeBaralhos.get(a).getTotalDeAcertos();
+                        int errosTotal = listaDeBaralhos.get(a).getTotalDeErros();
+                        acertosTotal += acertosJogo;
+                        errosTotal += errosJogo;
+                        listaDeBaralhos.get(a).setTotalDeAcertos(acertosTotal);
+                        listaDeBaralhos.get(a).setTotalDeErros(errosTotal);
+                        double media = (double) acertosTotal / (acertosTotal + errosTotal) * 100;
+                        double mediaFormatada = Math.round(media * 100) / 100.0;
+                        listaDeBaralhos.get(a).setMediaDeAcertos(mediaFormatada);
+                        BaralhoDAO.editar(listaDeBaralhos.get(a));
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+// TODO add your handling code here:
+    }//GEN-LAST:event_confirmarRespostaButtonActionPerformed
+
+    private void inserirRespostaTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inserirRespostaTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inserirRespostaTFActionPerformed
+
+    private void finalizarJogoButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalizarJogoButton3ActionPerformed
+        inserirRespostaTF1.setText("");
+        pularCarta1.setVisible(true);
+        mensagemRespostaInvalida1.setText("");
+        painelJogoInserir1.setVisible(false);
+        painelJogoFinalizado1.setVisible(true);
+        estatisticasJogoLabel1.setText(String.format("Você acertou %d/%d questões", acertosJogo, acertosJogo + errosJogo));
+    }//GEN-LAST:event_finalizarJogoButton3ActionPerformed
+
+    private void pularCarta1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pularCarta1ActionPerformed
+        if (indice[0] < listaDeCartas.size() - 2) {
+            indice[0]++;
+        } else {
+            indice[0]++;
+            pularCarta1.setVisible(false);
+        }
+        conteudoCartaLabel3.setText(listaDeCartas.get(indice[0]).getPergunta());
+        mensagemRespostaInvalida1.setText("");
+        inserirRespostaTF1.setText("");
+        confirmarRespostaButton1.setText("Confirmar");
+    }//GEN-LAST:event_pularCarta1ActionPerformed
+
+    private void confirmarRespostaButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarRespostaButton1ActionPerformed
+        switch (confirmarRespostaButton1.getText()) {
+            case "Confirmar" -> {
+                if (inserirRespostaTF1.getText().equals("")) {
+                    mensagemRespostaInvalida1.setText("Insira a resposta");
+                } else {
+                    cartaJogo = listaDeCartas.get(indice[0]);
+                    String resposta = Normalizer.normalize(inserirRespostaTF.getText().trim(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+                    conteudoCartaLabel3.setText(listaDeCartas.get(indice[0]).getResposta());
+                    String respostaCorreta = Normalizer.normalize(listaDeCartas.get(indice[0]).getResposta().trim(), Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "").toLowerCase();
+                    if (resposta.equals(respostaCorreta)) {
+                        mensagemRespostaInvalida1.setText("Acertou!");
+                        acertosJogo++;
+                    } else {
+                        errosJogo++;
+                        mensagemRespostaInvalida1.setText("Errou...");
+                    }
+                    indice[0]++;
+                    if (indice[0] < listaDeCartas.size()) {
+                        confirmarRespostaButton1.setText("Próxima");
+                    } else {
+                        confirmarRespostaButton1.setText("Finalizar");
+                    }
+                }
+            }
+            case "Próxima" -> {
+                inserirRespostaTF1.setText("");
+                if (indice[0] == listaDeCartas.size() - 1) {
+                    pularCarta1.setVisible(false);
+                }
+                confirmarRespostaButton1.setText("Confirmar");
+                mensagemRespostaInvalida1.setText("");
+                conteudoCartaLabel3.setText(listaDeCartas.get(indice[0]).getPergunta());
+            }
+            default -> {
+                inserirRespostaTF1.setText("");
+                pularCarta1.setVisible(true);
+                mensagemRespostaInvalida1.setText("");
+                painelJogoInserir1.setVisible(false);
+                painelJogoFinalizado1.setVisible(true);
+                estatisticasJogoLabel1.setText(String.format("Você acertou %d/%d questões", acertosJogo, acertosJogo + errosJogo));
+            }
+        }
+    }//GEN-LAST:event_confirmarRespostaButton1ActionPerformed
+
+    private void inserirRespostaTF1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inserirRespostaTF1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inserirRespostaTF1ActionPerformed
+
+    private void editarUsuarioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarUsuarioButtonActionPerformed
+        editarUsuarioPainel.setVisible(true);
+        painelInicial.setVisible(false);
+        editarUsuarioButton.setVisible(false);
+    }//GEN-LAST:event_editarUsuarioButtonActionPerformed
+
+    private void editarNomeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarNomeButtonActionPerformed
+        editarNomeUsuarioPainel.setVisible(true);
+        nomeUsuarioTF.setText(usuario.getNomeUsuario());
+        editarUsuarioPainel.setVisible(false);
+    }//GEN-LAST:event_editarNomeButtonActionPerformed
+
+    private void editarEmailButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarEmailButtonActionPerformed
+        editarEmailUsuarioPainel.setVisible(true);
+        emailUsuarioTF.setText(usuario.getEmail());
+        editarUsuarioPainel.setVisible(false);        // TODO add your handling code here:
+    }//GEN-LAST:event_editarEmailButtonActionPerformed
+
+    private void voltarPainelInicialButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicialButton2ActionPerformed
+        // TODO add your handling code here:
+        editarUsuarioPainel.setVisible(false);
+        painelInicial.setVisible(true);
+        editarUsuarioButton.setVisible(true);
+    }//GEN-LAST:event_voltarPainelInicialButton2ActionPerformed
+
+    private void editarSenhaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editarSenhaButtonActionPerformed
+        editarSenhaPainel.setVisible(true);
+        editarUsuarioPainel.setVisible(false);// TODO add your handling code here:
+    }//GEN-LAST:event_editarSenhaButtonActionPerformed
+
+    private void confirmarEditarNomeUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarNomeUsuarioActionPerformed
+        try {
+            if (nomeUsuarioTF.getText().equals("")) {
+                mensagemEditarNomeUsuarioInvalido.setText("Insira um nome válido");
+            } else {
+                if (!nomeUsuarioTF.getText().equals(usuario.getNomeUsuario())) {
+                    usuario.setNomeUsuario(nomeUsuarioTF.getText());
+                    UsuarioDAO.editar(usuario);
+                    editarUsuarioButton.setText(usuario.getNomeUsuario());
+                }
+                editarUsuarioButton.setVisible(true);
+                mensagemEditarNomeUsuarioInvalido.setText("");
+                editarNomeUsuarioPainel.setVisible(false);
+                painelInicial.setVisible(true);
+
+            }
+        } catch (Exception e) {
+            mensagemEditarNomeUsuarioInvalido.setText("Nome já registrado");
+        }
+    }//GEN-LAST:event_confirmarEditarNomeUsuarioActionPerformed
+
+    private void voltarEditarUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarEditarUsuarioActionPerformed
+        editarNomeUsuarioPainel.setVisible(false);
+        mensagemEditarNomeUsuarioInvalido.setText("");
+        editarUsuarioPainel.setVisible(true);        // TODO add your handling code here:
+    }//GEN-LAST:event_voltarEditarUsuarioActionPerformed
+
+    private void confirmarEditarEmailUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarEmailUsuarioActionPerformed
+        try {
+            if (emailUsuarioTF.getText().equals("")) {
+                mensagemEditarEmailInvalido.setText("Insira um email");
+            } else {
+                if (!emailUsuarioTF.getText().equals(usuario.getEmail())) {
+                    usuario.setEmail(emailUsuarioTF.getText());
+                    UsuarioDAO.editar(usuario);
+                }
+                editarUsuarioButton.setVisible(true);
+                editarEmailUsuarioPainel.setVisible(false);
+                mensagemEditarEmailInvalido.setText("");
+                painelInicial.setVisible(true);
+
+            }
+        } catch (Exception e) {
+            mensagemEditarEmailInvalido.setText("Email já registrado");
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmarEditarEmailUsuarioActionPerformed
+
+    private void voltarEditarUsuario1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarEditarUsuario1ActionPerformed
+        editarEmailUsuarioPainel.setVisible(false);
+        mensagemEditarEmailInvalido.setText("");
+        editarUsuarioPainel.setVisible(true);
+    }//GEN-LAST:event_voltarEditarUsuario1ActionPerformed
+
+    private void confirmarEditarSenhaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarSenhaActionPerformed
+        try {
+            String senhaAntiga = new String(senhaVelhaPF.getPassword());
+            String senhaNova = new String(senhaNovaPF.getPassword());
+            if (senhaNova.equals("") || senhaAntiga.equals("")) {
+                mensagemEditarSenhaInvalido.setText("Preencha os campos");
+            } else if (senhaAntiga.equals(usuario.getSenha())) {
+                if (!senhaNova.equals(senhaAntiga)) {
+                    usuario.setSenha(senhaNova);
+                    UsuarioDAO.editar(usuario);
+                }
+                mensagemEditarSenhaInvalido.setText("");
+                painelInicial.setVisible(true);
+                editarUsuarioButton.setVisible(true);
+                editarSenhaPainel.setVisible(false);
+            } else {
+                mensagemEditarSenhaInvalido.setText("Senha antiga incorreta");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_confirmarEditarSenhaActionPerformed
+
+    private void voltarEditarUsuario2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarEditarUsuario2ActionPerformed
+        senhaNovaPF.setText("");
+        senhaVelhaPF.setText("");
+        mensagemEditarSenhaInvalido.setText("");
+        editarSenhaPainel.setVisible(false);
+        editarUsuarioPainel.setVisible(true);
+    }//GEN-LAST:event_voltarEditarUsuario2ActionPerformed
+
+    private void senhaVelhaPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_senhaVelhaPFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_senhaVelhaPFActionPerformed
+
+    private void senhaNovaPFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_senhaNovaPFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_senhaNovaPFActionPerformed
+
+    private void emailUsuarioTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailUsuarioTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_emailUsuarioTFActionPerformed
+
+    private void importarBaralhoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importarBaralhoButtonActionPerformed
+        inserirMateriaTextField.setText("");
+        inserirNomeBaralhoTextField.setText("");
+        mensagemAdicionarBaralhoInvalido.setText("");
+        importarBaralhoPainel.setVisible(true);
+        adicionarBaralhosPainel.setVisible(false);// TODO add your handling code here:
+    }//GEN-LAST:event_importarBaralhoButtonActionPerformed
+
+    private void confirmarImportarBaralhoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarImportarBaralhoButtonActionPerformed
+        boolean baralhoExiste = false;
+        try {
+            String codigo = codigoBaralhoTF.getText();
+            if (codigo.equals("")) {
+                mensagemImportarBaralhoInvalido.setText("Insira um código");
+            } else {
+                for (Baralho baralho : listaDeBaralhos) {
+                    if (baralho.getIdBaralho() == Integer.parseInt(codigo)) {
+                        codigoBaralhoTF.setText("");
+                        mensagemImportarBaralhoInvalido.setText("");
+                        meusBaralhosPainel.setVisible(true);
+                        importarBaralhoPainel.setVisible(false);
+                        baralhoExiste = true;
+                        break;
+                    }
+                }
+                if (!baralhoExiste) {
+                    Baralho baralho = BaralhoDAO.importar(codigo, usuario);
+                    if (baralho != null) {
+                        listaDeBaralhos.add(baralho);
+                        meusBaralhosLabel.setText("Meus baralhos");
+                        Object[] dados = {baralho.getNomeBaralho(), baralho.getTema(), "0%", 0};
+                        dtmBaralhos.addRow(dados);
+                        codigoBaralhoTF.setText("");
+                        mensagemImportarBaralhoInvalido.setText("");
+                        importarBaralhoPainel.setVisible(false);
+                        ordenar = new TableRowSorter<>(dtmBaralhos);
+                        meusBaralhosTable.setRowSorter(ordenar);
+                        ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+                        chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+                        ordenar.setSortKeys(chaveOrdenada);
+                        ordenar.sort();
+                        meusBaralhosTable.getTableHeader().setVisible(true);
+                        meusBaralhosPainel.setVisible(true);
+                    } else {
+                        mensagemImportarBaralhoInvalido.setText("Baralho não encontrado");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_confirmarImportarBaralhoButtonActionPerformed
+
+    private void codigoBaralhoTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_codigoBaralhoTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_codigoBaralhoTFActionPerformed
+
+    private void voltarCriarBaralhoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarCriarBaralhoButtonActionPerformed
+        mensagemImportarBaralhoInvalido.setText("");
+        adicionarBaralhosPainel.setVisible(true);
+        importarBaralhoPainel.setVisible(false);
+    }//GEN-LAST:event_voltarCriarBaralhoButtonActionPerformed
+
+    private void voltarPainelInicial1ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicial1ButtonActionPerformed
+        meusBaralhosLabel.setText("Meus baralhos");
+        meusBaralhosTable.getTableHeader().setVisible(true);
+        meusBaralhosPainel.setVisible(false);
+        painelInicial.setVisible(true);
+// TODO add your handling code here:
+    }//GEN-LAST:event_voltarPainelInicial1ButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -3023,20 +6587,27 @@ public class CriarContaTela extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AdicionarAlunoButton;
     private javax.swing.JLabel EmailLabel;
     private javax.swing.JButton EntrarButton;
     private javax.swing.JLabel SenhaLabel;
     private javax.swing.JButton abrirMeusBaralhosButton;
     private javax.swing.JButton abrirMeusGruposButton;
     private javax.swing.JButton acerteiButton;
+    private javax.swing.JButton acerteiButton1;
     private javax.swing.JButton adicionarAlunoGrupoButton;
     private javax.swing.JPanel adicionarAlunoGrupoPainel;
     private javax.swing.JButton adicionarBaralhoGrupoButton;
     private javax.swing.JPanel adicionarBaralhosPainel;
     private javax.swing.JPanel adicionarGrupoPainel;
+    private javax.swing.JLabel alunosDoGrupoLabel;
+    private javax.swing.JPanel alunosDoGrupoPainel;
+    private javax.swing.JTable alunosDoGrupoTable;
     private javax.swing.JPanel autenticarContaPanel;
     private javax.swing.JLabel baralhoSemCartasLabel;
+    private javax.swing.JLabel baralhosDoGrupoLabel;
     private javax.swing.JPanel baralhosDoGrupoPainel;
+    private javax.swing.JTable baralhosDoGrupoTable;
     private javax.swing.JPasswordField campoConfirmarSenhaPasswordField;
     private javax.swing.JTextField campoEmailAutenticarTextField;
     private javax.swing.JTextField campoEmailTextField;
@@ -3044,51 +6615,103 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JPasswordField campoSenhaPasswordField;
     private javax.swing.JTextField campoUsuarioTextField;
     private javax.swing.JButton cartaAnteriorButton;
+    private javax.swing.JButton cartaAnteriorButton1;
+    private javax.swing.JLabel cartasDoGrupoLabel;
+    private javax.swing.JPanel cartasDoGrupoPainel;
+    private javax.swing.JTable cartasDoGrupoTable;
+    private javax.swing.JTextField codigoBaralhoTF;
+    private javax.swing.JLabel codigoDoBaralhoGrupoLabel;
     private javax.swing.JLabel codigoDoBaralhoLabel;
     private javax.swing.JButton confirmarAdicionarAluno;
+    private javax.swing.JButton confirmarCriarBaralhoGrupoButton;
     private javax.swing.JButton confirmarCriarCardButton;
+    private javax.swing.JButton confirmarCriarCardButton1;
     private javax.swing.JButton confirmarCriarGrupoButton;
     private javax.swing.JButton confirmarEditarBaralhoButton;
+    private javax.swing.JButton confirmarEditarBaralhoGrupoButton;
     private javax.swing.JButton confirmarEditarCartasButton;
     private javax.swing.JButton confirmarEditarCartasButton1;
+    private javax.swing.JButton confirmarEditarCartasGrupoButton;
+    private javax.swing.JButton confirmarEditarEmailUsuario;
+    private javax.swing.JButton confirmarEditarNomeUsuario;
+    private javax.swing.JButton confirmarEditarSenha;
     private javax.swing.JButton confirmarExcluirBaralhoButton;
     private javax.swing.JPanel confirmarExcluirBaralhoPainel;
+    private javax.swing.JButton confirmarImportarBaralhoButton;
+    private javax.swing.JButton confirmarRespostaButton;
+    private javax.swing.JButton confirmarRespostaButton1;
     private javax.swing.JLabel confirmarSenhaLabel;
     private javax.swing.JLabel conteudoCartaLabel;
+    private javax.swing.JLabel conteudoCartaLabel1;
+    private javax.swing.JLabel conteudoCartaLabel2;
+    private javax.swing.JLabel conteudoCartaLabel3;
     private javax.swing.JButton criarBaralhoButton;
+    private javax.swing.JButton criarBaralhoGrupoButton;
+    private javax.swing.JPanel criarBaralhoGrupoPainel;
+    private javax.swing.JPanel criarCardsGrupoPanel;
     private javax.swing.JPanel criarCardsPanel;
+    private javax.swing.JButton criarCartasGrupoButton;
     private javax.swing.JButton criarContaButton;
     private javax.swing.JPanel criarContaPanel;
     private javax.swing.JButton criarGrupoButton;
-    private javax.swing.JButton criarGrupoButton1;
     private javax.swing.JLabel dadosInvalidosMensagem;
+    private javax.swing.JButton editarBaralhoGrupoButton;
+    private javax.swing.JPanel editarBaralhoGrupoPainel;
     private javax.swing.JPanel editarBaralhoPainel;
+    private javax.swing.JPanel editarCartasGrupoPainel;
     private javax.swing.JPanel editarCartasPainel;
+    private javax.swing.JButton editarEmailButton;
+    private javax.swing.JPanel editarEmailUsuarioPainel;
     private javax.swing.JPanel editarGrupoAcoesPainel;
     private javax.swing.JButton editarGrupoButton;
     private javax.swing.JPanel editarGrupoPainel;
     private javax.swing.JTextField editarNomeBaralhoCaixaDeTexto;
+    private javax.swing.JTextField editarNomeBaralhoGrupoCaixaDeTexto;
+    private javax.swing.JButton editarNomeButton;
     private javax.swing.JTextField editarNomeGrupoCaixaDeTexto;
+    private javax.swing.JPanel editarNomeUsuarioPainel;
     private javax.swing.JTextField editarPerguntaCaixaDeTexto;
+    private javax.swing.JTextField editarPerguntaGrupoCaixaDeTexto;
     private javax.swing.JTextField editarRespostaCaixaDeTexto;
+    private javax.swing.JTextField editarRespostaGrupoCaixaDeTexto;
+    private javax.swing.JButton editarSenhaButton;
+    private javax.swing.JPanel editarSenhaPainel;
+    private javax.swing.JTextField editarTemaBaralhoGrupoCaixaDeTexto;
     private javax.swing.JTextField editarTemaCaixaDeTexto;
+    private javax.swing.JButton editarUsuarioButton;
+    private javax.swing.JPanel editarUsuarioPainel;
     private javax.swing.JLabel emailLabel;
+    private javax.swing.JTextField emailUsuarioTF;
     private javax.swing.JButton erreiButton;
+    private javax.swing.JButton erreiButton1;
     private javax.swing.JLabel estatisticasJogoLabel;
     private javax.swing.JLabel estatisticasJogoLabel1;
+    private javax.swing.JButton excluirBaralhoGrupoButton;
+    private javax.swing.JButton excluirCardButton;
+    private javax.swing.JButton excluirGruposButton;
     private javax.swing.JButton finalizarJogoButton;
+    private javax.swing.JButton finalizarJogoButton1;
+    private javax.swing.JButton finalizarJogoButton2;
+    private javax.swing.JButton finalizarJogoButton3;
+    private javax.swing.JButton importarBaralhoButton;
+    private javax.swing.JPanel importarBaralhoPainel;
     private javax.swing.JTextField inserirEmailAlunoCaixaDeTexto;
     private javax.swing.JTextField inserirMateriaTextField;
+    private javax.swing.JTextField inserirNomeBaralhoGrupoCaixaDeTexto;
     private javax.swing.JTextField inserirNomeBaralhoTextField;
     private javax.swing.JTextField inserirNomeGrupoCaixaDeTexto;
     private javax.swing.JTextField inserirPerguntaCaixaDeTexto;
+    private javax.swing.JTextField inserirPerguntaGrupoCaixaDeTexto;
     private javax.swing.JTextField inserirRespostaCaixaDeTexto;
+    private javax.swing.JTextField inserirRespostaGrupoCaixaDeTexto;
+    private javax.swing.JTextField inserirRespostaTF;
+    private javax.swing.JTextField inserirRespostaTF1;
+    private javax.swing.JTextField inserirTemaBaralhoGrupoCaixaDeTexto;
+    private javax.swing.JButton irEditarCartasDoGrupoButton;
     private javax.swing.JButton irEditarGruposButton;
-    private javax.swing.JButton irEditarGruposButton1;
+    private javax.swing.JButton irExcluirAlunosGruposButton;
     private javax.swing.JButton irJogarButton;
     private javax.swing.JButton irParaCriarBaralhoButton;
-    private javax.swing.JButton irParaCriarBaralhoButton2;
-    private javax.swing.JButton irParaCriarBaralhoButton3;
     private javax.swing.JButton irParaCriarCardButton;
     private javax.swing.JButton irParaEditarBaralho;
     private javax.swing.JLabel jLabel1;
@@ -3104,68 +6727,143 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
+    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel42;
+    private javax.swing.JLabel jLabel43;
+    private javax.swing.JLabel jLabel44;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JButton jaTenhoContaButton;
     private javax.swing.JButton jogarButton;
+    private javax.swing.JPanel jogoBaralhosDoGrupoPainel;
     private javax.swing.JLabel labelFundo;
+    private javax.swing.JLabel mensagemAdicionarBaralhoGrupoInvalido;
     private javax.swing.JLabel mensagemAdicionarBaralhoInvalido;
+    private javax.swing.JLabel mensagemBaralhoDoGrupoSemCartas;
+    private javax.swing.JLabel mensagemCriarCardGrupoInvalidoLabel;
     private javax.swing.JLabel mensagemCriarCardInvalidoLabel;
     private javax.swing.JLabel mensagemCriarContaInvalidaLabel;
     private javax.swing.JLabel mensagemCriarGrupoInvalido;
+    private javax.swing.JLabel mensagemDesejaExcluirBaralho;
+    private javax.swing.JLabel mensagemEditarBaralhoGrupoInvalido;
     private javax.swing.JLabel mensagemEditarBaralhoInvalido;
+    private javax.swing.JLabel mensagemEditarEmailInvalido;
     private javax.swing.JLabel mensagemEditarGrupoInvalido;
+    private javax.swing.JLabel mensagemEditarNomeUsuarioInvalido;
+    private javax.swing.JLabel mensagemEditarPerguntaGrupoInvalida;
     private javax.swing.JLabel mensagemEditarPerguntaInvalida;
+    private javax.swing.JLabel mensagemEditarSenhaInvalido;
     private javax.swing.JLabel mensagemEmailAlunoInvalido;
+    private javax.swing.JLabel mensagemImportarBaralhoInvalido;
+    private javax.swing.JLabel mensagemRespostaInvalida;
+    private javax.swing.JLabel mensagemRespostaInvalida1;
     private javax.swing.JLabel meusBaralhosLabel;
     private javax.swing.JPanel meusBaralhosPainel;
     private javax.swing.JTable meusBaralhosTable;
     private javax.swing.JLabel meusCardsLabel;
     private javax.swing.JPanel meusCardsPanel;
     private javax.swing.JLabel meusGruposLabel;
-    private javax.swing.JLabel meusGruposLabel1;
     private javax.swing.JPanel meusGruposPainel;
     private javax.swing.JTable meusGruposTable;
-    private javax.swing.JTable meusGruposTable1;
     private javax.swing.JTable minhasCartasTable;
+    private javax.swing.JButton modoDeJogoInvertidoButton;
+    private javax.swing.JButton modoDeJogoInvertidoButton1;
+    private javax.swing.JButton modoDeJogoNormalButton;
+    private javax.swing.JButton modoDeJogoNormalButton1;
+    private javax.swing.JButton modoInserirRespostaButton;
+    private javax.swing.JButton modoInserirRespostaButton1;
+    private javax.swing.JLabel nomeDoBaralhoGrupoLabel;
     private javax.swing.JLabel nomeDoBaralhoLabel;
+    private javax.swing.JLabel nomeDoGrupoLabel;
+    private javax.swing.JLabel nomeDoGrupoLabel1;
+    private javax.swing.JTextField nomeUsuarioTF;
     private javax.swing.JPanel painelInicial;
     private javax.swing.JPanel painelJogoFinalizado;
+    private javax.swing.JPanel painelJogoFinalizado1;
+    private javax.swing.JPanel painelJogoInserir;
+    private javax.swing.JPanel painelJogoInserir1;
     private javax.swing.JPanel painelJogoNormal;
     private javax.swing.JButton proximaCartaButton;
+    private javax.swing.JButton proximaCartaButton1;
+    private javax.swing.JButton pularCarta;
+    private javax.swing.JButton pularCarta1;
     private javax.swing.JButton redirecionarTelaCriarContaButton;
     private javax.swing.JButton sairButton;
     private javax.swing.JPanel selecionarBaralhoJogarPainel;
     private javax.swing.JTable selecionarBaralhoJogarTable;
     private javax.swing.JLabel selecionarBaralhosJogarLabel;
+    private javax.swing.JPanel selecionarModoDeJogoGrupoPainel;
+    private javax.swing.JPanel selecionarModoDeJogoPainel;
     private javax.swing.JLabel senhaLabel;
+    private javax.swing.JPasswordField senhaNovaPF;
+    private javax.swing.JPasswordField senhaVelhaPF;
     private javax.swing.JButton terminarJogoVoltarPainelButton;
+    private javax.swing.JButton terminarJogoVoltarPainelButton1;
     private javax.swing.JLabel usuarioLabel;
     private javax.swing.JButton virarCardButton;
+    private javax.swing.JButton virarCardButton1;
+    private javax.swing.JButton voltarBaralhosDoGrupoButton;
+    private javax.swing.JButton voltarBaralhosGrupoButton;
+    private javax.swing.JButton voltarCardsDoGrupoPainel;
+    private javax.swing.JButton voltarCriarBaralhoButton;
     private javax.swing.JButton voltarEditarGrupoAcoesButton;
     private javax.swing.JButton voltarEditarGrupoAcoesButton2;
+    private javax.swing.JButton voltarEditarUsuario;
+    private javax.swing.JButton voltarEditarUsuario1;
+    private javax.swing.JButton voltarEditarUsuario2;
     private javax.swing.JButton voltarMeusBaralhos1;
     private javax.swing.JButton voltarMeusBaralhosButton;
     private javax.swing.JButton voltarMeusBaralhosButton2;
+    private javax.swing.JButton voltarMeusBaralhosGrupoButton;
     private javax.swing.JButton voltarMeusCardsButton;
+    private javax.swing.JButton voltarMeusCardsButton1;
     private javax.swing.JButton voltarMeusCardsButton2;
     private javax.swing.JButton voltarMeusCardsButton3;
+    private javax.swing.JButton voltarMeusGrupos;
+    private javax.swing.JButton voltarMeusGrupos1;
     private javax.swing.JButton voltarMeusGruposButton;
+    private javax.swing.JButton voltarMeusGruposButton1;
     private javax.swing.JButton voltarMeusGruposButton2;
+    private javax.swing.JButton voltarMeusGruposButton3;
     private javax.swing.JButton voltarPainelInicial1Button;
     private javax.swing.JButton voltarPainelInicial1Button1;
-    private javax.swing.JButton voltarPainelInicial1Button2;
     private javax.swing.JButton voltarPainelInicialButton;
+    private javax.swing.JButton voltarPainelInicialButton2;
     // End of variables declaration//GEN-END:variables
 }

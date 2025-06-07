@@ -10,12 +10,12 @@ package modelo;
  */
 public class Grupo {
     private int idGrupo;
-    private String nomeProfessor;
+    private Usuario professor;
     private String nomeGrupo;
 
-    public Grupo(int idGrupo, String nomeProfessor, String nomeGrupo) {
+    public Grupo(int idGrupo, Usuario professor, String nomeGrupo) {
         this.idGrupo = idGrupo;
-        this.nomeProfessor = nomeProfessor;
+        this.professor = professor;
         this.nomeGrupo = nomeGrupo;
     }
 
@@ -27,12 +27,12 @@ public class Grupo {
         this.idGrupo = idGrupo;
     }
 
-    public String getNomeProfessor() {
-        return nomeProfessor;
+    public Usuario getProfessor() {
+        return professor;
     }
 
-    public void setNomeProfessor(String nomeProfessor) {
-        this.nomeProfessor = nomeProfessor;
+    public void setProfessor(Usuario professor) {
+        this.professor = professor;
     }
 
     public String getNomeGrupo() {
@@ -43,5 +43,5 @@ public class Grupo {
         this.nomeGrupo = nomeGrupo;
     }
 
-    
+   
 }
