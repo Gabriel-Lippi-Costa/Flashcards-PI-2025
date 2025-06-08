@@ -10,7 +10,7 @@ public class ConnectionFactory {
     private String port = "10642"; 
     private String db = "flashcards";  
     private String user = "avnadmin"; 
-    private String password = System.getenv("AVNS_oju_gj4RCPrdz_tqLp4");
+    private String password = "AVNS_oju_9j4RCPrdZ_tqLp4";
 
     public Connection obterConexao() throws Exception {
         String url = String.format(
