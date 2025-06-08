@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.io.File;
 import modelo.Baralho;
 import modelo.Carta;
 import modelo.Usuario;
@@ -23,6 +24,10 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -54,12 +59,14 @@ public class CriarContaTela extends javax.swing.JFrame {
      */
     public CriarContaTela() {
         initComponents();
+        carregarMusica(caminhoMusica);
+        tocarMusica();
         editarUsuarioButton.setContentAreaFilled(false);
         redirecionarTelaCriarContaButton.setContentAreaFilled(false);
         jaTenhoContaButton.setContentAreaFilled(false);
         if (labelFundo.getIcon() instanceof ImageIcon) {
             ImageIcon labelIcon = (ImageIcon) labelFundo.getIcon();
-            Image image = labelIcon.getImage();
+            Image image2 = labelIcon.getImage();
             System.out.println("Sucesso");
         } else {
             System.out.println("erro");
@@ -69,6 +76,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         painelJogoFinalizado.setVisible(false);
         painelJogoNormal.setVisible(false);
         adicionarGrupoPainel.setVisible(false);
+        confirmarSairJogoPainel.setVisible(false);
         alunosDoGrupoTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         baralhosDoGrupoTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
         selecionarBaralhoJogarTable.getTableHeader().setDefaultRenderer(new HeaderRenderer());
@@ -216,6 +224,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                         mensagemBaralhoDoGrupoSemCartas.setText("Esse baralho ainda não tem cards");
                     } else {
                         Collections.shuffle(listaDeCartas);
+                        mensagemBaralhoDoGrupoSemCartas.setText("");
                         selecionarModoDeJogoGrupoPainel.setVisible(true);
                         baralhosDoGrupoPainel.setVisible(false);
                     }
@@ -438,6 +447,10 @@ public class CriarContaTela extends javax.swing.JFrame {
         cartasDoGrupoTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
         selecionarBaralhoJogarTable.setDefaultRenderer(Object.class, new AlternarCorLinhasRenderer());
     }
+    Clip musica;
+    boolean musicaTocando = false;
+    ImageIcon imagemSomAtivado = new ImageIcon("src/resources/imagens/som ativado.png");
+    ImageIcon imagemSomDesativado = new ImageIcon("src/resources/imagens/som desativado.png");
     int acertosJogo;
     int errosJogo;
     Usuario usuario;
@@ -458,6 +471,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     String nomeBaralho;
     Carta cartaJogo;
     final int[] indice = {0};
+    String caminhoMusica = "src/resources/audios/videoplayback.wav";
     int j;
     int a;
     int i;
@@ -467,6 +481,33 @@ public class CriarContaTela extends javax.swing.JFrame {
     int f;
     int g;
     int row;
+
+    private void tocarMusica() {
+        if (musica != null && !musica.isRunning()) {
+            musica.setFramePosition(0); // Reinicia do início
+            musica.start();
+            musica.loop(Clip.LOOP_CONTINUOUSLY); // Opcional: Loop contínuo
+            musicaTocando = true;
+        }
+    }
+
+    private void pararMusica() {
+        if (musica != null && musica.isRunning()) {
+            musica.stop();
+            musicaTocando = false;
+        }
+    }
+
+    private void carregarMusica(String caminhoArquivo) {
+        try {
+            File arquivoMusica = new File(caminhoArquivo);
+            AudioInputStream audio = AudioSystem.getAudioInputStream(arquivoMusica);
+            musica = AudioSystem.getClip();
+            musica.open(audio);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public String validarDados(String email, String senha) {
         if (senha.isEmpty() || email.isEmpty()) {
@@ -782,6 +823,11 @@ public class CriarContaTela extends javax.swing.JFrame {
         jLabel43 = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
         mensagemImportarBaralhoInvalido = new javax.swing.JLabel();
+        botaoMusica = new javax.swing.JButton();
+        confirmarSairJogoPainel = new javax.swing.JPanel();
+        mensagemDesejaExcluirBaralho1 = new javax.swing.JLabel();
+        confirmarExcluirBaralhoButton1 = new javax.swing.JButton();
+        voltarMeusBaralhosButton3 = new javax.swing.JButton();
         labelFundo = new javax.swing.JLabel();
 
         jLabel32.setText("jLabel32");
@@ -828,7 +874,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         voltarBaralhosGrupoButton.setBackground(new java.awt.Color(246, 231, 211));
         voltarBaralhosGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         voltarBaralhosGrupoButton.setForeground(new java.awt.Color(255, 255, 255));
-        voltarBaralhosGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/e093e382-363e-45a3-a9df-99fc90c2ab85.png (3).png"))); // NOI18N
+        voltarBaralhosGrupoButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/e093e382-363e-45a3-a9df-99fc90c2ab85.png (4).png"))); // NOI18N
         voltarBaralhosGrupoButton.setBorder(null);
         voltarBaralhosGrupoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -944,13 +990,13 @@ public class CriarContaTela extends javax.swing.JFrame {
         confirmarExcluirBaralhoPainelLayout.setVerticalGroup(
             confirmarExcluirBaralhoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(confirmarExcluirBaralhoPainelLayout.createSequentialGroup()
-                .addGap(58, 58, 58)
+                .addGap(112, 112, 112)
                 .addComponent(mensagemDesejaExcluirBaralho, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(58, 58, 58)
                 .addComponent(confirmarExcluirBaralhoButton)
                 .addGap(34, 34, 34)
                 .addComponent(voltarMeusBaralhosButton2)
-                .addContainerGap(167, Short.MAX_VALUE))
+                .addContainerGap(113, Short.MAX_VALUE))
         );
 
         getContentPane().add(confirmarExcluirBaralhoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
@@ -1233,30 +1279,32 @@ public class CriarContaTela extends javax.swing.JFrame {
         meusBaralhosPainel.setLayout(meusBaralhosPainelLayout);
         meusBaralhosPainelLayout.setHorizontalGroup(
             meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(meusBaralhosLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 768, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(voltarPainelInicial1Button)
-                .addGap(335, 335, 335)
-                .addComponent(irParaCriarBaralhoButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
+                        .addComponent(voltarPainelInicial1Button)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(meusBaralhosLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(irParaCriarBaralhoButton))
+                    .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 768, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         meusBaralhosPainelLayout.setVerticalGroup(
             meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(meusBaralhosPainelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(meusBaralhosLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(irParaCriarBaralhoButton)
-                    .addComponent(voltarPainelInicial1Button))
-                .addGap(41, 41, 41))
+                    .addGroup(meusBaralhosPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(meusBaralhosLabel)
+                        .addComponent(voltarPainelInicial1Button)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(61, Short.MAX_VALUE))
         );
 
         getContentPane().add(meusBaralhosPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 220, 780, 440));
@@ -1286,7 +1334,7 @@ public class CriarContaTela extends javax.swing.JFrame {
             .addGroup(painelJogoFinalizadoLayout.createSequentialGroup()
                 .addGap(168, 168, 168)
                 .addComponent(terminarJogoVoltarPainelButton)
-                .addContainerGap(169, Short.MAX_VALUE))
+                .addContainerGap(168, Short.MAX_VALUE))
         );
         painelJogoFinalizadoLayout.setVerticalGroup(
             painelJogoFinalizadoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1405,7 +1453,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         cartaAnteriorButton.setBackground(new java.awt.Color(237, 30, 82));
         cartaAnteriorButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         cartaAnteriorButton.setForeground(new java.awt.Color(255, 255, 255));
-        cartaAnteriorButton.setText("Voltar");
+        cartaAnteriorButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Anterior carta.png"))); // NOI18N
+        cartaAnteriorButton.setBorder(null);
         cartaAnteriorButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cartaAnteriorButtonActionPerformed(evt);
@@ -1425,17 +1474,19 @@ public class CriarContaTela extends javax.swing.JFrame {
         proximaCartaButton.setBackground(new java.awt.Color(237, 30, 82));
         proximaCartaButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         proximaCartaButton.setForeground(new java.awt.Color(255, 255, 255));
-        proximaCartaButton.setText("Proxima");
+        proximaCartaButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Proxima Carta.png"))); // NOI18N
+        proximaCartaButton.setBorder(null);
         proximaCartaButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 proximaCartaButtonActionPerformed(evt);
             }
         });
 
-        acerteiButton.setBackground(new java.awt.Color(237, 30, 82));
+        acerteiButton.setBackground(new java.awt.Color(246, 231, 211));
         acerteiButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         acerteiButton.setForeground(new java.awt.Color(255, 255, 255));
-        acerteiButton.setText("Acertei");
+        acerteiButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/AcerteiButton.png"))); // NOI18N
+        acerteiButton.setBorder(null);
         acerteiButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 acerteiButtonActionPerformed(evt);
@@ -1445,7 +1496,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         erreiButton.setBackground(new java.awt.Color(237, 30, 82));
         erreiButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         erreiButton.setForeground(new java.awt.Color(255, 255, 255));
-        erreiButton.setText("Errei");
+        erreiButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/errreiButton.png"))); // NOI18N
+        erreiButton.setBorder(null);
         erreiButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 erreiButtonActionPerformed(evt);
@@ -1491,56 +1543,57 @@ public class CriarContaTela extends javax.swing.JFrame {
         painelJogoNormal.setLayout(painelJogoNormalLayout);
         painelJogoNormalLayout.setHorizontalGroup(
             painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(painelJogoNormalLayout.createSequentialGroup()
-                .addGap(148, 148, 148)
-                .addComponent(virarCardButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
-                .addGap(43, 43, 43)
-                .addComponent(cartaAnteriorButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(proximaCartaButton)
-                .addGap(43, 43, 43))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
-                .addGap(73, 73, 73)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
                         .addComponent(finalizarJogoButton)
                         .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
-                            .addComponent(erreiButton)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(acerteiButton)
-                            .addGap(76, 76, 76))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
-                            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(73, 73, 73)))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
+                        .addGroup(painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(painelJogoNormalLayout.createSequentialGroup()
+                                .addComponent(cartaAnteriorButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(proximaCartaButton))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
+                                .addComponent(erreiButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(acerteiButton))
+                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(73, 73, 73))))
+            .addGroup(painelJogoNormalLayout.createSequentialGroup()
+                .addGap(150, 150, 150)
+                .addComponent(virarCardButton)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         painelJogoNormalLayout.setVerticalGroup(
             painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoNormalLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(finalizarJogoButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-                .addGroup(painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(acerteiButton)
-                    .addComponent(erreiButton))
-                .addGap(20, 20, 20)
+                .addGroup(painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(painelJogoNormalLayout.createSequentialGroup()
+                        .addComponent(finalizarJogoButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(erreiButton)
+                        .addGap(0, 2, Short.MAX_VALUE))
+                    .addGroup(painelJogoNormalLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(acerteiButton)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
                 .addComponent(virarCardButton)
-                .addGap(18, 18, 18)
-                .addGroup(painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(painelJogoNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(proximaCartaButton)
                     .addComponent(cartaAnteriorButton))
-                .addGap(22, 22, 22))
+                .addGap(18, 18, 18))
         );
 
-        getContentPane().add(painelJogoNormal, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+        getContentPane().add(painelJogoNormal, new org.netbeans.lib.awtextra.AbsoluteConstraints(318, 220, 440, 440));
 
         meusGruposPainel.setBackground(new java.awt.Color(246, 231, 211));
-        meusGruposPainel.setPreferredSize(new java.awt.Dimension(580, 460));
+        meusGruposPainel.setPreferredSize(new java.awt.Dimension(580, 440));
 
         jScrollPane4.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
             setBackground(new Color(246,231,211));
@@ -1656,38 +1709,40 @@ public class CriarContaTela extends javax.swing.JFrame {
         meusGruposPainelLayout.setHorizontalGroup(
             meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(meusGruposPainelLayout.createSequentialGroup()
-                .addGap(20, 20, 20)
                 .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(meusGruposLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
                     .addGroup(meusGruposPainelLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addComponent(voltarPainelInicial1Button1)
-                        .addGap(152, 152, 152)
+                        .addGap(97, 97, 97)
                         .addComponent(excluirGruposButton)
-                        .addGap(28, 28, 28)
+                        .addGap(108, 108, 108)
                         .addComponent(irEditarGruposButton)
-                        .addGap(28, 28, 28)
-                        .addComponent(criarGrupoButton)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addGap(108, 108, 108)
+                        .addComponent(criarGrupoButton))
+                    .addGroup(meusGruposPainelLayout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(meusGruposLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jScrollPane4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 540, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGap(18, 18, 18))
         );
         meusGruposPainelLayout.setVerticalGroup(
             meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(meusGruposPainelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(meusGruposLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(meusGruposPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(voltarPainelInicial1Button1)
-                    .addComponent(irEditarGruposButton)
                     .addComponent(excluirGruposButton)
+                    .addComponent(irEditarGruposButton)
                     .addComponent(criarGrupoButton))
-                .addContainerGap(49, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                .addComponent(meusGruposLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 248, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(69, 69, 69))
         );
 
-        getContentPane().add(meusGruposPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 210, 580, 460));
+        getContentPane().add(meusGruposPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 220, 580, 440));
 
         adicionarBaralhosPainel.setBackground(new java.awt.Color(246, 231, 211));
         adicionarBaralhosPainel.setMaximumSize(new java.awt.Dimension(440, 440));
@@ -1921,7 +1976,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         getContentPane().add(editarCartasPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         selecionarBaralhoJogarPainel.setBackground(new java.awt.Color(246, 231, 211));
-        selecionarBaralhoJogarPainel.setPreferredSize(new java.awt.Dimension(440, 478));
+        selecionarBaralhoJogarPainel.setPreferredSize(new java.awt.Dimension(440, 458));
 
         jogarButton.setBackground(new java.awt.Color(237, 30, 82));
         jogarButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -2044,10 +2099,10 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(jogarButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(baralhoSemCartasLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
-        getContentPane().add(selecionarBaralhoJogarPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
+        getContentPane().add(selecionarBaralhoJogarPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 211, -1, -1));
 
         painelInicial.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -2234,45 +2289,47 @@ public class CriarContaTela extends javax.swing.JFrame {
         meusCardsPanelLayout.setHorizontalGroup(
             meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(meusCardsLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, meusCardsPanelLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(codigoDoBaralhoLabel)
-                .addGap(14, 14, 14))
-            .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(nomeDoBaralhoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(meusCardsPanelLayout.createSequentialGroup()
                 .addContainerGap(12, Short.MAX_VALUE)
                 .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 606, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                        .addComponent(voltarMeusBaralhosButton)
-                        .addGap(225, 225, 225)
+                        .addGap(261, 261, 261)
                         .addComponent(irParaEditarBaralho)
-                        .addGap(39, 39, 39)
+                        .addGap(29, 29, 29)
                         .addComponent(irParaCriarCardButton)))
                 .addContainerGap(12, Short.MAX_VALUE))
+            .addGroup(meusCardsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusBaralhosButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(codigoDoBaralhoLabel)
+                .addGap(14, 14, 14))
+            .addComponent(nomeDoBaralhoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         meusCardsPanelLayout.setVerticalGroup(
             meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(meusCardsPanelLayout.createSequentialGroup()
-                .addContainerGap(12, Short.MAX_VALUE)
-                .addComponent(codigoDoBaralhoLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addContainerGap()
+                .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(meusCardsPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(codigoDoBaralhoLabel))
+                    .addComponent(voltarMeusBaralhosButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(nomeDoBaralhoLabel)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(meusCardsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 335, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(meusCardsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltarMeusBaralhosButton)
                     .addComponent(irParaEditarBaralho)
                     .addComponent(irParaCriarCardButton))
-                .addContainerGap())
+                .addGap(11, 11, 11))
         );
 
-        getContentPane().add(meusCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 194, 620, 492));
+        getContentPane().add(meusCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 190, 620, 492));
 
         criarContaPanel.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -2412,7 +2469,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addContainerGap(116, Short.MAX_VALUE))
         );
 
-        getContentPane().add(criarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(331, 284, -1, -1));
+        getContentPane().add(criarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
 
         criarCardsPanel.setBackground(new java.awt.Color(246, 231, 211));
         criarCardsPanel.setPreferredSize(new java.awt.Dimension(440, 440));
@@ -2684,7 +2741,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         getContentPane().add(adicionarAlunoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         baralhosDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
-        baralhosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 465));
+        baralhosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 482));
 
         jScrollPane5.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
             setBackground(new Color(246,231,211));
@@ -2809,56 +2866,55 @@ public class CriarContaTela extends javax.swing.JFrame {
         baralhosDoGrupoPainel.setLayout(baralhosDoGrupoPainelLayout);
         baralhosDoGrupoPainelLayout.setHorizontalGroup(
             baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(baralhosDoGrupoLabel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
                 .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                                .addGap(54, 54, 54)
-                                .addComponent(baralhosDoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(voltarMeusGrupos)
-                                .addGap(97, 97, 97)
+                                .addGap(126, 126, 126)
                                 .addComponent(excluirBaralhoGrupoButton)
                                 .addGap(30, 30, 30)
                                 .addComponent(editarBaralhoGrupoButton)
                                 .addGap(30, 30, 30)
-                                .addComponent(criarBaralhoGrupoButton)))
-                        .addGap(0, 3, Short.MAX_VALUE))
-                    .addComponent(nomeDoGrupoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(mensagemBaralhoDoGrupoSemCartas, javax.swing.GroupLayout.DEFAULT_SIZE, 45, Short.MAX_VALUE))
-            .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                .addComponent(criarBaralhoGrupoButton)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)))
+                    .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                        .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(nomeDoGrupoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(voltarMeusGrupos)
+                                .addGap(206, 206, 206)))
+                        .addGap(100, 100, 100)))
                 .addContainerGap())
+            .addComponent(mensagemBaralhoDoGrupoSemCartas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         baralhosDoGrupoPainelLayout.setVerticalGroup(
             baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(voltarMeusGrupos)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(nomeDoGrupoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(baralhosDoGrupoLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 306, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(4, 4, 4)
+                .addComponent(mensagemBaralhoDoGrupoSemCartas, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addComponent(mensagemBaralhoDoGrupoSemCartas))
-                    .addGroup(baralhosDoGrupoPainelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(nomeDoGrupoLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(baralhosDoGrupoLabel)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
-                .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltarMeusGrupos)
+                    .addComponent(criarBaralhoGrupoButton, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(baralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(criarBaralhoGrupoButton)
                         .addComponent(editarBaralhoGrupoButton)
                         .addComponent(excluirBaralhoGrupoButton)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(baralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 159, 440, 465));
+        getContentPane().add(baralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 199, 440, 482));
 
         adicionarGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
         adicionarGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
@@ -2948,7 +3004,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         getContentPane().add(adicionarGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         alunosDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
-        alunosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 465));
+        alunosDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 440));
 
         jScrollPane6.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
             setBackground(new Color(246,231,211));
@@ -3056,39 +3112,47 @@ public class CriarContaTela extends javax.swing.JFrame {
         alunosDoGrupoPainel.setLayout(alunosDoGrupoPainelLayout);
         alunosDoGrupoPainelLayout.setHorizontalGroup(
             alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(nomeDoGrupoLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
                 .addGap(54, 54, 54)
                 .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
-                        .addComponent(voltarMeusGrupos1)
-                        .addGap(51, 51, 51)
-                        .addComponent(irExcluirAlunosGruposButton)
-                        .addGap(55, 55, 55)
-                        .addComponent(AdicionarAlunoButton))
                     .addComponent(alunosDoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(54, Short.MAX_VALUE))
+            .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
+                .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusGrupos1))
+                    .addComponent(nomeDoGrupoLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(irExcluirAlunosGruposButton)
+                .addGap(79, 79, 79)
+                .addComponent(AdicionarAlunoButton)
+                .addGap(139, 139, 139))
         );
         alunosDoGrupoPainelLayout.setVerticalGroup(
             alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
-                .addContainerGap(18, Short.MAX_VALUE)
-                .addComponent(nomeDoGrupoLabel1)
-                .addGap(18, 18, 18)
+                .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(alunosDoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarMeusGrupos1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(nomeDoGrupoLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, alunosDoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(irExcluirAlunosGruposButton)
+                            .addComponent(AdicionarAlunoButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(alunosDoGrupoLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(alunosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltarMeusGrupos1)
-                    .addComponent(irExcluirAlunosGruposButton)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, alunosDoGrupoPainelLayout.createSequentialGroup()
-                        .addComponent(AdicionarAlunoButton)
-                        .addContainerGap())))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
-        getContentPane().add(alunosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 440, 465));
+        getContentPane().add(alunosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 440, 440));
 
         criarBaralhoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
         criarBaralhoGrupoPainel.setMaximumSize(new java.awt.Dimension(440, 440));
@@ -3202,7 +3266,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         getContentPane().add(criarBaralhoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         cartasDoGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
-        cartasDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 475));
+        cartasDoGrupoPainel.setPreferredSize(new java.awt.Dimension(440, 482));
 
         jScrollPane7.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new JPanel() {{
             setBackground(new Color(246,231,211));
@@ -3328,15 +3392,16 @@ public class CriarContaTela extends javax.swing.JFrame {
             cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(nomeDoBaralhoGrupoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, cartasDoGrupoPainelLayout.createSequentialGroup()
-                .addGap(201, 291, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(voltarBaralhosDoGrupoButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(codigoDoBaralhoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
             .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
                 .addGap(54, 54, 54)
                 .addGroup(cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
-                        .addComponent(voltarBaralhosDoGrupoButton)
-                        .addGap(54, 54, 54)
+                        .addGap(83, 83, 83)
                         .addComponent(excluirCardButton)
                         .addGap(26, 26, 26)
                         .addComponent(irEditarCartasDoGrupoButton)
@@ -3344,28 +3409,31 @@ public class CriarContaTela extends javax.swing.JFrame {
                         .addComponent(criarCartasGrupoButton))
                     .addComponent(cartasDoGrupoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 332, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(54, Short.MAX_VALUE))
         );
         cartasDoGrupoPainelLayout.setVerticalGroup(
             cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
-                .addComponent(codigoDoBaralhoGrupoLabel)
+                .addGroup(cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(codigoDoBaralhoGrupoLabel)
+                    .addGroup(cartasDoGrupoPainelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(voltarBaralhosDoGrupoButton)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(nomeDoBaralhoGrupoLabel)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(cartasDoGrupoLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(cartasDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(voltarBaralhosDoGrupoButton)
                     .addComponent(irEditarCartasDoGrupoButton)
                     .addComponent(excluirCardButton)
                     .addComponent(criarCartasGrupoButton))
-                .addGap(0, 10, Short.MAX_VALUE))
+                .addGap(0, 12, Short.MAX_VALUE))
         );
 
-        getContentPane().add(cartasDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 210, 440, 475));
+        getContentPane().add(cartasDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 199, 440, 482));
 
         criarCardsGrupoPanel.setBackground(new java.awt.Color(246, 231, 211));
         criarCardsGrupoPanel.setPreferredSize(new java.awt.Dimension(440, 440));
@@ -3462,7 +3530,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addContainerGap(113, Short.MAX_VALUE))
         );
 
-        getContentPane().add(criarCardsGrupoPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 440, 440));
+        getContentPane().add(criarCardsGrupoPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
 
         editarCartasGrupoPainel.setBackground(new java.awt.Color(246, 231, 211));
         editarCartasGrupoPainel.setForeground(new java.awt.Color(255, 255, 255));
@@ -3720,7 +3788,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         cartaAnteriorButton1.setBackground(new java.awt.Color(237, 30, 82));
         cartaAnteriorButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         cartaAnteriorButton1.setForeground(new java.awt.Color(255, 255, 255));
-        cartaAnteriorButton1.setText("Voltar");
+        cartaAnteriorButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Anterior carta.png"))); // NOI18N
+        cartaAnteriorButton1.setBorder(null);
         cartaAnteriorButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cartaAnteriorButton1ActionPerformed(evt);
@@ -3740,7 +3809,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         proximaCartaButton1.setBackground(new java.awt.Color(237, 30, 82));
         proximaCartaButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         proximaCartaButton1.setForeground(new java.awt.Color(255, 255, 255));
-        proximaCartaButton1.setText("Proxima");
+        proximaCartaButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Proxima Carta.png"))); // NOI18N
+        proximaCartaButton1.setBorder(null);
         proximaCartaButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 proximaCartaButton1ActionPerformed(evt);
@@ -3750,7 +3820,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         acerteiButton1.setBackground(new java.awt.Color(237, 30, 82));
         acerteiButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         acerteiButton1.setForeground(new java.awt.Color(255, 255, 255));
-        acerteiButton1.setText("Acertei");
+        acerteiButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/AcerteiButton.png"))); // NOI18N
+        acerteiButton1.setBorder(null);
         acerteiButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 acerteiButton1ActionPerformed(evt);
@@ -3760,7 +3831,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         erreiButton1.setBackground(new java.awt.Color(237, 30, 82));
         erreiButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         erreiButton1.setForeground(new java.awt.Color(255, 255, 255));
-        erreiButton1.setText("Errei");
+        erreiButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/errreiButton.png"))); // NOI18N
+        erreiButton1.setBorder(null);
         erreiButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 erreiButton1ActionPerformed(evt);
@@ -3806,31 +3878,28 @@ public class CriarContaTela extends javax.swing.JFrame {
         jogoBaralhosDoGrupoPainel.setLayout(jogoBaralhosDoGrupoPainelLayout);
         jogoBaralhosDoGrupoPainelLayout.setHorizontalGroup(
             jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
-                .addGap(148, 148, 148)
-                .addComponent(virarCardButton1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
-                .addGap(43, 43, 43)
-                .addComponent(cartaAnteriorButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(proximaCartaButton1)
-                .addGap(43, 43, 43))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
-                .addGap(73, 73, 73)
+                .addContainerGap(73, Short.MAX_VALUE)
                 .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
                         .addComponent(finalizarJogoButton1)
                         .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
-                            .addComponent(erreiButton1)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(acerteiButton1)
-                            .addGap(76, 76, 76))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
-                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(73, 73, 73)))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                        .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                                .addComponent(cartaAnteriorButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(proximaCartaButton1))
+                            .addGroup(jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                                .addComponent(erreiButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(acerteiButton1))
+                            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(73, 73, 73))))
+            .addGroup(jogoBaralhosDoGrupoPainelLayout.createSequentialGroup()
+                .addGap(149, 149, 149)
+                .addComponent(virarCardButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jogoBaralhosDoGrupoPainelLayout.setVerticalGroup(
             jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3839,20 +3908,20 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(finalizarJogoButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(acerteiButton1)
                     .addComponent(erreiButton1))
-                .addGap(20, 20, 20)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
                 .addComponent(virarCardButton1)
                 .addGap(18, 18, 18)
-                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jogoBaralhosDoGrupoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(proximaCartaButton1)
                     .addComponent(cartaAnteriorButton1))
                 .addGap(22, 22, 22))
         );
 
-        getContentPane().add(jogoBaralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+        getContentPane().add(jogoBaralhosDoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(318, 220, 444, 440));
 
         painelJogoFinalizado1.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -3908,7 +3977,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         pularCarta.setBackground(new java.awt.Color(237, 30, 82));
         pularCarta.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         pularCarta.setForeground(new java.awt.Color(255, 255, 255));
-        pularCarta.setText("Pular");
+        pularCarta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Proxima Carta.png"))); // NOI18N
+        pularCarta.setBorder(null);
         pularCarta.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pularCartaActionPerformed(evt);
@@ -3998,7 +4068,7 @@ public class CriarContaTela extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserirLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(finalizarJogoButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel33)
@@ -4030,7 +4100,8 @@ public class CriarContaTela extends javax.swing.JFrame {
         pularCarta1.setBackground(new java.awt.Color(237, 30, 82));
         pularCarta1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         pularCarta1.setForeground(new java.awt.Color(255, 255, 255));
-        pularCarta1.setText("Pular");
+        pularCarta1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Proxima Carta.png"))); // NOI18N
+        pularCarta1.setBorder(null);
         pularCarta1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pularCarta1ActionPerformed(evt);
@@ -4098,16 +4169,17 @@ public class CriarContaTela extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
                         .addComponent(finalizarJogoButton3)
                         .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGroup(painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
-                                .addComponent(pularCarta1)
-                                .addGap(18, 18, 18))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
-                                .addComponent(inserirRespostaTF1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(125, 125, 125)))
-                        .addComponent(mensagemRespostaInvalida1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(painelJogoInserir1Layout.createSequentialGroup()
+                            .addComponent(mensagemRespostaInvalida1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pularCarta1)
+                            .addContainerGap())
+                        .addGroup(painelJogoInserir1Layout.createSequentialGroup()
+                            .addGroup(painelJogoInserir1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(inserirRespostaTF1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(125, 125, 125)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
                         .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(77, 77, 77))
@@ -4120,7 +4192,7 @@ public class CriarContaTela extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, painelJogoInserir1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(finalizarJogoButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel34)
@@ -4190,12 +4262,12 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarUsuarioPainelLayout.setHorizontalGroup(
             editarUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, editarUsuarioPainelLayout.createSequentialGroup()
-                .addGap(0, 156, Short.MAX_VALUE)
+                .addGap(0, 149, Short.MAX_VALUE)
                 .addGroup(editarUsuarioPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(editarNomeButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(editarEmailButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(editarSenhaButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(141, 141, 141))
+                .addGap(148, 148, 148))
             .addComponent(jLabel35, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(editarUsuarioPainelLayout.createSequentialGroup()
                 .addContainerGap()
@@ -4222,15 +4294,16 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         editarUsuarioButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
         editarUsuarioButton.setForeground(new java.awt.Color(28, 181, 196));
-        editarUsuarioButton.setText("jButton1");
+        editarUsuarioButton.setText("AMA");
         editarUsuarioButton.setBorder(null);
         editarUsuarioButton.setContentAreaFilled(false);
+        editarUsuarioButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         editarUsuarioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editarUsuarioButtonActionPerformed(evt);
             }
         });
-        getContentPane().add(editarUsuarioButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 100, 100, -1));
+        getContentPane().add(editarUsuarioButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 70, 120, 20));
 
         editarNomeUsuarioPainel.setBackground(new java.awt.Color(246, 231, 211));
         editarNomeUsuarioPainel.setForeground(new java.awt.Color(255, 255, 255));
@@ -4413,6 +4486,7 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         editarSenhaPainel.setBackground(new java.awt.Color(246, 231, 211));
         editarSenhaPainel.setForeground(new java.awt.Color(255, 255, 255));
+        editarSenhaPainel.setPreferredSize(new java.awt.Dimension(440, 440));
 
         confirmarEditarSenha.setBackground(new java.awt.Color(237, 30, 82));
         confirmarEditarSenha.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -4513,7 +4587,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemEditarSenhaInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarEditarSenha)
-                .addGap(104, 104, 104))
+                .addGap(80, 80, 80))
         );
 
         getContentPane().add(editarSenhaPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -4609,6 +4683,70 @@ public class CriarContaTela extends javax.swing.JFrame {
         );
 
         getContentPane().add(importarBaralhoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
+
+        botaoMusica.setBackground(new java.awt.Color(35, 142, 104));
+        botaoMusica.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/som ativado.png"))); // NOI18N
+        botaoMusica.setBorder(null);
+        botaoMusica.setContentAreaFilled(false);
+        botaoMusica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoMusicaActionPerformed(evt);
+            }
+        });
+        getContentPane().add(botaoMusica, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 20, 60, 50));
+
+        confirmarSairJogoPainel.setBackground(new java.awt.Color(246, 231, 211));
+
+        mensagemDesejaExcluirBaralho1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        mensagemDesejaExcluirBaralho1.setForeground(new java.awt.Color(0, 0, 0));
+        mensagemDesejaExcluirBaralho1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        mensagemDesejaExcluirBaralho1.setText("Tem certeza que deseja sair?");
+
+        confirmarExcluirBaralhoButton1.setBackground(new java.awt.Color(237, 30, 82));
+        confirmarExcluirBaralhoButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        confirmarExcluirBaralhoButton1.setForeground(new java.awt.Color(255, 255, 255));
+        confirmarExcluirBaralhoButton1.setText("Sim, sair");
+        confirmarExcluirBaralhoButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                confirmarExcluirBaralhoButton1ActionPerformed(evt);
+            }
+        });
+
+        voltarMeusBaralhosButton3.setBackground(new java.awt.Color(237, 30, 82));
+        voltarMeusBaralhosButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
+        voltarMeusBaralhosButton3.setForeground(new java.awt.Color(255, 255, 255));
+        voltarMeusBaralhosButton3.setText("Não, voltar");
+        voltarMeusBaralhosButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                voltarMeusBaralhosButton3ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout confirmarSairJogoPainelLayout = new javax.swing.GroupLayout(confirmarSairJogoPainel);
+        confirmarSairJogoPainel.setLayout(confirmarSairJogoPainelLayout);
+        confirmarSairJogoPainelLayout.setHorizontalGroup(
+            confirmarSairJogoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(mensagemDesejaExcluirBaralho1, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
+            .addGroup(confirmarSairJogoPainelLayout.createSequentialGroup()
+                .addGap(152, 152, 152)
+                .addGroup(confirmarSairJogoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(confirmarExcluirBaralhoButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(voltarMeusBaralhosButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        confirmarSairJogoPainelLayout.setVerticalGroup(
+            confirmarSairJogoPainelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(confirmarSairJogoPainelLayout.createSequentialGroup()
+                .addGap(112, 112, 112)
+                .addComponent(mensagemDesejaExcluirBaralho1, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(58, 58, 58)
+                .addComponent(confirmarExcluirBaralhoButton1)
+                .addGap(34, 34, 34)
+                .addComponent(voltarMeusBaralhosButton3)
+                .addContainerGap(113, Short.MAX_VALUE))
+        );
+
+        getContentPane().add(confirmarSairJogoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
 
         labelFundo.setForeground(new java.awt.Color(168, 168, 168));
         labelFundo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Design sem nome.png"))); // NOI18N
@@ -5183,9 +5321,9 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_irParaEditarBaralhoActionPerformed
 
     private void sairButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairButtonActionPerformed
-        editarUsuarioButton.setVisible(false);
+        confirmarSairJogoPainel.setVisible(true);
         painelInicial.setVisible(false);
-        autenticarContaPanel.setVisible(true);
+        editarUsuarioButton.setVisible(false);
     }//GEN-LAST:event_sairButtonActionPerformed
 
     private void confirmarEditarBaralhoButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarBaralhoButtonActionPerformed
@@ -6385,11 +6523,13 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_editarSenhaButtonActionPerformed
 
     private void confirmarEditarNomeUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarNomeUsuarioActionPerformed
+        String nomeAntigo = "";
         try {
             if (nomeUsuarioTF.getText().equals("")) {
                 mensagemEditarNomeUsuarioInvalido.setText("Insira um nome válido");
             } else {
                 if (!nomeUsuarioTF.getText().equals(usuario.getNomeUsuario())) {
+                    nomeAntigo = usuario.getNomeUsuario();
                     usuario.setNomeUsuario(nomeUsuarioTF.getText());
                     UsuarioDAO.editar(usuario);
                     editarUsuarioButton.setText(usuario.getNomeUsuario());
@@ -6401,6 +6541,7 @@ public class CriarContaTela extends javax.swing.JFrame {
 
             }
         } catch (Exception e) {
+            usuario.setNomeUsuario(nomeAntigo);
             mensagemEditarNomeUsuarioInvalido.setText("Nome já registrado");
         }
     }//GEN-LAST:event_confirmarEditarNomeUsuarioActionPerformed
@@ -6412,11 +6553,13 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_voltarEditarUsuarioActionPerformed
 
     private void confirmarEditarEmailUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarEditarEmailUsuarioActionPerformed
+        String emailAntigo = "";
         try {
             if (emailUsuarioTF.getText().equals("")) {
                 mensagemEditarEmailInvalido.setText("Insira um email");
             } else {
                 if (!emailUsuarioTF.getText().equals(usuario.getEmail())) {
+                    emailAntigo = usuario.getEmail();
                     usuario.setEmail(emailUsuarioTF.getText());
                     UsuarioDAO.editar(usuario);
                 }
@@ -6427,6 +6570,7 @@ public class CriarContaTela extends javax.swing.JFrame {
 
             }
         } catch (Exception e) {
+            usuario.setEmail(emailAntigo);
             mensagemEditarEmailInvalido.setText("Email já registrado");
         }        // TODO add your handling code here:
     }//GEN-LAST:event_confirmarEditarEmailUsuarioActionPerformed
@@ -6546,10 +6690,32 @@ public class CriarContaTela extends javax.swing.JFrame {
     private void voltarPainelInicial1ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarPainelInicial1ButtonActionPerformed
         meusBaralhosLabel.setText("Meus baralhos");
         meusBaralhosTable.getTableHeader().setVisible(true);
+        editarUsuarioButton.setVisible(true);
         meusBaralhosPainel.setVisible(false);
         painelInicial.setVisible(true);
 // TODO add your handling code here:
     }//GEN-LAST:event_voltarPainelInicial1ButtonActionPerformed
+
+    private void botaoMusicaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botaoMusicaActionPerformed
+        if (musicaTocando) {
+            pararMusica();
+            botaoMusica.setIcon(imagemSomDesativado);
+        } else {
+            tocarMusica();
+            botaoMusica.setIcon(imagemSomAtivado);
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_botaoMusicaActionPerformed
+
+    private void confirmarExcluirBaralhoButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarExcluirBaralhoButton1ActionPerformed
+        confirmarSairJogoPainel.setVisible(false);
+        autenticarContaPanel.setVisible(true);        // TODO add your handling code here:
+    }//GEN-LAST:event_confirmarExcluirBaralhoButton1ActionPerformed
+
+    private void voltarMeusBaralhosButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_voltarMeusBaralhosButton3ActionPerformed
+        confirmarSairJogoPainel.setVisible(false);
+        editarUsuarioButton.setVisible(true);
+        painelInicial.setVisible(true);          // TODO add your handling code here:
+    }//GEN-LAST:event_voltarMeusBaralhosButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -6608,6 +6774,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JLabel baralhosDoGrupoLabel;
     private javax.swing.JPanel baralhosDoGrupoPainel;
     private javax.swing.JTable baralhosDoGrupoTable;
+    private javax.swing.JButton botaoMusica;
     private javax.swing.JPasswordField campoConfirmarSenhaPasswordField;
     private javax.swing.JTextField campoEmailAutenticarTextField;
     private javax.swing.JTextField campoEmailTextField;
@@ -6636,10 +6803,12 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JButton confirmarEditarNomeUsuario;
     private javax.swing.JButton confirmarEditarSenha;
     private javax.swing.JButton confirmarExcluirBaralhoButton;
+    private javax.swing.JButton confirmarExcluirBaralhoButton1;
     private javax.swing.JPanel confirmarExcluirBaralhoPainel;
     private javax.swing.JButton confirmarImportarBaralhoButton;
     private javax.swing.JButton confirmarRespostaButton;
     private javax.swing.JButton confirmarRespostaButton1;
+    private javax.swing.JPanel confirmarSairJogoPainel;
     private javax.swing.JLabel confirmarSenhaLabel;
     private javax.swing.JLabel conteudoCartaLabel;
     private javax.swing.JLabel conteudoCartaLabel1;
@@ -6781,6 +6950,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JLabel mensagemCriarContaInvalidaLabel;
     private javax.swing.JLabel mensagemCriarGrupoInvalido;
     private javax.swing.JLabel mensagemDesejaExcluirBaralho;
+    private javax.swing.JLabel mensagemDesejaExcluirBaralho1;
     private javax.swing.JLabel mensagemEditarBaralhoGrupoInvalido;
     private javax.swing.JLabel mensagemEditarBaralhoInvalido;
     private javax.swing.JLabel mensagemEditarEmailInvalido;
@@ -6850,6 +7020,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JButton voltarMeusBaralhos1;
     private javax.swing.JButton voltarMeusBaralhosButton;
     private javax.swing.JButton voltarMeusBaralhosButton2;
+    private javax.swing.JButton voltarMeusBaralhosButton3;
     private javax.swing.JButton voltarMeusBaralhosGrupoButton;
     private javax.swing.JButton voltarMeusCardsButton;
     private javax.swing.JButton voltarMeusCardsButton1;
