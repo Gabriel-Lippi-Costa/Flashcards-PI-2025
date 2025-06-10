@@ -95,13 +95,13 @@ public class BaralhoDAO {
         }
     }
 
-    public static Baralho importar(String id, Usuario usuario) throws Exception {
+    public static Baralho importar(int id, Usuario usuario) throws Exception {
         var sql = "SELECT id_baralho, nome_baralho, tema, id_usuario, media_de_acertos, total_de_erros, total_de_acertos FROM tb_baralhos WHERE id_baralho  = ?";
         var fabricaDeConexoes = new ConnectionFactory();
         Connection conexao = fabricaDeConexoes.obterConexao();
         PreparedStatement ps = conexao.prepareStatement(sql);
         {
-            ps.setInt(1, Integer.parseInt(id));
+            ps.setInt(1, id);
             Baralho baralho = null;
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -118,7 +118,7 @@ public class BaralhoDAO {
                 baralho = criarBaralho(baralho);
                 sql = "SELECT id_card, pergunta, resposta FROM tb_cards WHERE id_baralho  = ?";
                 ps = conexao.prepareStatement(sql);
-                ps.setInt(1, Integer.parseInt(id));
+                ps.setInt(1, id);
                 rs = ps.executeQuery();
                 {
                     while (rs.next()) {
@@ -142,4 +142,24 @@ public class BaralhoDAO {
             return baralho;
         }
     }
+  public static void criarBaralhosAutomatico(int id) throws Exception {
+    String[] comandos = {
+        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES (\"Botânica\", \"Biologia\", ?, 0, 0, 0)", 
+        "Insert into tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Genética\", \"Biologia\", ?, 0, 0, 0)",
+        "Insert into tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Ecologia\", \"Biologia\", ?, 0, 0, 0)",
+        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Past Simple\", \"Língua Inglesa\", ?, 0, 0, 0)",
+        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Present Simple\", \"Língua Inglesa\", ?, 0, 0, 0)",
+        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Future\", \"Língua Inglesa\", ?, 0, 0, 0)"
+    };
+
+    var fabricaDeConexoes = new ConnectionFactory();
+    try (Connection conexao = fabricaDeConexoes.obterConexao()) {
+        for (String comando : comandos) {
+            try (PreparedStatement ps = conexao.prepareStatement(comando)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+        }
+    }
+}
 }

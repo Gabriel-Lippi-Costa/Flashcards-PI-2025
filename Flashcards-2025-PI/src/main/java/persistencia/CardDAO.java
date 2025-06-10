@@ -95,4 +95,44 @@ public class CardDAO {
             ps.execute();
         }
     }
+    public static void criarCartasAutomatica(int id) throws Exception {
+    String[] comandos = {
+        """
+        INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)
+        VALUES("Which word is used to form questions in the past simple?", "Did", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = "Past Simple" AND id_usuario = ?), 0,0,0)""",
+        """
+ INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)
+VALUES("What is the past simple form of the verb 'go' ?", "Went", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = "Past Simple" AND id_usuario = ?), 0,0,0)""",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"How do you say 'Ele não gostou da comida' in English using the past simple?\", \"He didn't like the food\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Past Simple\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"Traduza para português a seguinte frase: 'I wrote a letter to her'.\", \"Eu escrevi uma carta para ela\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Past Simple\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"What auxiliary verb is used to make questions in the present simple (except with 'to be')?\", \"Do / Does\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Present Simple\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"How do you say 'Ele não gosta de café' in English using the present simple?\", \"He doesn't like coffee\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Present Simple\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"Traduza para português a seguinte frase: 'I work in a bank'.\", \"Eu trabalho em um banco\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Present Simple\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"What is the third person singular form of the verb 'go'?\", \"Goes\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Present Simple\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"What auxiliary verb is used to form the simple future in English?\", \"Will\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Future\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"How do you say 'Ela viajará amanhã' in English using the simple future?\", \"She will travel tomorrow\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Future\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"What is the structure of a question in the simple future?\", \"Will + subject + base verb\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Future\" AND id_usuario = ?), 0,0,0)",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos)\n" +
+"VALUES(\"What contraction is commonly used for 'will not'?\", \"Won't\", (SELECT id_baralho from tb_baralhos WHERE nome_baralho = \"Future\" AND id_usuario = ?), 0,0,0)"
+    };
+
+    var fabricaDeConexoes = new ConnectionFactory();
+    try (Connection conexao = fabricaDeConexoes.obterConexao()) {
+        for (String comando : comandos) {
+            try (PreparedStatement ps = conexao.prepareStatement(comando)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
+        }
+    }
+}
 }

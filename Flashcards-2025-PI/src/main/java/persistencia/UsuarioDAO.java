@@ -9,20 +9,26 @@ import java.sql.ResultSet;
 
 public class UsuarioDAO {
 
-    public void cadastrar(Usuario usuario) throws Exception {
-        var sql = "INSERT INTO tb_usuarios (email, nome_usuario, senha, tipo_usuario) VALUES (?, ?, ?, ?)";
-        var fabricaDeConexoes = new ConnectionFactory();
-        try(
-            Connection conexao = fabricaDeConexoes.obterConexao();
-            PreparedStatement ps = conexao.prepareStatement(sql)
-        ){
-            ps.setString(1, usuario.getEmail());
-            ps.setString(2, usuario.getNomeUsuario());
-            ps.setString(3, usuario.getSenha());
-            ps.setString(4, usuario.getTipoUsuario());
-            ps.execute();
-        }
+    public int cadastrar(Usuario usuario) throws Exception {
+    var sql = "INSERT INTO tb_usuarios (email, nome_usuario, senha, tipo_usuario) VALUES (?, ?, ?, ?)";
+    var fabricaDeConexoes = new ConnectionFactory();
+    
+    try (
+        Connection conexao = fabricaDeConexoes.obterConexao();
+        PreparedStatement ps = conexao.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)
+    ) {
+        ps.setString(1, usuario.getEmail());
+        ps.setString(2, usuario.getNomeUsuario());
+        ps.setString(3, usuario.getSenha());
+        ps.setString(4, usuario.getTipoUsuario());
+       
+        ps.executeUpdate();
+        
+        try (var rs = ps.getGeneratedKeys()) {
+            rs.next();
+                return rs.getInt(1);
     }
+}}
 
     public Usuario autenticar(Usuario usuario) throws Exception {
         var sql = "SELECT  id_usuario, email, senha, nome_usuario, tipo_usuario FROM tb_usuarios WHERE email = ? AND senha = ?";
