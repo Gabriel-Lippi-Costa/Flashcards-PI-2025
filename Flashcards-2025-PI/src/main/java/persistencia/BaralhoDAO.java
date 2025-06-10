@@ -174,11 +174,19 @@ public class BaralhoDAO {
             "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
             + "VALUES ('Primeira Guerra Mundial', 'História', ?, 0, 0, 0);",
             "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
-            + "VALUES ('Antiguidades Clássicas', 'História', ?, 0, 0, 0);"
+            + "VALUES ('Antiguidades Clássicas', 'História', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) \n" 
+            + "VALUES ('Óptica', 'Física', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) \n" 
+            + "VALUES ('Mecânica', 'Física', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) \n" 
+            + "VALUES ('Termologia', 'Física', ?, 0, 0, 0);"
+
         };
 
         var fabricaDeConexoes = new ConnectionFactory();
-        try (Connection conexao = fabricaDeConexoes.obterConexao()) {
+
+try (Connection conexao = fabricaDeConexoes.obterConexao()) {
             for (String comando : comandos) {
                 try (PreparedStatement ps = conexao.prepareStatement(comando)) {
                     ps.setInt(1, id);
