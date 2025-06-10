@@ -220,7 +220,101 @@ public class CardDAO {
 "INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
 "VALUES ('Qual fórmula calcula o volume de uma pirâmide?', 'V = (Ab × h)/3', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geometria Espacial' AND id_usuario = ?), 0, 0, 0);",
 "INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
-"VALUES ('Como calcular a área total de um cilindro?', '2πr(h + r)', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geometria Espacial' AND id_usuario = ?), 0, 0, 0);"
+"VALUES ('Como calcular a área total de um cilindro?', '2πr(h + r)', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geometria Espacial' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Em que ano ocorreu a Proclamação da República?', '1889', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'História do Brasil' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quem foi o primeiro imperador do Brasil?', 'Dom Pedro I', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'História do Brasil' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quando ocorreu a independência do Brasil?', '1822', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'História do Brasil' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quem proclamou a independência do Brasil?', 'Dom Pedro I', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'História do Brasil' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual foi a capital do Brasil antes de Brasília?', 'Rio de Janeiro', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'História do Brasil' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual foi a principal causa da guerra?', 'Assassinato do arquiduque Franz Ferdinand', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Primeira Guerra Mundial' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quais países formavam a Tríplice Entente?', 'França, Inglaterra e Rússia', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Primeira Guerra Mundial' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que foi a “Guerra de Trincheiras”?', 'Conflito estático com soldados em valas', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Primeira Guerra Mundial' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quando a guerra começou?', '1914', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Primeira Guerra Mundial' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quando terminou a guerra?', '1918', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Primeira Guerra Mundial' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual era a principal forma de governo em Atenas clássica?', 'Democracia direta', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Antiguidades Clássicas' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Quem foi Sócrates?', 'Filósofo ateniense que usava o método da maiêutica', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Antiguidades Clássicas' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual povo fundou Roma segundo a lenda?', 'Os irmãos Rômulo e Remo', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Antiguidades Clássicas' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que foi a Guerra do Peloponeso?', 'Conflito entre Atenas e Esparta no séc. V a.C.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Antiguidades Clássicas' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual era a base econômica de Roma Antiga?', 'Agricultura e trabalho escravo', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Antiguidades Clássicas' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é calor específico?', 'Quantidade de calor para aquecer 1g da substância em 1°C.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Físico-Química' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a fórmula da dilatação linear?', 'ΔL = L₀·α·ΔT', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Físico-Química' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que representa a constante de Avogadro?', 'Número de partículas em 1 mol: 6,02×10²³.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Físico-Química' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a unidade da pressão no SI?', 'Pascal (Pa)', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Físico-Química' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é entalpia?', 'Quantidade de energia de um sistema em forma de calor.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Físico-Química' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que são hidrocarbonetos?', 'Compostos formados só por carbono e hidrogênio.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Química Orgânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual a fórmula geral dos alcanos?', 'CₙH₂ₙ₊₂', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Química Orgânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que caracteriza os álcoois?', 'Presença do grupo -OH.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Química Orgânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a função do grupo carboxila?', 'Ácidos carboxílicos.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Química Orgânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é isomeria?', 'Moléculas com mesma fórmula molecular, mas diferentes estruturas.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Química Orgânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é número atômico?', 'Número de prótons no núcleo.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Atomística' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual partícula tem carga negativa?', 'Elétron.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Atomística' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que define o isótopo de um elemento?', 'Mesmo número atômico, diferente número de massa.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Atomística' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual partícula é neutra?', 'Nêutron.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Atomística' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual modelo atômico propôs elétrons em órbitas circulares?', 'Modelo de Bohr.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Atomística' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é uma bacia hidrográfica?', 'Área de terra drenada por um rio e seus afluentes.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Física' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é o principal agente do relevo?', 'Agentes externos como água e vento.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Física' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é um ecossistema?', 'Conjunto de seres vivos e ambiente que interagem.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Física' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a função das correntes marítimas?', 'Regular temperatura e transportar nutrientes.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Física' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que caracteriza um clima tropical?', 'Verões quentes e chuvosos, invernos secos.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Física' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n"+ 
+"VALUES ('O que é um Estado-nação?', 'Território com governo próprio e população definida.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Política' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual a função das fronteiras políticas?', 'Delimitar territórios entre países.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Política' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é soberania?', 'Autoridade suprema de um Estado sobre seu território.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Política' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que define uma região geopolítica?', 'Área delimitada por fatores políticos e estratégicos.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Política' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que são blocos econômicos?', 'Grupos de países que promovem integração econômica.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Geografia Política' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é desmatamento?', 'Remoção da vegetação natural.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a principal causa do efeito estufa?', 'Aumento dos gases como CO₂ na atmosfera.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que causa a poluição hídrica?', 'Descarte inadequado de resíduos em rios e lagos.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é a camada de ozônio?', 'Camada que protege a Terra da radiação ultravioleta.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual a consequência do aquecimento global?', 'Mudanças climáticas e aumento do nível do mar.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);"
+
+                
+                
+               
         };
 
         var fabricaDeConexoes = new ConnectionFactory();
