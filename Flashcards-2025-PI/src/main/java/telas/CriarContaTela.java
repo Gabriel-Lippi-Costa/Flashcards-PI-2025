@@ -12,6 +12,8 @@ import javax.swing.JPanel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.io.File;
 import modelo.Baralho;
 import modelo.Carta;
@@ -28,6 +30,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -38,6 +41,7 @@ import javax.swing.table.TableRowSorter;
 import modelo.Grupo;
 import persistencia.GrupoDAO;
 import javax.swing.RowSorter;
+import javax.swing.SwingUtilities;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 
 /**
@@ -866,7 +870,6 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarSenhaButton = new javax.swing.JButton();
         jLabel35 = new javax.swing.JLabel();
         excluirContaButton = new javax.swing.JButton();
-        editarUsuarioButton = new javax.swing.JButton();
         editarNomeUsuarioPainel = new javax.swing.JPanel();
         confirmarEditarNomeUsuario = new javax.swing.JButton();
         nomeUsuarioTF = new javax.swing.JTextField();
@@ -897,7 +900,6 @@ public class CriarContaTela extends javax.swing.JFrame {
         jLabel43 = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
         mensagemImportarBaralhoInvalido = new javax.swing.JLabel();
-        botaoMusica = new javax.swing.JButton();
         confirmarSairJogoPainel = new javax.swing.JPanel();
         mensagemDesejaExcluirBaralho1 = new javax.swing.JLabel();
         confirmarExcluirBaralhoButton1 = new javax.swing.JButton();
@@ -933,16 +935,19 @@ public class CriarContaTela extends javax.swing.JFrame {
         jLabel45 = new javax.swing.JLabel();
         jLabel46 = new javax.swing.JLabel();
         mensagemEmailInvalido = new javax.swing.JLabel();
-        excluirAlunoBotao = new javax.swing.JButton();
         confirmarExcluirUsuarioPainel = new javax.swing.JPanel();
         mensagemDesejaExcluirBaralho8 = new javax.swing.JLabel();
         confirmarExcluirBaralhoButton8 = new javax.swing.JButton();
         voltarMeusBaralhosButton10 = new javax.swing.JButton();
-        botaoSair = new javax.swing.JButton();
         confirmarSairPainel = new javax.swing.JPanel();
         mensagemDesejaExcluirBaralho9 = new javax.swing.JLabel();
         confirmarExcluirBaralhoButton9 = new javax.swing.JButton();
         voltarMeusBaralhosButton11 = new javax.swing.JButton();
+        excluirAlunoBotao = new javax.swing.JButton();
+        editarUsuarioButton = new javax.swing.JButton();
+        botaoMusica = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        botaoSair = new javax.swing.JButton();
         jLabel47 = new javax.swing.JLabel();
         labelFundo = new javax.swing.JLabel();
 
@@ -980,12 +985,12 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarNomeBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarNomeBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarNomeBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarNomeBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarNomeBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         editarTemaBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarTemaBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarTemaBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarTemaBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarTemaBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarBaralhosGrupoButton.setBackground(new java.awt.Color(246, 231, 211));
         voltarBaralhosGrupoButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -1059,7 +1064,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemEditarBaralhoGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(confirmarEditarBaralhoGrupoButton)
-                .addContainerGap(94, Short.MAX_VALUE))
+                .addContainerGap(90, Short.MAX_VALUE))
         );
 
         getContentPane().add(editarBaralhoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -1142,7 +1147,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarNomeBaralhoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarNomeBaralhoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarNomeBaralhoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarNomeBaralhoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarNomeBaralhoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
         editarNomeBaralhoCaixaDeTexto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editarNomeBaralhoCaixaDeTextoActionPerformed(evt);
@@ -1152,7 +1157,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarTemaCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarTemaCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarTemaCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarTemaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarTemaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarMeusCardsButton3.setBackground(new java.awt.Color(246, 231, 211));
         voltarMeusCardsButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -1226,7 +1231,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(confirmarEditarBaralhoButton)
                 .addGap(47, 47, 47)
                 .addComponent(mensagemEditarBaralhoInvalido)
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(63, Short.MAX_VALUE))
         );
 
         getContentPane().add(editarBaralhoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -1405,7 +1410,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         campoEmailAutenticarTextField.setMaximumSize(new java.awt.Dimension(190, 35));
         campoEmailAutenticarTextField.setMinimumSize(new java.awt.Dimension(190, 35));
         campoEmailAutenticarTextField.setName(""); // NOI18N
-        campoEmailAutenticarTextField.setPreferredSize(new java.awt.Dimension(190, 35));
+        campoEmailAutenticarTextField.setPreferredSize(new java.awt.Dimension(190, 38));
         campoEmailAutenticarTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 campoEmailAutenticarTextFieldActionPerformed(evt);
@@ -1433,7 +1438,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         campoSenhaAutenticarPasswordField.setFont(new java.awt.Font("Gill Sans MT", 0, 18)); // NOI18N
         campoSenhaAutenticarPasswordField.setMaximumSize(new java.awt.Dimension(190, 35));
         campoSenhaAutenticarPasswordField.setMinimumSize(new java.awt.Dimension(190, 35));
-        campoSenhaAutenticarPasswordField.setPreferredSize(new java.awt.Dimension(190, 35));
+        campoSenhaAutenticarPasswordField.setPreferredSize(new java.awt.Dimension(190, 38));
         campoSenhaAutenticarPasswordField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 campoSenhaAutenticarPasswordFieldActionPerformed(evt);
@@ -1498,7 +1503,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(EntrarButton, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(dadosInvalidosMensagem, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(98, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
         );
 
         getContentPane().add(autenticarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -1805,7 +1810,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirNomeBaralhoTextField.setBackground(new java.awt.Color(28, 181, 196));
         inserirNomeBaralhoTextField.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirNomeBaralhoTextField.setForeground(new java.awt.Color(0, 0, 0));
-        inserirNomeBaralhoTextField.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirNomeBaralhoTextField.setPreferredSize(new java.awt.Dimension(190, 38));
         inserirNomeBaralhoTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inserirNomeBaralhoTextFieldActionPerformed(evt);
@@ -1852,7 +1857,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirMateriaTextField.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirMateriaTextField.setForeground(new java.awt.Color(0, 0, 0));
         inserirMateriaTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        inserirMateriaTextField.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirMateriaTextField.setPreferredSize(new java.awt.Dimension(190, 38));
         inserirMateriaTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inserirMateriaTextFieldActionPerformed(evt);
@@ -1924,7 +1929,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemAdicionarBaralhoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(criarBaralhoButton)
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addContainerGap(89, Short.MAX_VALUE))
         );
 
         getContentPane().add(adicionarBaralhosPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -1945,12 +1950,12 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarPerguntaCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarPerguntaCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarPerguntaCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarPerguntaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarPerguntaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         editarRespostaCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarRespostaCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarRespostaCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarRespostaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarRespostaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarMeusCardsButton2.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusCardsButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -2023,7 +2028,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(editarRespostaCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mensagemEditarPerguntaInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(confirmarEditarCartasButton)
                 .addGap(97, 97, 97))
         );
@@ -2409,7 +2414,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         campoUsuarioTextField.setBackground(new java.awt.Color(28, 181, 196));
         campoUsuarioTextField.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         campoUsuarioTextField.setForeground(new java.awt.Color(0, 0, 0));
-        campoUsuarioTextField.setPreferredSize(new java.awt.Dimension(190, 35));
+        campoUsuarioTextField.setPreferredSize(new java.awt.Dimension(190, 38));
         campoUsuarioTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 campoUsuarioTextFieldActionPerformed(evt);
@@ -2424,7 +2429,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         campoEmailTextField.setBackground(new java.awt.Color(28, 181, 196));
         campoEmailTextField.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         campoEmailTextField.setForeground(new java.awt.Color(0, 0, 0));
-        campoEmailTextField.setPreferredSize(new java.awt.Dimension(190, 35));
+        campoEmailTextField.setPreferredSize(new java.awt.Dimension(190, 38));
 
         senhaLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         senhaLabel.setForeground(new java.awt.Color(0, 0, 0));
@@ -2433,12 +2438,12 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         campoSenhaPasswordField.setBackground(new java.awt.Color(28, 181, 196));
         campoSenhaPasswordField.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
-        campoSenhaPasswordField.setPreferredSize(new java.awt.Dimension(190, 35));
+        campoSenhaPasswordField.setPreferredSize(new java.awt.Dimension(190, 38));
 
         campoConfirmarSenhaPasswordField.setBackground(new java.awt.Color(28, 181, 196));
         campoConfirmarSenhaPasswordField.setFont(new java.awt.Font("Gill Sans MT", 1, 18)); // NOI18N
         campoConfirmarSenhaPasswordField.setForeground(new java.awt.Color(0, 0, 0));
-        campoConfirmarSenhaPasswordField.setPreferredSize(new java.awt.Dimension(190, 35));
+        campoConfirmarSenhaPasswordField.setPreferredSize(new java.awt.Dimension(190, 38));
 
         usuarioLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         usuarioLabel.setForeground(new java.awt.Color(0, 0, 0));
@@ -2523,7 +2528,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(criarContaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mensagemCriarContaInvalidaLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(111, Short.MAX_VALUE))
+                .addContainerGap(105, Short.MAX_VALUE))
         );
 
         getContentPane().add(criarContaPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
@@ -2543,11 +2548,11 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         inserirPerguntaCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirPerguntaCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        inserirPerguntaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirPerguntaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         inserirRespostaCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirRespostaCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        inserirRespostaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirRespostaCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarMeusCardsButton.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusCardsButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -2623,7 +2628,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemCriarCardInvalidoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarCriarCardButton)
-                .addContainerGap(89, Short.MAX_VALUE))
+                .addContainerGap(83, Short.MAX_VALUE))
         );
 
         getContentPane().add(criarCardsPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 160, 440, 440));
@@ -2644,7 +2649,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarNomeGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarNomeGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarNomeGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarNomeGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarNomeGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarEditarGrupoAcoesButton.setBackground(new java.awt.Color(237, 30, 82));
         voltarEditarGrupoAcoesButton.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -2708,7 +2713,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemEditarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(confirmarEditarCartasButton1)
-                .addContainerGap(124, Short.MAX_VALUE))
+                .addContainerGap(121, Short.MAX_VALUE))
         );
 
         getContentPane().add(editarGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -2729,7 +2734,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirEmailAlunoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirEmailAlunoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirEmailAlunoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        inserirEmailAlunoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirEmailAlunoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarEditarGrupoAcoesButton2.setBackground(new java.awt.Color(237, 30, 82));
         voltarEditarGrupoAcoesButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -2991,7 +2996,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirNomeGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirNomeGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirNomeGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        inserirNomeGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirNomeGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarMeusGruposButton2.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusGruposButton2.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -3053,7 +3058,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(jLabel20)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(inserirNomeGrupoCaixaDeTexto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                 .addComponent(confirmarCriarGrupoButton)
                 .addGap(65, 65, 65)
                 .addComponent(mensagemCriarGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -3220,7 +3225,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirNomeBaralhoGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirNomeBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirNomeBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        inserirNomeBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirNomeBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
         inserirNomeBaralhoGrupoCaixaDeTexto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inserirNomeBaralhoGrupoCaixaDeTextoActionPerformed(evt);
@@ -3267,7 +3272,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirTemaBaralhoGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirTemaBaralhoGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
         inserirTemaBaralhoGrupoCaixaDeTexto.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        inserirTemaBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirTemaBaralhoGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
         inserirTemaBaralhoGrupoCaixaDeTexto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inserirTemaBaralhoGrupoCaixaDeTextoActionPerformed(evt);
@@ -3321,7 +3326,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemAdicionarBaralhoGrupoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(confirmarCriarBaralhoGrupoButton)
-                .addContainerGap(106, Short.MAX_VALUE))
+                .addContainerGap(100, Short.MAX_VALUE))
         );
 
         getContentPane().add(criarBaralhoGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -3509,11 +3514,11 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         inserirPerguntaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirPerguntaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        inserirPerguntaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirPerguntaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         inserirRespostaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         inserirRespostaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
-        inserirRespostaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirRespostaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarMeusCardsButton1.setBackground(new java.awt.Color(237, 30, 82));
         voltarMeusCardsButton1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -3588,7 +3593,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemCriarCardGrupoInvalidoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarCriarCardButton1)
-                .addContainerGap(107, Short.MAX_VALUE))
+                .addContainerGap(101, Short.MAX_VALUE))
         );
 
         getContentPane().add(criarCardsGrupoPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -3609,12 +3614,12 @@ public class CriarContaTela extends javax.swing.JFrame {
         editarPerguntaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarPerguntaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarPerguntaGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarPerguntaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarPerguntaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         editarRespostaGrupoCaixaDeTexto.setBackground(new java.awt.Color(28, 181, 196));
         editarRespostaGrupoCaixaDeTexto.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         editarRespostaGrupoCaixaDeTexto.setForeground(new java.awt.Color(0, 0, 0));
-        editarRespostaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 35));
+        editarRespostaGrupoCaixaDeTexto.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarCardsDoGrupoPainel.setBackground(new java.awt.Color(237, 30, 82));
         voltarCardsDoGrupoPainel.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -3689,7 +3694,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addComponent(mensagemEditarPerguntaGrupoInvalida, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(confirmarEditarCartasGrupoButton)
-                .addContainerGap(90, Short.MAX_VALUE))
+                .addContainerGap(86, Short.MAX_VALUE))
         );
 
         getContentPane().add(editarCartasGrupoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -4082,7 +4087,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirRespostaTF.setBackground(new java.awt.Color(28, 181, 196));
         inserirRespostaTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirRespostaTF.setForeground(new java.awt.Color(0, 0, 0));
-        inserirRespostaTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirRespostaTF.setPreferredSize(new java.awt.Dimension(190, 38));
         inserirRespostaTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inserirRespostaTFActionPerformed(evt);
@@ -4135,7 +4140,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel33)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(inserirRespostaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(inserirRespostaTF, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarRespostaButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
@@ -4205,7 +4210,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         inserirRespostaTF1.setBackground(new java.awt.Color(28, 181, 196));
         inserirRespostaTF1.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         inserirRespostaTF1.setForeground(new java.awt.Color(0, 0, 0));
-        inserirRespostaTF1.setPreferredSize(new java.awt.Dimension(190, 35));
+        inserirRespostaTF1.setPreferredSize(new java.awt.Dimension(190, 38));
         inserirRespostaTF1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 inserirRespostaTF1ActionPerformed(evt);
@@ -4259,7 +4264,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel34)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(inserirRespostaTF1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(inserirRespostaTF1, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarRespostaButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(12, 12, 12)
@@ -4367,19 +4372,6 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         getContentPane().add(editarUsuarioPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
 
-        editarUsuarioButton.setBackground(new java.awt.Color(246, 231, 211));
-        editarUsuarioButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
-        editarUsuarioButton.setForeground(new java.awt.Color(28, 181, 196));
-        editarUsuarioButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/usuario botao.png"))); // NOI18N
-        editarUsuarioButton.setBorder(null);
-        editarUsuarioButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        editarUsuarioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editarUsuarioButtonActionPerformed(evt);
-            }
-        });
-        getContentPane().add(editarUsuarioButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(1025, 95, 50, 50));
-
         editarNomeUsuarioPainel.setBackground(new java.awt.Color(246, 231, 211));
         editarNomeUsuarioPainel.setForeground(new java.awt.Color(255, 255, 255));
 
@@ -4396,7 +4388,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         nomeUsuarioTF.setBackground(new java.awt.Color(28, 181, 196));
         nomeUsuarioTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         nomeUsuarioTF.setForeground(new java.awt.Color(0, 0, 0));
-        nomeUsuarioTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        nomeUsuarioTF.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarEditarUsuario.setBackground(new java.awt.Color(237, 30, 82));
         voltarEditarUsuario.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -4456,7 +4448,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(44, 44, 44)
                 .addComponent(jLabel37)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(nomeUsuarioTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(nomeUsuarioTF, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mensagemEditarNomeUsuarioInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -4482,7 +4474,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         emailUsuarioTF.setBackground(new java.awt.Color(28, 181, 196));
         emailUsuarioTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         emailUsuarioTF.setForeground(new java.awt.Color(0, 0, 0));
-        emailUsuarioTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        emailUsuarioTF.setPreferredSize(new java.awt.Dimension(190, 38));
         emailUsuarioTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 emailUsuarioTFActionPerformed(evt);
@@ -4549,12 +4541,12 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(44, 44, 44)
                 .addComponent(jLabel39)
                 .addGap(18, 18, 18)
-                .addComponent(emailUsuarioTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(emailUsuarioTF, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mensagemEditarEmailInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarEditarEmailUsuario)
-                .addContainerGap(125, Short.MAX_VALUE))
+                .addContainerGap(122, Short.MAX_VALUE))
         );
 
         getContentPane().add(editarEmailUsuarioPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
@@ -4685,7 +4677,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         codigoBaralhoTF.setBackground(new java.awt.Color(28, 181, 196));
         codigoBaralhoTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         codigoBaralhoTF.setForeground(new java.awt.Color(0, 0, 0));
-        codigoBaralhoTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        codigoBaralhoTF.setPreferredSize(new java.awt.Dimension(190, 38));
         codigoBaralhoTF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 codigoBaralhoTFActionPerformed(evt);
@@ -4751,26 +4743,15 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(52, 52, 52)
                 .addComponent(jLabel44)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(codigoBaralhoTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(codigoBaralhoTF, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(7, 7, 7)
                 .addComponent(mensagemImportarBaralhoInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(confirmarImportarBaralhoButton)
-                .addContainerGap(130, Short.MAX_VALUE))
+                .addContainerGap(127, Short.MAX_VALUE))
         );
 
         getContentPane().add(importarBaralhoPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
-
-        botaoMusica.setBackground(new java.awt.Color(35, 142, 104));
-        botaoMusica.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/som ativado.png"))); // NOI18N
-        botaoMusica.setBorder(null);
-        botaoMusica.setContentAreaFilled(false);
-        botaoMusica.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botaoMusicaActionPerformed(evt);
-            }
-        });
-        getContentPane().add(botaoMusica, new org.netbeans.lib.awtextra.AbsoluteConstraints(1026, 50, 50, 50));
 
         confirmarSairJogoPainel.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -5159,7 +5140,7 @@ public class CriarContaTela extends javax.swing.JFrame {
         emailUsuarioParaExcluirTF.setBackground(new java.awt.Color(28, 181, 196));
         emailUsuarioParaExcluirTF.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         emailUsuarioParaExcluirTF.setForeground(new java.awt.Color(0, 0, 0));
-        emailUsuarioParaExcluirTF.setPreferredSize(new java.awt.Dimension(190, 35));
+        emailUsuarioParaExcluirTF.setPreferredSize(new java.awt.Dimension(190, 38));
 
         voltarEditarGrupoAcoesButton3.setBackground(new java.awt.Color(237, 30, 82));
         voltarEditarGrupoAcoesButton3.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -5219,7 +5200,7 @@ public class CriarContaTela extends javax.swing.JFrame {
                 .addGap(44, 44, 44)
                 .addComponent(jLabel46)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(emailUsuarioParaExcluirTF, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(emailUsuarioParaExcluirTF, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(mensagemEmailInvalido, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -5228,16 +5209,6 @@ public class CriarContaTela extends javax.swing.JFrame {
         );
 
         getContentPane().add(excluirContaPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, 440, 440));
-
-        excluirAlunoBotao.setBackground(new java.awt.Color(246, 231, 211));
-        excluirAlunoBotao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/configuracoes botao_1.png"))); // NOI18N
-        excluirAlunoBotao.setBorder(null);
-        excluirAlunoBotao.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                excluirAlunoBotaoActionPerformed(evt);
-            }
-        });
-        getContentPane().add(excluirAlunoBotao, new org.netbeans.lib.awtextra.AbsoluteConstraints(1029, 140, 42, 42));
 
         confirmarExcluirUsuarioPainel.setBackground(new java.awt.Color(246, 231, 211));
 
@@ -5292,15 +5263,6 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         getContentPane().add(confirmarExcluirUsuarioPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
 
-        botaoSair.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/sair button.png"))); // NOI18N
-        botaoSair.setBorder(null);
-        botaoSair.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                botaoSairActionPerformed(evt);
-            }
-        });
-        getContentPane().add(botaoSair, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 10, -1, -1));
-
         confirmarSairPainel.setBackground(new java.awt.Color(246, 231, 211));
 
         mensagemDesejaExcluirBaralho9.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
@@ -5354,10 +5316,62 @@ public class CriarContaTela extends javax.swing.JFrame {
 
         getContentPane().add(confirmarSairPainel, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 220, -1, -1));
 
+        excluirAlunoBotao.setBackground(new java.awt.Color(246, 231, 211));
+        excluirAlunoBotao.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/configuracoes botao_1.png"))); // NOI18N
+        excluirAlunoBotao.setBorder(null);
+        excluirAlunoBotao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excluirAlunoBotaoActionPerformed(evt);
+            }
+        });
+        getContentPane().add(excluirAlunoBotao, new org.netbeans.lib.awtextra.AbsoluteConstraints(855, 10, -1, -1));
+
+        editarUsuarioButton.setBackground(new java.awt.Color(246, 231, 211));
+        editarUsuarioButton.setFont(new java.awt.Font("Comic Sans MS", 1, 12)); // NOI18N
+        editarUsuarioButton.setForeground(new java.awt.Color(28, 181, 196));
+        editarUsuarioButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/usuario botao.png"))); // NOI18N
+        editarUsuarioButton.setBorder(null);
+        editarUsuarioButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        editarUsuarioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                editarUsuarioButtonActionPerformed(evt);
+            }
+        });
+        getContentPane().add(editarUsuarioButton, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 10, 42, 42));
+
+        botaoMusica.setBackground(new java.awt.Color(35, 142, 104));
+        botaoMusica.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/som ativado.png"))); // NOI18N
+        botaoMusica.setBorder(null);
+        botaoMusica.setContentAreaFilled(false);
+        botaoMusica.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoMusicaActionPerformed(evt);
+            }
+        });
+        getContentPane().add(botaoMusica, new org.netbeans.lib.awtextra.AbsoluteConstraints(945, 10, 42, 42));
+
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/botao minimizar.png"))); // NOI18N
+        jButton1.setBorder(null);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(990, 10, -1, -1));
+
+        botaoSair.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/sair button.png"))); // NOI18N
+        botaoSair.setBorder(null);
+        botaoSair.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botaoSairActionPerformed(evt);
+            }
+        });
+        getContentPane().add(botaoSair, new org.netbeans.lib.awtextra.AbsoluteConstraints(1030, 10, -1, -1));
+
         jLabel47.setFont(new java.awt.Font("Comic Sans MS", 1, 18)); // NOI18N
         jLabel47.setForeground(new java.awt.Color(28, 181, 196));
         jLabel47.setText("PoliFlashes");
-        getContentPane().add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(900, 0, -1, -1));
+        getContentPane().add(jLabel47, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 50, -1, -1));
 
         labelFundo.setForeground(new java.awt.Color(168, 168, 168));
         labelFundo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/src.main.resources/Imagens/Design sem nome.png"))); // NOI18N
@@ -7545,6 +7559,40 @@ public class CriarContaTela extends javax.swing.JFrame {
         confirmarSairPainel.setVisible(false);// TODO add your handling code here:
     }//GEN-LAST:event_voltarMeusBaralhosButton11ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+       new Thread(() -> {
+        try {
+            Rectangle bounds = this.getBounds();
+            Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+            int targetX = screenBounds.x + 10;
+            int targetY = screenBounds.y + screenBounds.height - 40;
+            int steps = 9;
+            int delay = 14;
+            for (int i = 0; i < steps; i++) {
+                int width = bounds.width - (bounds.width * i / steps);
+                int height = bounds.height - (bounds.height * i / steps);
+                int x = bounds.x + (targetX - bounds.x) * i / steps;
+                int y = bounds.y + (targetY - bounds.y) * i / steps;
+                float opacity = 1.0f - ((float) i / steps);
+                SwingUtilities.invokeLater(() -> {
+                    this.setBounds(x, y, width, height);
+                    this.setOpacity(opacity);
+                });
+
+                Thread.sleep(delay);
+            }
+            SwingUtilities.invokeLater(() -> this.setState(JFrame.ICONIFIED));
+            SwingUtilities.invokeLater(() -> {
+                this.setBounds(bounds);
+                this.setOpacity(1.0f);
+            });
+
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+    }).start();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -7729,6 +7777,7 @@ public class CriarContaTela extends javax.swing.JFrame {
     private javax.swing.JButton irParaCriarBaralhoButton;
     private javax.swing.JButton irParaCriarCardButton;
     private javax.swing.JButton irParaEditarBaralho;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;

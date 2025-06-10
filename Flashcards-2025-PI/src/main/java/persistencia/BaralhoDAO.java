@@ -142,24 +142,31 @@ public class BaralhoDAO {
             return baralho;
         }
     }
-  public static void criarBaralhosAutomatico(int id) throws Exception {
-    String[] comandos = {
-        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES (\"Botânica\", \"Biologia\", ?, 0, 0, 0)", 
-        "Insert into tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Genética\", \"Biologia\", ?, 0, 0, 0)",
-        "Insert into tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Ecologia\", \"Biologia\", ?, 0, 0, 0)",
-        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Past Simple\", \"Língua Inglesa\", ?, 0, 0, 0)",
-        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Present Simple\", \"Língua Inglesa\", ?, 0, 0, 0)",
-        "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros,total_de_acertos, media_de_acertos) Values (\"Future\", \"Língua Inglesa\", ?, 0, 0, 0)"
-    };
 
-    var fabricaDeConexoes = new ConnectionFactory();
-    try (Connection conexao = fabricaDeConexoes.obterConexao()) {
-        for (String comando : comandos) {
-            try (PreparedStatement ps = conexao.prepareStatement(comando)) {
-                ps.setInt(1, id);
-                ps.executeUpdate();
+    public static void criarBaralhosAutomatico(int id) throws Exception {
+        String[] comandos = {
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES ('Botânica', 'Biologia', ?, 0, 0, 0)",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES ('Genética', 'Biologia', ?, 0, 0, 0)",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES ('Ecologia', 'Biologia', ?, 0, 0, 0)",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES ('Past Simple', 'Língua Inglesa', ?, 0, 0, 0)",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES ('Present Simple', 'Língua Inglesa', ?, 0, 0, 0)",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos) VALUES ('Future', 'Língua Inglesa', ?, 0, 0, 0)",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n"
+            + "VALUES ('Produtos Notáveis', 'Matemática', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n"
+            + "VALUES ('Funções', 'Matemática', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n"
+            + "VALUES ('Geometria Espacial', 'Matemática', ?, 0, 0, 0);"
+        };
+
+        var fabricaDeConexoes = new ConnectionFactory();
+        try (Connection conexao = fabricaDeConexoes.obterConexao()) {
+            for (String comando : comandos) {
+                try (PreparedStatement ps = conexao.prepareStatement(comando)) {
+                    ps.setInt(1, id);
+                    ps.executeUpdate();
+                }
             }
         }
     }
-}
 }
