@@ -310,7 +310,55 @@ public class CardDAO {
 "INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
 "VALUES ('O que é a camada de ozônio?', 'Camada que protege a Terra da radiação ultravioleta.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);",
 "INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
-"VALUES ('Qual a consequência do aquecimento global?', 'Mudanças climáticas e aumento do nível do mar.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);"
+"VALUES ('Qual a consequência do aquecimento global?', 'Mudanças climáticas e aumento do nível do mar.', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Problemas Ambientais' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Qual cor de luz desvia mais ao passar por um prisma de vidro?', 'A luz violeta, por ter menor comprimento de onda', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Óptica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Na reflexão regular, o que acontece com os raios refletidos?', 'Saem paralelos entre si', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Óptica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Como é chamado o fenômeno da decomposição da luz branca em várias cores?', 'Dispersão', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Óptica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Em qual tipo de espelho a imagem sempre é virtual, direita e menor que o objeto?', 'Convexo', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Óptica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Lei correspondente à seguinte frase: \"Um corpo em repouso permanecerá em repouso, a menos que uma força resultante atue sobre ele\".', 'Primeira Lei de Newton', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Mecânica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Um carro percorre 180 km em 2 horas. Qual é sua velocidade média em m/s?', '25 m/s', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Mecânica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Um corpo de 5 kg é elevado a uma altura de 10 metros. Qual é sua energia potencial gravitacional? (Considere g = 10 m/s²)', '500 J', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Mecânica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Uma força de 20 N é aplicada a um bloco de 4 kg. Qual é a aceleração adquirida pelo bloco?', '5 m/s²', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Mecânica' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Misturam-se 200 g de água a 80°C com 100 g de água a 20°C. Qual será a temperatura final da mistura? (Água tem calor específico c = 1 cal/g°C)', '60°C', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Termologia' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Qual a quantidade de calor necessária para transformar 100 g de gelo a 0°C em água a 0°C? (Calor latente de fusão da água: Lf = 80 cal/g)', '8.000 cal', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Termologia' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Sabendo que o calor específico do ferro é c = 0,46 cal/g°C, qual a quantidade de calor recebida?', '46.000 cal', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Termologia' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES('Quando dois corpos com temperaturas diferentes entram em contato e trocam calor até igualarem suas temperaturas, dizemos que atingiram:', 'Equilíbrio térmico', (SELECT id_baralho from tb_baralhos WHERE nome_baralho = 'Termologia' AND id_usuario = ?), 0,0,0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Em qual grupo de plantas ocorre a dupla fecundação?', 'Angiospermas', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Botânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual estrutura responsável pelo transporte de seiva bruta nas plantas?', 'Xilema', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Botânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é o nome do gameta masculino flagelado encontrado em briófitas e pteridófitas?', 'Anterozoide', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Botânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a principal função das folhas nas plantas?', 'Fotossíntese', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Botânica' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Se um heterozigoto Bb (olhos castanhos) casa com bb (olhos azuis), qual a proporção esperada na prole?', '50% castanhos e 50% azuis', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Genética' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a probabilidade de um casal heterozigoto Aa x Aa ter um filho homozigoto recessivo (aa)?', '25%', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Genética' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('O que é fenótipo?', 'Características físicas expressas pelo genótipo', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Genética' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual é a unidade básica da hereditariedade?', 'Gene', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Genética' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual o termo para a área onde um organismo vive?', 'Habitat', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Ecologia' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Como são chamados os organismos que produzem seu próprio alimento via fotossíntese?', 'Autótrofos (produtores)', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Ecologia' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Como são chamados os fatores não vivos que influenciam um ecossistema?', 'Fatores abióticos', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Ecologia' AND id_usuario = ?), 0, 0, 0);",
+"INSERT INTO tb_cards (pergunta, resposta, id_baralho, total_de_acertos, total_de_erros, media_de_acertos) \n" +
+"VALUES ('Qual o nome do modelo que representa níveis tróficos de produtores a consumidores?', 'Pirâmide de energia', (SELECT id_baralho FROM tb_baralhos WHERE nome_baralho = 'Ecologia' AND id_usuario = ?), 0, 0, 0);"
 
                 
                 
