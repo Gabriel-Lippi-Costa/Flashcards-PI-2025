@@ -18,6 +18,8 @@ import java.io.File;
 import modelo.Baralho;
 import modelo.Carta;
 import modelo.Usuario;
+import javax.swing.SwingWorker;
+import javax.swing.SwingUtilities;
 import persistencia.BaralhoDAO;
 import static persistencia.BaralhoDAO.listarBaralhos;
 import persistencia.CardDAO;
@@ -2085,17 +2087,17 @@ public class CriarContaTela extends javax.swing.JFrame {
         selecionarBaralhoJogarTable.setForeground(new java.awt.Color(0, 0, 0));
         selecionarBaralhoJogarTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
             },
             new String [] {
-                "Nome", "Matéria", "Número de cards"
+                "Nome", "Matéria"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -5383,39 +5385,53 @@ public class CriarContaTela extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void criarContaButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_criarContaButtonActionPerformed
-        // TODO add your handling code here:
-        try {
-            String email = campoEmailTextField.getText();
-            String nomeUsuario = campoUsuarioTextField.getText();
-            var pass = campoSenhaPasswordField.getPassword();
-            String senha = new String(pass);
-            String validar = validarDados(email, senha);
-            String confirmarSenha = new String(campoConfirmarSenhaPasswordField.getPassword());
-            if (validar.equals("erro")) {
-                mensagemCriarContaInvalidaLabel.setText("Preencha todos os campos");
-            } else if (validar.equals("email inválido")) {
-                mensagemCriarContaInvalidaLabel.setText("Insira um email válido");
-            } else {
-                if (senha.equals(confirmarSenha)) {
-                    int id = cadastrarUser(email, senha, nomeUsuario, validar);
-                    BaralhoDAO.criarBaralhosAutomatico(id);
-                    CardDAO.criarCartasAutomatica(id);
-                    mensagemCriarContaInvalidaLabel.setText("Conta criada com sucesso!");
-                    campoUsuarioTextField.setText("");
-                    campoEmailTextField.setText("");
-                    campoSenhaPasswordField.setText("");
-                    campoConfirmarSenhaPasswordField.setText("");
-                } else {
-                    mensagemCriarContaInvalidaLabel.setText("As senhas precisam ser iguais");
-                }
-            }
+        mensagemCriarContaInvalidaLabel.setText("Criando conta...");
 
-        } catch (SQLIntegrityConstraintViolationException e) {
-            mensagemCriarContaInvalidaLabel.setText("Email ou usuário já registrados");
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Erro inesperado");
-        }
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    String email = campoEmailTextField.getText();
+                    String nomeUsuario = campoUsuarioTextField.getText();
+                    var pass = campoSenhaPasswordField.getPassword();
+                    String senha = new String(pass);
+                    String validar = validarDados(email, senha);
+                    String confirmarSenha = new String(campoConfirmarSenhaPasswordField.getPassword());
+
+                    if (validar.equals("erro")) {
+                        mensagemCriarContaInvalidaLabel.setText("Preencha todos os campos");
+                    } else if (validar.equals("email inválido")) {
+                        mensagemCriarContaInvalidaLabel.setText("Insira um email válido");
+                    } else {
+                        if (senha.equals(confirmarSenha)) {
+                            int id = cadastrarUser(email, senha, nomeUsuario, validar);
+                            BaralhoDAO.criarBaralhosAutomatico(id);
+                            CardDAO.criarCartasAutomatica(id);
+                            SwingUtilities.invokeLater(() -> {
+                                mensagemCriarContaInvalidaLabel.setText("Conta criada com sucesso!");
+                                campoUsuarioTextField.setText("");
+                                campoEmailTextField.setText("");
+                                campoSenhaPasswordField.setText("");
+                                campoConfirmarSenhaPasswordField.setText("");
+                            });
+                        } else {
+                            SwingUtilities.invokeLater(()
+                                    -> mensagemCriarContaInvalidaLabel.setText("As senhas precisam ser iguais"));
+                        }
+                    }
+                } catch (SQLIntegrityConstraintViolationException e) {
+                    SwingUtilities.invokeLater(()
+                            -> mensagemCriarContaInvalidaLabel.setText("Email ou usuário já registrados"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeLater(()
+                            -> JOptionPane.showMessageDialog(null, "Erro inesperado"));
+                }
+                return null;
+            }
+        };
+
+        worker.execute();
     }//GEN-LAST:event_criarContaButtonActionPerformed
 
     private void campoUsuarioTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoUsuarioTextFieldActionPerformed
@@ -5437,32 +5453,51 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_campoEmailAutenticarTextFieldActionPerformed
 
     private void EntrarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EntrarButtonActionPerformed
-        try {
-            String email = campoEmailAutenticarTextField.getText();
-            var pass = campoSenhaAutenticarPasswordField.getPassword();
-            String senha = new String(pass);
-            usuario = verificarUser(email, senha);
-            if (usuario != null) {
-                painelInicial.setVisible(true);
-                autenticarContaPanel.setVisible(false);
-                editarUsuarioButton.setVisible(true);
-                listaDeBaralhos = listarBaralhos(usuario);
-                if (usuario.getTipoUsuario().equals("aluno")) {
-                    listaDeGrupos = GrupoDAO.listarGruposAlunos(usuario);
-                } else if (usuario.getTipoUsuario().equals("professor")) {
-                    listaDeGrupos = GrupoDAO.listarGruposProfessor(usuario);
-                    excluirAlunoBotao.setVisible(true);
+        dadosInvalidosMensagem.setText("Entrando...");
+
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    String email = campoEmailAutenticarTextField.getText();
+                    var pass = campoSenhaAutenticarPasswordField.getPassword();
+                    String senha = new String(pass);
+                    usuario = verificarUser(email, senha);
+
+                    if (usuario != null) {
+                        listaDeBaralhos = listarBaralhos(usuario);
+                        if (usuario.getTipoUsuario().equals("aluno")) {
+                            listaDeGrupos = GrupoDAO.listarGruposAlunos(usuario);
+                        } else if (usuario.getTipoUsuario().equals("professor")) {
+                            listaDeGrupos = GrupoDAO.listarGruposProfessor(usuario);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(null, "Tente novamente mais tarde!"));
                 }
-                campoSenhaAutenticarPasswordField.setText("");
-                campoEmailAutenticarTextField.setText("");
-                dadosInvalidosMensagem.setText("");
-            } else {
-                dadosInvalidosMensagem.setText("insira dados válidos");
+                return null;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Tente novamente mais tarde!");
-        }
+
+            @Override
+            protected void done() {
+                SwingUtilities.invokeLater(() -> {
+                    if (usuario != null) {
+                        painelInicial.setVisible(true);
+                        autenticarContaPanel.setVisible(false);
+                        editarUsuarioButton.setVisible(true);
+                        excluirAlunoBotao.setVisible(usuario.getTipoUsuario().equals("professor"));
+                        campoSenhaAutenticarPasswordField.setText("");
+                        campoEmailAutenticarTextField.setText("");
+                        dadosInvalidosMensagem.setText("");
+                    } else {
+                        dadosInvalidosMensagem.setText("Insira dados válidos");
+                    }
+                });
+            }
+        };
+
+        worker.execute();
     }//GEN-LAST:event_EntrarButtonActionPerformed
 
     private void campoSenhaAutenticarPasswordFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_campoSenhaAutenticarPasswordFieldActionPerformed
@@ -5662,23 +5697,41 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_voltarMeusCardsButton2ActionPerformed
 
     private void jogarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jogarButtonActionPerformed
-        try {
-            Object nomeBaralho = selecionarBaralhoJogarTable.getValueAt(selecionarBaralhoJogarTable.getSelectedRow(), 0);
-            for (a = 0; a < listaDeBaralhos.size(); a++) {
-                if (listaDeBaralhos.get(a).getNomeBaralho().equals(nomeBaralho)) {
-                    break;
+        baralhoSemCartasLabel.setText("Carregando baralho...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                try {
+                    Object nomeBaralho = selecionarBaralhoJogarTable.getValueAt(selecionarBaralhoJogarTable.getSelectedRow(), 0);
+                    for (a = 0; a < listaDeBaralhos.size(); a++) {
+                        if (listaDeBaralhos.get(a).getNomeBaralho().equals(nomeBaralho)) {
+                            break;
+                        }
+                    }
+                    listaDeCartas = CardDAO.listarCartas(listaDeBaralhos.get(a));
+                } catch (Exception e) {
+                    SwingUtilities.invokeLater(() -> baralhoSemCartasLabel.setText("Erro ao carregar baralho."));
+                    throw e;
                 }
+                return null;
             }
-            listaDeCartas = CardDAO.listarCartas(listaDeBaralhos.get(a));
-            if (listaDeCartas.isEmpty()) {
-                baralhoSemCartasLabel.setText("Crie cards para usar esse baralho!");
-            } else {
-                Collections.shuffle(listaDeCartas);
-                selecionarModoDeJogoPainel.setVisible(true);
-                selecionarBaralhoJogarPainel.setVisible(false);
+
+            @Override
+            protected void done() {
+                SwingUtilities.invokeLater(() -> {
+                    if (listaDeCartas.isEmpty()) {
+                        baralhoSemCartasLabel.setText("Crie cards para usar esse baralho!");
+                    } else {
+                        Collections.shuffle(listaDeCartas);
+                        selecionarModoDeJogoPainel.setVisible(true);
+                        selecionarBaralhoJogarPainel.setVisible(false);
+                        baralhoSemCartasLabel.setText("");
+                    }
+                });
             }
-        } catch (Exception e) {
-        }
+        };
+
+        worker.execute();
     }//GEN-LAST:event_jogarButtonActionPerformed
 
     private void irJogarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_irJogarButtonActionPerformed
@@ -5693,23 +5746,18 @@ public class CriarContaTela extends javax.swing.JFrame {
             selecionarBaralhosJogarLabel.setText("Selecione um baralho para jogar");
             selecionarBaralhoJogarTable.getTableHeader().setVisible(true);
         }
-        try {
-            for (Baralho baralho : listaDeBaralhos) {
-                Object[] linha = {
-                    baralho.getNomeBaralho(),
-                    baralho.getTema(), CardDAO.listarCartas(baralho).size()};
-
-                dtmJogar.addRow(linha);
-            }
-            ordenar = new TableRowSorter<>(dtmJogar);
-            selecionarBaralhoJogarTable.setRowSorter(ordenar);
-            ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
-            chaveOrdenada.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
-            ordenar.setSortKeys(chaveOrdenada);
-            ordenar.sort();
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (Baralho baralho : listaDeBaralhos) {
+            Object[] linha = {
+                baralho.getNomeBaralho(),
+                baralho.getTema()};
+            dtmJogar.addRow(linha);
         }
+        ordenar = new TableRowSorter<>(dtmJogar);
+        selecionarBaralhoJogarTable.setRowSorter(ordenar);
+        ArrayList<RowSorter.SortKey> chaveOrdenada = new ArrayList<>();
+        chaveOrdenada.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+        ordenar.setSortKeys(chaveOrdenada);
+        ordenar.sort();
         selecionarBaralhoJogarPainel.setVisible(true);
         painelInicial.setVisible(false);
     }//GEN-LAST:event_irJogarButtonActionPerformed
@@ -7560,37 +7608,37 @@ public class CriarContaTela extends javax.swing.JFrame {
     }//GEN-LAST:event_voltarMeusBaralhosButton11ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       new Thread(() -> {
-        try {
-            Rectangle bounds = this.getBounds();
-            Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-            int targetX = screenBounds.x + 10;
-            int targetY = screenBounds.y + screenBounds.height - 40;
-            int steps = 9;
-            int delay = 14;
-            for (int i = 0; i < steps; i++) {
-                int width = bounds.width - (bounds.width * i / steps);
-                int height = bounds.height - (bounds.height * i / steps);
-                int x = bounds.x + (targetX - bounds.x) * i / steps;
-                int y = bounds.y + (targetY - bounds.y) * i / steps;
-                float opacity = 1.0f - ((float) i / steps);
+        new Thread(() -> {
+            try {
+                Rectangle bounds = this.getBounds();
+                Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+                int targetX = screenBounds.x + 10;
+                int targetY = screenBounds.y + screenBounds.height - 40;
+                int steps = 9;
+                int delay = 14;
+                for (int i = 0; i < steps; i++) {
+                    int width = bounds.width - (bounds.width * i / steps);
+                    int height = bounds.height - (bounds.height * i / steps);
+                    int x = bounds.x + (targetX - bounds.x) * i / steps;
+                    int y = bounds.y + (targetY - bounds.y) * i / steps;
+                    float opacity = 1.0f - ((float) i / steps);
+                    SwingUtilities.invokeLater(() -> {
+                        this.setBounds(x, y, width, height);
+                        this.setOpacity(opacity);
+                    });
+
+                    Thread.sleep(delay);
+                }
+                SwingUtilities.invokeLater(() -> this.setState(JFrame.ICONIFIED));
                 SwingUtilities.invokeLater(() -> {
-                    this.setBounds(x, y, width, height);
-                    this.setOpacity(opacity);
+                    this.setBounds(bounds);
+                    this.setOpacity(1.0f);
                 });
 
-                Thread.sleep(delay);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
             }
-            SwingUtilities.invokeLater(() -> this.setState(JFrame.ICONIFIED));
-            SwingUtilities.invokeLater(() -> {
-                this.setBounds(bounds);
-                this.setOpacity(1.0f);
-            });
-
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-    }).start();
+        }).start();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
