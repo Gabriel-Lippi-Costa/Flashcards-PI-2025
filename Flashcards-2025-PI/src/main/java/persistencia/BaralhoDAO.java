@@ -156,7 +156,25 @@ public class BaralhoDAO {
             "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n"
             + "VALUES ('Funções', 'Matemática', ?, 0, 0, 0);",
             "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n"
-            + "VALUES ('Geometria Espacial', 'Matemática', ?, 0, 0, 0);"
+            + "VALUES ('Geometria Espacial', 'Matemática', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Química Orgânica', 'Química', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Fisico-química', 'Química', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Atomística', 'Química', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Geografia Física', 'Geografia', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Geografia Política', 'Geografia', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Problemas Ambientais', 'Geografia', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('História do Brasil', 'História', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Primeira Guerra Mundial', 'História', ?, 0, 0, 0);",
+            "INSERT INTO tb_baralhos (nome_baralho, tema, id_usuario, total_de_erros, total_de_acertos, media_de_acertos)\n "
+            + "VALUES ('Antiguidades Clássicas', 'História', ?, 0, 0, 0);"
         };
 
         var fabricaDeConexoes = new ConnectionFactory();
